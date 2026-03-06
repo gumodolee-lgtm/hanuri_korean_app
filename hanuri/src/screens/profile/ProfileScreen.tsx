@@ -1,0 +1,338 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../types/navigation';
+import { useAuthStore } from '../../store/authStore';
+import { useUserStore } from '../../store/userStore';
+import { ALL_LEVELS } from '../../data/lessons';
+import { colors, typography, spacing, borderRadius } from '../../theme';
+import {
+  requestNotificationPermission,
+  getNotificationPermissionStatus,
+  scheduleDailyReminder,
+  scheduleStreakWarning,
+  cancelDailyReminder,
+  cancelStreakWarning,
+} from '../../services/notificationService';
+
+const GOAL_LABELS: Record<string, string> = {
+  kpop: 'K-POP / 드라마',
+  travel: '여행',
+  business: '비즈니스',
+  topik: 'TOPIK 시험',
+  relationship: '인간관계',
+};
+
+const LANG_FLAGS: Record<string, string> = {
+  en: '🇺🇸 English',
+  es: '🇪🇸 Español',
+  zh: '🇨🇳 中文',
+  ja: '🇯🇵 日本語',
+  vi: '🇻🇳 Tiếng Việt',
+};
+
+const BADGE_TEMPLATES = [
+  { id: 'first_lesson', emoji: '🎯', name: '첫 레슨', desc: '첫 레슨 완료' },
+  { id: 'week_streak', emoji: '🔥', name: '7일 연속', desc: '7일 연속 학습' },
+  { id: 'vocab_100', emoji: '📖', name: '단어 달인', desc: 'XP 500 달성' },
+  { id: 'ai_chat_5', emoji: '🗣️', name: 'AI 대화왕', desc: 'AI 대화 시작' },
+  { id: 'perfect_quiz', emoji: '💯', name: '퀴즈 마스터', desc: '퀴즈 100% 달성' },
+  { id: 'level_up', emoji: '⬆️', name: '레벨업', desc: '다음 레벨 도달' },
+];
+
+type NavProp = StackNavigationProp<RootStackParamList>;
+
+export default function ProfileScreen() {
+  const navigation = useNavigation<NavProp>();
+  const { user, signOut } = useAuthStore();
+  const { xp, streak, progress } = useUserStore();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const isPro = user?.isPro ?? false;
+
+  useEffect(() => {
+    getNotificationPermissionStatus().then((status) => {
+      setNotificationsEnabled(status === 'granted');
+    });
+  }, []);
+
+  const handleNotificationToggle = async (value: boolean) => {
+    if (value) {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        await scheduleDailyReminder({ hour: 20, minute: 0 });
+        await scheduleStreakWarning();
+        setNotificationsEnabled(true);
+      } else {
+        Alert.alert(
+          '알림 권한 필요',
+          '설정 앱에서 하누리 알림을 허용해주세요.',
+          [{ text: '확인' }]
+        );
+      }
+    } else {
+      await cancelDailyReminder();
+      await cancelStreakWarning();
+      setNotificationsEnabled(false);
+    }
+  };
+
+  const currentLevel = user?.current_level ?? 1;
+  const levelInfo = ALL_LEVELS.find((l) => l.level === currentLevel);
+  const xpForNext = currentLevel * 100;
+  const xpProgress = Math.min((xp % xpForNext) / xpForNext, 1);
+  const completedLessons = progress.filter((p) => p.status === 'completed').length;
+
+  const unlockedBadges = new Set<string>();
+  if (completedLessons >= 1) unlockedBadges.add('first_lesson');
+  if (streak >= 7) unlockedBadges.add('week_streak');
+  if (xp >= 500) unlockedBadges.add('vocab_100');
+  if (progress.some((p) => p.score === 100)) unlockedBadges.add('perfect_quiz');
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarEmoji}>{levelInfo?.emoji ?? '🌱'}</Text>
+          </View>
+          <View style={styles.levelTitleRow}>
+            <Text style={styles.levelTitle}>{levelInfo?.titleKo ?? '초급'} 학습자</Text>
+            {isPro && (
+              <View style={styles.proBadge}>
+                <Text style={styles.proBadgeText}>👑 PRO</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.goalLabel}>{GOAL_LABELS[user?.learning_goal ?? 'travel']} 목표</Text>
+          <Text style={styles.langLabel}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
+        </View>
+
+        {/* PRO Upgrade Banner (only for non-PRO) */}
+        {!isPro && (
+          <TouchableOpacity
+            style={styles.upgradeBanner}
+            onPress={() => navigation.navigate('ProUpgrade')}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.upgradeBannerEmoji}>👑</Text>
+            <View style={styles.upgradeBannerText}>
+              <Text style={styles.upgradeBannerTitle}>HANURI PRO로 업그레이드</Text>
+              <Text style={styles.upgradeBannerSub}>비즈니스 · TOPIK · 무제한 AI 대화</Text>
+            </View>
+            <Text style={styles.upgradeBannerArrow}>›</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statBox}>
+            <Text style={styles.statValue}>{xp}</Text>
+            <Text style={styles.statLabel}>총 XP</Text>
+          </View>
+          <View style={[styles.statBox, styles.statBoxMiddle]}>
+            <Text style={styles.statValue}>{streak}</Text>
+            <Text style={styles.statLabel}>🔥 연속</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Text style={styles.statValue}>{completedLessons}</Text>
+            <Text style={styles.statLabel}>완료 레슨</Text>
+          </View>
+        </View>
+
+        {/* Level Progress */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Lv.{currentLevel} → Lv.{currentLevel + 1}</Text>
+            <Text style={styles.cardSub}>{xp % xpForNext} / {xpForNext} XP</Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${xpProgress * 100}%` }]} />
+          </View>
+          <Text style={styles.progressHint}>다음 레벨까지 {xpForNext - (xp % xpForNext)} XP 남았어요!</Text>
+        </View>
+
+        {/* Badges */}
+        <Text style={styles.sectionTitle}>🏅 배지</Text>
+        <View style={styles.badgeGrid}>
+          {BADGE_TEMPLATES.map((badge) => {
+            const unlocked = unlockedBadges.has(badge.id);
+            return (
+              <View key={badge.id} style={[styles.badgeCard, !unlocked && styles.badgeLocked]}>
+                <Text style={styles.badgeEmoji}>{unlocked ? badge.emoji : '🔒'}</Text>
+                <Text style={[styles.badgeName, !unlocked && styles.badgeNameLocked]}>{badge.name}</Text>
+                <Text style={styles.badgeDesc}>{badge.desc}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Settings */}
+        <Text style={styles.sectionTitle}>⚙️ 설정</Text>
+        <View style={styles.settingsCard}>
+          <View style={styles.settingRow}>
+            <View>
+              <Text style={styles.settingLabel}>📅 학습 알림</Text>
+              <Text style={styles.settingHint}>매일 오후 8시 리마인더</Text>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleNotificationToggle}
+              trackColor={{ false: colors.border, true: colors.primary + '88' }}
+              thumbColor={notificationsEnabled ? colors.primary : '#f4f3f4'}
+            />
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>🎯 일일 목표</Text>
+            <Text style={styles.settingValue}>{user?.daily_goal_minutes ?? 15}분</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>🌍 모국어</Text>
+            <Text style={styles.settingValue}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.signOutBtn} onPress={signOut}>
+          <Text style={styles.signOutText}>로그아웃</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: spacing.xl }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { padding: spacing.md, gap: spacing.md },
+
+  profileCard: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  avatarCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarEmoji: { fontSize: 40 },
+  levelTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  levelTitle: { ...typography.h2, color: colors.white, fontWeight: '800' },
+  proBadge: {
+    backgroundColor: '#FFD93D',
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  proBadgeText: { fontSize: 12, fontWeight: '900', color: colors.dark },
+  goalLabel: { ...typography.body, color: 'rgba(255,255,255,0.85)' },
+  langLabel: { ...typography.caption, color: 'rgba(255,255,255,0.7)' },
+
+  upgradeBanner: {
+    backgroundColor: '#FFF9E6',
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderWidth: 1.5,
+    borderColor: '#FFD93D',
+  },
+  upgradeBannerEmoji: { fontSize: 28 },
+  upgradeBannerText: { flex: 1 },
+  upgradeBannerTitle: { ...typography.body, color: colors.dark, fontWeight: '700' },
+  upgradeBannerSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
+  upgradeBannerArrow: { fontSize: 24, color: colors.gray },
+
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+  },
+  statBox: { flex: 1, padding: spacing.md, alignItems: 'center', gap: 4 },
+  statBoxMiddle: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+  statValue: { fontSize: 24, fontWeight: '800', color: colors.dark },
+  statLabel: { ...typography.caption, color: colors.gray },
+
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
+  cardSub: { ...typography.caption, color: colors.gray },
+  progressBar: {
+    height: 10,
+    backgroundColor: colors.border,
+    borderRadius: borderRadius.full,
+    overflow: 'hidden',
+  },
+  progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: borderRadius.full },
+  progressHint: { ...typography.caption, color: colors.gray, textAlign: 'center' },
+
+  sectionTitle: { ...typography.h3, color: colors.dark },
+
+  badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  badgeCard: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    gap: 4,
+    minWidth: '30%',
+    flexGrow: 1,
+  },
+  badgeLocked: { opacity: 0.4 },
+  badgeEmoji: { fontSize: 28 },
+  badgeName: { ...typography.caption, color: colors.dark, fontWeight: '700', textAlign: 'center' },
+  badgeNameLocked: { color: colors.gray },
+  badgeDesc: { fontSize: 10, color: colors.gray, textAlign: 'center' },
+
+  settingsCard: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.md,
+  },
+  settingLabel: { ...typography.body, color: colors.dark },
+  settingHint: { ...typography.caption, color: colors.gray, marginTop: 2 },
+  settingValue: { ...typography.body, color: colors.gray },
+  divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.md },
+
+  signOutBtn: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  signOutText: { ...typography.body, color: colors.gray },
+});
