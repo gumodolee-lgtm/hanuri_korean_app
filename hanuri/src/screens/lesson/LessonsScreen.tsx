@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -14,6 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS, LessonData } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 
@@ -22,6 +23,7 @@ export default function LessonsScreen() {
   const { user } = useAuthStore();
   const { progress } = useUserStore();
   const currentLevel = user?.current_level ?? 1;
+  const t = useT();
 
   const [selectedLevel, setSelectedLevel] = useState(currentLevel);
 
@@ -45,7 +47,7 @@ export default function LessonsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>📚 레슨</Text>
+        <Text style={styles.headerTitle}>{t.lessons.title}</Text>
       </View>
 
       {/* Level Selector */}
@@ -74,11 +76,11 @@ export default function LessonsScreen() {
             </TouchableOpacity>
           );
         })}
-        {[2, 3, 4, 5].map((lvl) => (
+        {Array.from({ length: 12 - ALL_LEVELS.length }, (_, i) => ALL_LEVELS.length + i + 1).map((lvl) => (
           <TouchableOpacity key={`future-${lvl}`} style={[styles.levelTab, styles.levelTabLocked]} disabled>
             <Text style={styles.levelTabEmoji}>🔒</Text>
             <Text style={styles.levelTabText}>Lv.{lvl}</Text>
-            <Text style={styles.levelTabSub}>준비 중</Text>
+            <Text style={styles.levelTabSub}>{t.lessons.comingSoon}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -115,7 +117,7 @@ export default function LessonsScreen() {
                         {lesson.titleKo}
                       </Text>
                       <Text style={styles.lessonSub}>
-                        {lesson.estimatedMinutes}분 · +{lesson.xpReward} XP
+                        {lesson.estimatedMinutes}{t.lessons.minUnit} · +{lesson.xpReward} XP
                       </Text>
                     </View>
                   </View>

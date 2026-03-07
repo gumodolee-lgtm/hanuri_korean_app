@@ -3,26 +3,19 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
 import { SCENARIOS, ScenarioData } from '../../data/scenarios';
 import { useAuthStore } from '../../store/authStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
-
-const DIFFICULTY_LABELS: Record<number, string> = {
-  1: '초급',
-  2: '중하급',
-  3: '중급',
-  4: '중상급',
-  5: '고급',
-};
 
 const DIFFICULTY_COLORS: Record<number, string> = {
   1: '#4ECDC4',
@@ -57,6 +50,7 @@ function ScenarioCard({
   onPress: () => void;
   locked: boolean;
 }) {
+  const t = useT();
   return (
     <TouchableOpacity
       style={[styles.card, scenario.isPro && styles.cardPro, locked && styles.cardLocked]}
@@ -78,12 +72,12 @@ function ScenarioCard({
         </View>
         <Text style={styles.cardDesc}>{scenario.description}</Text>
         {locked ? (
-          <Text style={styles.lockHint}>PRO로 업그레이드하면 이용할 수 있어요</Text>
+          <Text style={styles.lockHint}>{t.aiHub.proLocked}</Text>
         ) : (
           <View style={styles.cardFooter}>
             <DifficultyDots level={scenario.difficulty} />
             <Text style={[styles.diffLabel, { color: DIFFICULTY_COLORS[scenario.difficulty] }]}>
-              {DIFFICULTY_LABELS[scenario.difficulty]}
+              {t.aiHub.difficulty[scenario.difficulty]}
             </Text>
             <View style={styles.tagsRow}>
               {scenario.tags.slice(0, 2).map((tag) => (
@@ -104,6 +98,7 @@ export default function AIHubScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
   const isPro = user?.isPro ?? false;
+  const t = useT();
 
   const handleStart = (scenario: ScenarioData) => {
     if (scenario.isPro && !isPro) {
@@ -119,14 +114,14 @@ export default function AIHubScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🗣️ AI 대화</Text>
-        <Text style={styles.headerSub}>원하는 상황을 선택하고 AI와 한국어로 대화해봐요</Text>
+        <Text style={styles.headerTitle}>{t.aiHub.title}</Text>
+        <Text style={styles.headerSub}>{t.aiHub.subtitle}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
         {/* Free scenarios */}
-        <Text style={styles.sectionTitle}>무료 시나리오</Text>
+        <Text style={styles.sectionTitle}>{t.aiHub.freeScenarios}</Text>
         {freeScenarios.map((scenario) => (
           <ScenarioCard
             key={scenario.id}
@@ -138,13 +133,13 @@ export default function AIHubScreen() {
 
         {/* Pro scenarios */}
         <View style={styles.proSectionHeader}>
-          <Text style={styles.sectionTitle}>PRO 시나리오</Text>
+          <Text style={styles.sectionTitle}>{t.aiHub.proScenarios}</Text>
           {!isPro && (
             <TouchableOpacity
               style={styles.upgradeChip}
               onPress={() => navigation.navigate('ProUpgrade')}
             >
-              <Text style={styles.upgradeChipText}>👑 업그레이드</Text>
+              <Text style={styles.upgradeChipText}>{t.aiHub.upgrade}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -159,10 +154,10 @@ export default function AIHubScreen() {
 
         {/* Tips */}
         <View style={styles.tipBox}>
-          <Text style={styles.tipTitle}>💡 AI 대화 팁</Text>
-          <Text style={styles.tipText}>• 틀려도 괜찮아요! AI가 자동으로 교정해줘요</Text>
-          <Text style={styles.tipText}>• 한국어로만 대화하면 실력이 훨씬 빨리 늘어요</Text>
-          <Text style={styles.tipText}>• [교정:] 부분을 꼭 읽어보세요</Text>
+          <Text style={styles.tipTitle}>{t.aiHub.tipTitle}</Text>
+          <Text style={styles.tipText}>{t.aiHub.tip1}</Text>
+          <Text style={styles.tipText}>{t.aiHub.tip2}</Text>
+          <Text style={styles.tipText}>{t.aiHub.tip3}</Text>
         </View>
 
         <View style={{ height: spacing.xl }} />

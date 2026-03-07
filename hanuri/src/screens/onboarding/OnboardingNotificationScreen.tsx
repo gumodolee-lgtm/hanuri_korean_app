@@ -1,22 +1,41 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
+import { useT } from '../../i18n';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import {
+  requestNotificationPermission,
+  scheduleDailyReminder,
+  scheduleStreakWarning,
+} from '../../services/notificationService';
 
-const timeSlots = [
-  { icon: '🌅', label: '오전 8:00', sub: '추천', value: '08:00' },
-  { icon: '🌆', label: '오후 7:00', sub: '', value: '19:00' },
-  { icon: '🌙', label: '오후 10:00', sub: '', value: '22:00' },
-  { icon: '⚙️', label: '직접 설정', sub: '', value: 'custom' },
-];
+const TIME_TO_HOUR: Record<string, number> = {
+  '08:00': 8,
+  '19:00': 19,
+  '22:00': 22,
+};
 
 export default function OnboardingNotificationScreen() {
   const { completeOnboarding } = useAuthStore();
+  const t = useT();
   const [selected, setSelected] = React.useState('08:00');
 
-  const handleComplete = () => {
+  const timeSlots = [
+    { icon: '🌅', label: t.onboarding.notifMorning, sub: t.onboarding.recommended, value: '08:00' },
+    { icon: '🌆', label: t.onboarding.notifEvening, sub: '', value: '19:00' },
+    { icon: '🌙', label: t.onboarding.notifNight, sub: '', value: '22:00' },
+    { icon: '⚙️', label: t.onboarding.notifCustom, sub: '', value: 'custom' },
+  ];
+
+  const handleComplete = async () => {
+    const hour = selected !== 'custom' ? TIME_TO_HOUR[selected] ?? 20 : 20;
+    const granted = await requestNotificationPermission();
+    if (granted) {
+      await scheduleDailyReminder({ hour, minute: 0 });
+      await scheduleStreakWarning();
+    }
     completeOnboarding();
-    // RootNavigator will automatically switch to Main when user state is set
   };
 
   return (
@@ -29,7 +48,7 @@ export default function OnboardingNotificationScreen() {
         </View>
 
         <Text style={styles.emoji}>🔔</Text>
-        <Text style={styles.title}>학습 알림을 설정하세요</Text>
+        <Text style={styles.title}>{t.onboarding.notifTitle}</Text>
 
         <View style={styles.options}>
           {timeSlots.map((slot) => (
@@ -50,10 +69,10 @@ export default function OnboardingNotificationScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.nextBtn} onPress={handleComplete}>
-          <Text style={styles.nextBtnText}>시작하기 🚀</Text>
+          <Text style={styles.nextBtnText}>{t.onboarding.startApp}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleComplete}>
-          <Text style={styles.skipText}>건너뛰기</Text>
+          <Text style={styles.skipText}>{t.onboarding.skip}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -70,36 +89,21 @@ const styles = StyleSheet.create({
   title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
   options: { gap: spacing.sm },
   option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
+    backgroundColor: colors.white, borderRadius: borderRadius.md,
+    padding: spacing.md, borderWidth: 2, borderColor: 'transparent',
   },
   optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
   icon: { fontSize: 24 },
   optionText: { ...typography.body, color: colors.dark, flex: 1 },
   optionTextSelected: { color: colors.primary, fontWeight: '700' },
   badge: {
-    backgroundColor: colors.accent,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    borderRadius: borderRadius.full,
-    fontSize: 12,
-    color: colors.dark,
-    fontWeight: '600',
-    overflow: 'hidden',
+    backgroundColor: colors.secondary + '30', paddingHorizontal: spacing.sm,
+    paddingVertical: 2, borderRadius: borderRadius.full, fontSize: 12,
+    color: colors.dark, fontWeight: '600', overflow: 'hidden',
   },
   footer: { padding: spacing.lg, gap: spacing.sm },
-  nextBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
+  nextBtn: { backgroundColor: colors.primary, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center' },
   nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
   skipText: { ...typography.body, color: colors.gray, textAlign: 'center' },
 });

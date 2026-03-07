@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -14,21 +14,24 @@ import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { getFirstLesson, ALL_LEVELS } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
+import { LearningGoal } from '../../types';
+
+const GOAL_CONTEXT: Record<LearningGoal, string> = {
+  kpop: 'K-pop · 드라마 기초 필수 표현 🎵',
+  travel: '여행 필수 표현 ✈️',
+  business: '비즈니스 한국어 기초 💼',
+  topik: 'TOPIK 기초 대비 📝',
+  relationship: '일상 대화 기초 ❤️',
+};
 
 type NavProp = StackNavigationProp<RootStackParamList>;
-
-const GOAL_LABELS: Record<string, string> = {
-  kpop: 'K-POP / 드라마',
-  travel: '여행',
-  business: '비즈니스',
-  topik: 'TOPIK 시험',
-  relationship: '인간관계',
-};
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
   const { xp, streak, todayMinutes, checkAndUpdateStreak } = useUserStore();
+  const t = useT();
 
   // 앱 진입 시 스트릭 체크 (userId 전달 → Supabase 동기화)
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function HomeScreen() {
   };
 
   const handleAIChat = () => {
-    // Navigate to AI tab - handled by tab navigator
+    (navigation as any).navigate('AIHub');
   };
 
   return (
@@ -62,8 +65,8 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>안녕하세요! 👋</Text>
-            <Text style={styles.goalLabel}>목표: {GOAL_LABELS[learningGoal]}</Text>
+            <Text style={styles.greeting}>{t.home.greeting}</Text>
+            <Text style={styles.goalLabel}>{t.home.goalPrefix} {t.goalLabels[learningGoal]}</Text>
           </View>
           <View style={styles.levelBadge}>
             <Text style={styles.levelEmoji}>{levelInfo?.emoji ?? '🌱'}</Text>
@@ -76,38 +79,38 @@ export default function HomeScreen() {
           <View style={[styles.statCard, { backgroundColor: '#FF6B6B' }]}>
             <Text style={styles.statIcon}>🔥</Text>
             <Text style={styles.statValue}>{streak}</Text>
-            <Text style={styles.statLabel}>연속 학습</Text>
+            <Text style={styles.statLabel}>{t.home.streakLabel}</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: '#4ECDC4' }]}>
             <Text style={styles.statIcon}>💎</Text>
             <Text style={styles.statValue}>{xp}</Text>
-            <Text style={styles.statLabel}>총 XP</Text>
+            <Text style={styles.statLabel}>{t.home.xpLabel}</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: '#FFD93D' }]}>
             <Text style={styles.statIcon}>⭐</Text>
             <Text style={styles.statValue}>{Math.floor(xp / 100)}</Text>
-            <Text style={styles.statLabel}>완료 레슨</Text>
+            <Text style={styles.statLabel}>{t.home.completedLabel}</Text>
           </View>
         </View>
 
         {/* Daily Goal Progress */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>오늘의 목표</Text>
-            <Text style={styles.cardSub}>{todayMinutes}분 / {dailyGoal}분</Text>
+            <Text style={styles.cardTitle}>{t.home.dailyGoalTitle}</Text>
+            <Text style={styles.cardSub}>{todayMinutes}{t.home.minUnit} / {dailyGoal}{t.home.minUnit}</Text>
           </View>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${Math.min((todayMinutes / dailyGoal) * 100, 100)}%` }]} />
           </View>
           <Text style={styles.progressHint}>
-            {todayMinutes >= dailyGoal ? '🎉 오늘 목표 달성!' : '오늘 첫 레슨을 시작해보세요!'}
+            {todayMinutes >= dailyGoal ? t.home.goalAchieved : t.home.startFirstLesson}
           </Text>
         </View>
 
         {/* XP Level Progress */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>레벨 진행도</Text>
+            <Text style={styles.cardTitle}>{t.home.levelProgress}</Text>
             <Text style={styles.cardSub}>{xp % xpForNextLevel} / {xpForNextLevel} XP</Text>
           </View>
           <View style={styles.progressBar}>
@@ -118,39 +121,39 @@ export default function HomeScreen() {
         {/* Continue Learning */}
         {firstLesson && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>📍 지금 시작하기</Text>
+            <Text style={styles.cardLabel}>{GOAL_CONTEXT[learningGoal as LearningGoal] ?? t.home.startNow}</Text>
             <View style={styles.lessonInfo}>
               <Text style={styles.lessonEmoji}>{firstLesson.emoji}</Text>
               <View style={styles.lessonMeta}>
                 <Text style={styles.lessonTitle}>{firstLesson.titleKo}</Text>
                 <Text style={styles.lessonSub}>
-                  Level {firstLesson.level} · Unit {firstLesson.unit} · {firstLesson.estimatedMinutes}분 · +{firstLesson.xpReward} XP
+                  Level {firstLesson.level} · Unit {firstLesson.unit} · {firstLesson.estimatedMinutes}{t.home.minUnit} · +{firstLesson.xpReward} XP
                 </Text>
               </View>
             </View>
             <TouchableOpacity style={styles.continueBtn} onPress={handleStartLesson}>
-              <Text style={styles.continueBtnText}>▶ 레슨 시작하기</Text>
+              <Text style={styles.continueBtnText}>{t.home.startLessonBtn}</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Quick Start */}
-        <Text style={styles.sectionTitle}>⚡ 빠른 시작</Text>
+        <Text style={styles.sectionTitle}>{t.home.quickStart}</Text>
         <View style={styles.quickRow}>
           <TouchableOpacity style={styles.quickCard} onPress={handleAIChat}>
             <Text style={styles.quickIcon}>🗣️</Text>
-            <Text style={styles.quickLabel}>AI 대화</Text>
-            <Text style={styles.quickSub}>자유 회화</Text>
+            <Text style={styles.quickLabel}>{t.home.aiChatLabel}</Text>
+            <Text style={styles.quickSub}>{t.home.aiChatSub}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.quickCard} onPress={handleStartLesson}>
             <Text style={styles.quickIcon}>📝</Text>
-            <Text style={styles.quickLabel}>오늘의 단어</Text>
-            <Text style={styles.quickSub}>5분 완성</Text>
+            <Text style={styles.quickLabel}>{t.home.todaysWord}</Text>
+            <Text style={styles.quickSub}>{t.home.todaysWordSub}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.quickCard}>
             <Text style={styles.quickIcon}>🎵</Text>
-            <Text style={styles.quickLabel}>K-POP</Text>
-            <Text style={styles.quickSub}>Coming soon</Text>
+            <Text style={styles.quickLabel}>{t.home.kpop}</Text>
+            <Text style={styles.quickSub}>{t.home.comingSoon}</Text>
           </TouchableOpacity>
         </View>
 

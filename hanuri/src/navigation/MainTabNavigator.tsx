@@ -1,8 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from '../types/navigation';
 import { colors, typography } from '../theme';
+import { useT } from '../i18n';
 import HomeScreen from '../screens/home/HomeScreen';
 import LessonsScreen from '../screens/lesson/LessonsScreen';
 import AIHubScreen from '../screens/ai-chat/AIHubScreen';
@@ -19,21 +21,24 @@ const tabIcons: Record<string, string> = {
   Profile: '👤',
 };
 
-const tabLabels: Record<string, string> = {
-  Home: '홈',
-  Lessons: '레슨',
-  AIHub: 'AI대화',
-  Leaderboard: '랭킹',
-  Profile: '나',
-};
-
 export default function MainTabNavigator() {
+  const t = useT();
+  const insets = useSafeAreaInsets();
+
+  const tabLabels: Record<string, string> = {
+    Home: t.tabs.home,
+    Lessons: t.tabs.lessons,
+    AIHub: t.tabs.aiChat,
+    Leaderboard: t.tabs.ranking,
+    Profile: t.tabs.profile,
+  };
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [styles.tabBar, { height: 64 + insets.bottom, paddingBottom: insets.bottom }],
         tabBarIcon: ({ focused }) => (
           <View style={styles.tabItem}>
             <Text style={styles.tabIcon}>{tabIcons[route.name]}</Text>

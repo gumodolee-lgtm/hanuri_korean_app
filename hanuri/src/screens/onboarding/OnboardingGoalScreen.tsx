@@ -1,26 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OnboardingStackParamList } from '../../types/navigation';
 import { LearningGoal } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { useT } from '../../i18n';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingGoal'>;
 
-const goals: { code: LearningGoal; icon: string; label: string }[] = [
-  { code: 'kpop', icon: '🎵', label: 'K-팝 & K-드라마' },
-  { code: 'travel', icon: '✈️', label: '한국 여행' },
-  { code: 'business', icon: '💼', label: '비즈니스 & 취업' },
-  { code: 'topik', icon: '📝', label: 'TOPIK 시험 준비' },
-  { code: 'relationship', icon: '❤️', label: '한국인 친구/연인' },
-];
+const GOAL_ICONS: Record<LearningGoal, string> = {
+  kpop: '🎵', travel: '✈️', business: '💼', topik: '📝', relationship: '❤️',
+};
 
 export default function OnboardingGoalScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData } = useAuthStore();
+  const t = useT();
   const [selected, setSelected] = React.useState<LearningGoal>('kpop');
+
+  const goals: { code: LearningGoal; label: string }[] = [
+    { code: 'kpop', label: t.onboarding.goals.kpop },
+    { code: 'travel', label: t.onboarding.goals.travel },
+    { code: 'business', label: t.onboarding.goals.business },
+    { code: 'topik', label: t.onboarding.goals.topik },
+    { code: 'relationship', label: t.onboarding.goals.relationship },
+  ];
 
   const handleNext = () => {
     setOnboardingData({ learningGoal: selected });
@@ -37,7 +44,7 @@ export default function OnboardingGoalScreen() {
         </View>
 
         <Text style={styles.emoji}>🎯</Text>
-        <Text style={styles.title}>왜 한국어를 배우나요?</Text>
+        <Text style={styles.title}>{t.onboarding.goalTitle}</Text>
 
         <View style={styles.options}>
           {goals.map((goal) => (
@@ -46,7 +53,7 @@ export default function OnboardingGoalScreen() {
               style={[styles.option, selected === goal.code && styles.optionSelected]}
               onPress={() => setSelected(goal.code)}
             >
-              <Text style={styles.icon}>{goal.icon}</Text>
+              <Text style={styles.icon}>{GOAL_ICONS[goal.code]}</Text>
               <Text style={[styles.optionText, selected === goal.code && styles.optionTextSelected]}>
                 {goal.label}
               </Text>
@@ -56,7 +63,7 @@ export default function OnboardingGoalScreen() {
       </View>
 
       <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-        <Text style={styles.nextBtnText}>다음 →</Text>
+        <Text style={styles.nextBtnText}>{t.onboarding.next}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -72,25 +79,17 @@ const styles = StyleSheet.create({
   title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
   options: { gap: spacing.sm },
   option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
+    backgroundColor: colors.white, borderRadius: borderRadius.md,
+    padding: spacing.md, borderWidth: 2, borderColor: 'transparent',
   },
   optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
   icon: { fontSize: 24 },
   optionText: { ...typography.body, color: colors.dark },
   optionTextSelected: { color: colors.primary, fontWeight: '700' },
   nextBtn: {
-    backgroundColor: colors.primary,
-    margin: spacing.lg,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
+    backgroundColor: colors.primary, margin: spacing.lg,
+    borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center',
   },
   nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
 });

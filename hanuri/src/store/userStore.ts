@@ -32,25 +32,27 @@ export const useUserStore = create<UserState>()(
       todayMinutes: 0,
 
       addXP: (amount, userId) => {
-        set((state) => ({ xp: state.xp + amount }));
+        const newXp = get().xp + amount;
+        set({ xp: newXp });
         if (userId) {
-          const { xp, streak, lastStreakDate, todayMinutes } = get();
-          syncStats(userId, { xp: xp + amount, streak, lastStreakDate, todayMinutes });
+          const { streak, lastStreakDate, todayMinutes } = get();
+          syncStats(userId, { xp: newXp, streak, lastStreakDate, todayMinutes });
         }
       },
 
       checkAndUpdateStreak: (userId) => {
         const today = new Date().toISOString().split('T')[0];
-        const { lastStreakDate, streak, xp, todayMinutes } = get();
+        const { lastStreakDate, streak, xp } = get();
 
         if (lastStreakDate === today) return;
 
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
         const newStreak = lastStreakDate === yesterday ? streak + 1 : 1;
 
-        set({ streak: newStreak, lastStreakDate: today });
+        // 날짜가 바뀌었으므로 오늘 학습시간 리셋
+        set({ streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
         if (userId) {
-          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes });
+          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
         }
       },
 
@@ -77,10 +79,11 @@ export const useUserStore = create<UserState>()(
         })),
 
       addTodayMinutes: (minutes, userId) => {
-        set((state) => ({ todayMinutes: state.todayMinutes + minutes }));
+        const newMinutes = get().todayMinutes + minutes;
+        set({ todayMinutes: newMinutes });
         if (userId) {
-          const { xp, streak, lastStreakDate, todayMinutes } = get();
-          syncStats(userId, { xp, streak, lastStreakDate, todayMinutes: todayMinutes + minutes });
+          const { xp, streak, lastStreakDate } = get();
+          syncStats(userId, { xp, streak, lastStreakDate, todayMinutes: newMinutes });
         }
       },
 

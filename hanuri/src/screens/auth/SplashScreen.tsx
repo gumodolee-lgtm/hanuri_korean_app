@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,6 +20,7 @@ import { useUserStore } from '../../store/userStore';
 import { supabase } from '../../services/supabase';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { NativeLanguage, LearningGoal, DailyGoalMinutes } from '../../types';
+import { useT } from '../../i18n';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,6 +31,7 @@ export default function SplashScreen() {
   const { loginWithSupabase } = useAuthStore();
   const { loadFromRemote } = useUserStore();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const t = useT();
 
   const handleGoogleLogin = async () => {
     try {
@@ -53,8 +55,12 @@ export default function SplashScreen() {
 
       if (result.type === 'success' && result.url) {
         const url = new URL(result.url);
-        const accessToken = url.searchParams.get('access_token');
-        const refreshToken = url.searchParams.get('refresh_token');
+        // Supabase returns tokens in hash fragment (#access_token=...) not query params
+        const hashParams = new URLSearchParams(
+          url.hash.startsWith('#') ? url.hash.slice(1) : url.hash
+        );
+        const accessToken = hashParams.get('access_token') ?? url.searchParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token') ?? url.searchParams.get('refresh_token');
 
         if (accessToken && refreshToken) {
           const { data: sessionData, error: sessionError } =
@@ -82,7 +88,7 @@ export default function SplashScreen() {
         }
       }
     } catch (err) {
-      Alert.alert('로그인 실패', 'Google 로그인 중 문제가 발생했습니다. 다시 시도해주세요.');
+      Alert.alert(t.splash.loginFailedTitle, t.splash.loginFailedMsg);
     } finally {
       setIsGoogleLoading(false);
     }
@@ -101,7 +107,7 @@ export default function SplashScreen() {
         <View style={styles.logoSection}>
           <Text style={styles.logo}>HANURI</Text>
           <Text style={styles.logoKo}>하누리</Text>
-          <Text style={styles.slogan}>한국어로 세상을 연결하다</Text>
+          <Text style={styles.slogan}>{t.splash.slogan}</Text>
         </View>
 
         {/* CTA Buttons */}
@@ -111,20 +117,20 @@ export default function SplashScreen() {
             onPress={() => navigation.navigate('Onboarding')}
             activeOpacity={0.85}
           >
-            <Text style={styles.primaryButtonText}>🚀 무료로 시작하기</Text>
+            <Text style={styles.primaryButtonText}>{t.splash.startFree}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => navigation.navigate('Onboarding')}
+            onPress={handleGoogleLogin}
             activeOpacity={0.7}
           >
-            <Text style={styles.secondaryButtonText}>이미 계정이 있어요</Text>
+            <Text style={styles.secondaryButtonText}>{t.splash.haveAccount}</Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>또는</Text>
+            <Text style={styles.dividerText}>{t.splash.or}</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -137,12 +143,16 @@ export default function SplashScreen() {
             {isGoogleLoading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.socialButtonText}>🇬 Google로 계속하기</Text>
+              <Text style={styles.socialButtonText}>🇬 {t.splash.googleLogin}</Text>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.socialButton} activeOpacity={0.85}>
-            <Text style={styles.socialButtonText}> Apple로 계속하기</Text>
+          <TouchableOpacity
+            style={styles.socialButton}
+            activeOpacity={0.85}
+            onPress={() => Alert.alert('준비 중', 'Apple 로그인은 곧 지원될 예정입니다.')}
+          >
+            <Text style={styles.socialButtonText}> {t.splash.appleLogin}</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>

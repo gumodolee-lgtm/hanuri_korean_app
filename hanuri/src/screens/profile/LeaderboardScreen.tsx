@@ -3,11 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../../store/userStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 const MOCK_LEADERS = [
   { rank: 1, name: '민준', flag: '🇰🇷', xp: 3240, streak: 42, level: 4 },
@@ -29,6 +30,7 @@ function LeaderRow({
 }: {
   rank: number; name: string; flag: string; xp: number; streak: number; level: number; isMe?: boolean;
 }) {
+  const t = useT();
   return (
     <View style={[styles.row, isMe && styles.rowMe]}>
       <View style={styles.rankCell}>
@@ -38,7 +40,7 @@ function LeaderRow({
       </View>
       <Text style={styles.flag}>{flag}</Text>
       <View style={styles.nameCell}>
-        <Text style={[styles.name, isMe && styles.nameMe]}>{name}{isMe ? ' (나)' : ''}</Text>
+        <Text style={[styles.name, isMe && styles.nameMe]}>{name}{isMe ? ` ${t.leaderboard.meSuffix}` : ''}</Text>
         <Text style={styles.levelLabel}>Lv.{level} · 🔥{streak}</Text>
       </View>
       <View style={styles.xpCell}>
@@ -51,6 +53,7 @@ function LeaderRow({
 
 export default function LeaderboardScreen() {
   const { xp, streak } = useUserStore();
+  const t = useT();
 
   const myRank = MOCK_LEADERS.filter((l) => l.xp > xp).length + 1;
   const showMyRow = myRank > 10;
@@ -58,8 +61,8 @@ export default function LeaderboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🏆 랭킹</Text>
-        <Text style={styles.headerSub}>이번 주 XP 기준</Text>
+        <Text style={styles.headerTitle}>{t.leaderboard.title}</Text>
+        <Text style={styles.headerSub}>{t.leaderboard.subtitle}</Text>
       </View>
 
       {/* Top 3 podium */}
@@ -94,13 +97,13 @@ export default function LeaderboardScreen() {
             <View style={styles.separator}>
               <Text style={styles.separatorText}>• • •</Text>
             </View>
-            <LeaderRow rank={myRank} name="나" flag="🌟" xp={xp} streak={streak} level={1} isMe />
+            <LeaderRow rank={myRank} name={t.leaderboard.meSuffix} flag="🌟" xp={xp} streak={streak} level={1} isMe />
           </>
         )}
 
         <View style={styles.notice}>
           <Text style={styles.noticeText}>
-            💡 레슨 완료 및 AI 대화로 XP를 얻어 랭킹을 올려보세요!
+            {t.leaderboard.notice}
           </Text>
         </View>
         <View style={{ height: spacing.xl }} />

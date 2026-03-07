@@ -11,6 +11,7 @@ export interface ScenarioData {
   systemPrompt: string;
   starterMessage: string;
   tags: string[];
+  quickReplies: string[];
 }
 
 export const SCENARIOS: ScenarioData[] = [
@@ -24,6 +25,7 @@ export const SCENARIOS: ScenarioData[] = [
     isPro: false,
     tags: ['일상', '음식'],
     starterMessage: '어서오세요! 주문 하시겠어요? 😊',
+    quickReplies: ['아이스 아메리카노 주세요', '따뜻한 라떼 한 잔요', '얼마예요?'],
     systemPrompt: `You are a friendly Korean café barista. The user is a Korean language learner practicing ordering drinks.
 
 Rules:
@@ -48,6 +50,7 @@ Example correction format:
     isPro: false,
     tags: ['여행', '일상'],
     starterMessage: '안녕하세요! 어디 가세요? 도와드릴까요?',
+    quickReplies: ['지하철역이 어디예요?', '여기서 얼마나 걸려요?', '지도 보여주세요'],
     systemPrompt: `You are a helpful Korean local person on the street in Seoul. The user is a tourist practicing asking for directions.
 
 Rules:
@@ -68,6 +71,7 @@ Rules:
     isPro: false,
     tags: ['일상', '인간관계'],
     starterMessage: '안녕하세요~ 처음 만나네요! 저는 민준이에요. 이름이 뭐예요?',
+    quickReplies: ['안녕하세요! 저는 ___예요', '반가워요!', '취미가 뭐예요?'],
     systemPrompt: `You are a friendly Korean university student named 민준 who just met the user at a language exchange event.
 
 Rules:
@@ -88,6 +92,7 @@ Rules:
     isPro: false,
     tags: ['여행', '쇼핑'],
     starterMessage: '어서오세요! 뭐 찾으세요? 사이즈가 어떻게 되세요?',
+    quickReplies: ['이거 입어봐도 돼요?', '다른 색깔 있어요?', '얼마예요?'],
     systemPrompt: `You are a Korean clothing store clerk at a busy market in Seoul (like Dongdaemun or Myeongdong).
 
 Rules:
@@ -108,6 +113,7 @@ Rules:
     isPro: false,
     tags: ['K-드라마', '연기'],
     starterMessage: '야, 거기 서! 너 지금 뭐하는 거야? 우리 처음 만나는 거 아니지?',
+    quickReplies: ['저 모르세요?', '잠깐만요, 착각하신 거 아닌가요?', '...누구세요?'],
     systemPrompt: `You are roleplaying a K-Drama scene. You play a dramatic, slightly suspicious character who is confronting the user in a dramatic K-drama style encounter.
 
 Rules:
@@ -128,6 +134,7 @@ Rules:
     isPro: false,
     tags: ['음식', '일상'],
     starterMessage: '안녕하세요! 몇 분이세요? 자리 안내해드릴게요!',
+    quickReplies: ['2명이요', '메뉴판 주세요', '비빔밥 주세요'],
     systemPrompt: `You are a warm Korean restaurant server at a traditional Korean restaurant serving 삼겹살, 비빔밥, etc.
 
 Rules:
@@ -148,6 +155,7 @@ Rules:
     isPro: true,
     tags: ['비즈니스', '고급'],
     starterMessage: '안녕하세요. 오늘 미팅에 참석해주셔서 감사합니다. 잘 부탁드립니다.',
+    quickReplies: ['감사합니다. 잘 부탁드립니다', '제안서를 준비했습니다', '협력 방안을 논의하고 싶습니다'],
     systemPrompt: `You are a senior Korean business executive conducting a meeting with an international partner (the user).
 
 Rules:
@@ -168,6 +176,7 @@ Rules:
     isPro: true,
     tags: ['시험', '고급'],
     starterMessage: '안녕하세요. TOPIK 말하기 연습을 시작하겠습니다. 준비되셨나요?',
+    quickReplies: ['네, 준비됐어요', '오늘 주제가 뭐예요?', '환경 문제로 시작해요'],
     systemPrompt: `You are a TOPIK exam preparation tutor helping the user practice speaking Korean at an advanced level.
 
 Rules:

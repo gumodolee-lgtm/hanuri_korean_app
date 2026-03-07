@@ -3,35 +3,39 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
-const BENEFITS = [
-  { emoji: '💼', title: '비즈니스 회화', desc: '전문적인 한국어 비즈니스 표현 마스터' },
-  { emoji: '📝', title: 'TOPIK 시험 준비', desc: 'AI와 함께하는 실전 TOPIK 훈련' },
-  { emoji: '🔁', title: '무제한 AI 대화', desc: '대화 횟수 제한 없이 연습하세요' },
-  { emoji: '📊', title: '심화 문법 분석', desc: '자세한 문법 피드백과 교정' },
-  { emoji: '🏆', title: '리더보드 뱃지', desc: 'PRO 전용 배지와 순위 표시' },
-];
-
-const PLANS = [
-  { id: 'monthly', label: '월간', price: '₩9,900', period: '/월', badge: null },
-  { id: 'yearly', label: '연간', price: '₩69,900', period: '/년', badge: '40% 할인' },
-];
+const BENEFIT_EMOJIS = ['💼', '📝', '🔁', '📊', '🏆'];
 
 export default function ProUpgradeScreen() {
   const navigation = useNavigation();
   const { upgradeToPro } = useAuthStore();
+  const t = useT();
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState(false);
+
+  const BENEFITS = [
+    { emoji: BENEFIT_EMOJIS[0], title: t.proUpgrade.benefit1Title, desc: t.proUpgrade.benefit1Desc },
+    { emoji: BENEFIT_EMOJIS[1], title: t.proUpgrade.benefit2Title, desc: t.proUpgrade.benefit2Desc },
+    { emoji: BENEFIT_EMOJIS[2], title: t.proUpgrade.benefit3Title, desc: t.proUpgrade.benefit3Desc },
+    { emoji: BENEFIT_EMOJIS[3], title: t.proUpgrade.benefit4Title, desc: t.proUpgrade.benefit4Desc },
+    { emoji: BENEFIT_EMOJIS[4], title: t.proUpgrade.benefit5Title, desc: t.proUpgrade.benefit5Desc },
+  ];
+
+  const PLANS = [
+    { id: 'monthly', label: t.proUpgrade.monthly, price: '₩9,900', period: '/월', badge: null },
+    { id: 'yearly', label: t.proUpgrade.yearly, price: '₩69,900', period: '/년', badge: t.proUpgrade.yearlyBadge },
+  ];
 
   const handleSubscribe = async () => {
     setIsLoading(true);
@@ -71,12 +75,12 @@ export default function ProUpgradeScreen() {
           </TouchableOpacity>
           <Text style={styles.heroEmoji}>👑</Text>
           <Text style={styles.heroTitle}>HANURI PRO</Text>
-          <Text style={styles.heroSub}>한국어 실력을 한 단계 끌어올리세요</Text>
+          <Text style={styles.heroSub}>{t.proUpgrade.heroSub}</Text>
         </LinearGradient>
 
         {/* Benefits */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>PRO 혜택</Text>
+          <Text style={styles.sectionTitle}>{t.proUpgrade.benefitsTitle}</Text>
           {BENEFITS.map((b) => (
             <View key={b.title} style={styles.benefitRow}>
               <Text style={styles.benefitEmoji}>{b.emoji}</Text>
@@ -91,7 +95,7 @@ export default function ProUpgradeScreen() {
 
         {/* Plan selector */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>요금제 선택</Text>
+          <Text style={styles.sectionTitle}>{t.proUpgrade.planTitle}</Text>
           <View style={styles.planRow}>
             {PLANS.map((plan) => {
               const selected = selectedPlan === plan.id;
@@ -134,14 +138,12 @@ export default function ProUpgradeScreen() {
             <ActivityIndicator color={colors.white} />
           ) : (
             <Text style={styles.subscribeBtnText}>
-              👑 {selectedPlan === 'yearly' ? '연간 구독 시작하기' : '월간 구독 시작하기'}
+              👑 {selectedPlan === 'yearly' ? t.proUpgrade.subscribeYearly : t.proUpgrade.subscribeMonthly}
             </Text>
           )}
         </TouchableOpacity>
 
-        <Text style={styles.disclaimer}>
-          언제든지 취소할 수 있습니다. 구독은 자동 갱신됩니다.
-        </Text>
+        <Text style={styles.disclaimer}>{t.proUpgrade.disclaimer}</Text>
 
       </ScrollView>
     </SafeAreaView>

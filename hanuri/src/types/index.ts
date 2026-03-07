@@ -1,4 +1,4 @@
-export type NativeLanguage = 'en' | 'es' | 'zh' | 'ja' | 'vi';
+export type NativeLanguage = 'en' | 'es' | 'zh' | 'ja' | 'vi' | 'ko';
 export type LearningGoal = 'kpop' | 'travel' | 'business' | 'topik' | 'relationship';
 export type DailyGoalMinutes = 5 | 15 | 30;
 export type LessonStatus = 'locked' | 'in_progress' | 'completed';
@@ -38,7 +38,7 @@ export interface LessonContent {
 export interface VocabItem {
   korean: string;
   romanization: string;
-  translations: Record<NativeLanguage, string>;
+  translations: Partial<Record<NativeLanguage, string>>;
   image_url?: string;
   audio_url?: string;
 }

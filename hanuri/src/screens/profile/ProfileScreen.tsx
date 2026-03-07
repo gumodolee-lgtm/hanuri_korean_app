@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Switch,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -16,6 +16,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 import {
   requestNotificationPermission,
   getNotificationPermissionStatus,
@@ -25,30 +26,23 @@ import {
   cancelStreakWarning,
 } from '../../services/notificationService';
 
-const GOAL_LABELS: Record<string, string> = {
-  kpop: 'K-POP / 드라마',
-  travel: '여행',
-  business: '비즈니스',
-  topik: 'TOPIK 시험',
-  relationship: '인간관계',
-};
-
 const LANG_FLAGS: Record<string, string> = {
   en: '🇺🇸 English',
   es: '🇪🇸 Español',
   zh: '🇨🇳 中文',
   ja: '🇯🇵 日本語',
   vi: '🇻🇳 Tiếng Việt',
+  ko: '🇰🇷 한국어',
 };
 
-const BADGE_TEMPLATES = [
-  { id: 'first_lesson', emoji: '🎯', name: '첫 레슨', desc: '첫 레슨 완료' },
-  { id: 'week_streak', emoji: '🔥', name: '7일 연속', desc: '7일 연속 학습' },
-  { id: 'vocab_100', emoji: '📖', name: '단어 달인', desc: 'XP 500 달성' },
-  { id: 'ai_chat_5', emoji: '🗣️', name: 'AI 대화왕', desc: 'AI 대화 시작' },
-  { id: 'perfect_quiz', emoji: '💯', name: '퀴즈 마스터', desc: '퀴즈 100% 달성' },
-  { id: 'level_up', emoji: '⬆️', name: '레벨업', desc: '다음 레벨 도달' },
-];
+const BADGE_IDS = [
+  { id: 'first_lesson', emoji: '🎯', nameKey: 'firstLesson', descKey: 'firstLesson' },
+  { id: 'week_streak', emoji: '🔥', nameKey: 'weekStreak', descKey: 'weekStreak' },
+  { id: 'vocab_100', emoji: '📖', nameKey: 'vocab100', descKey: 'vocab100' },
+  { id: 'ai_chat_5', emoji: '🗣️', nameKey: 'aiChat5', descKey: 'aiChat5' },
+  { id: 'perfect_quiz', emoji: '💯', nameKey: 'perfectQuiz', descKey: 'perfectQuiz' },
+  { id: 'level_up', emoji: '⬆️', nameKey: 'levelUp', descKey: 'levelUp' },
+] as const;
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 
@@ -58,6 +52,7 @@ export default function ProfileScreen() {
   const { xp, streak, progress } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const isPro = user?.isPro ?? false;
+  const t = useT();
 
   useEffect(() => {
     getNotificationPermissionStatus().then((status) => {
@@ -74,9 +69,9 @@ export default function ProfileScreen() {
         setNotificationsEnabled(true);
       } else {
         Alert.alert(
-          '알림 권한 필요',
-          '설정 앱에서 하누리 알림을 허용해주세요.',
-          [{ text: '확인' }]
+          t.profile.notifPermTitle,
+          t.profile.notifPermMsg,
+          [{ text: t.profile.confirm }]
         );
       }
     } else {
@@ -108,14 +103,14 @@ export default function ProfileScreen() {
             <Text style={styles.avatarEmoji}>{levelInfo?.emoji ?? '🌱'}</Text>
           </View>
           <View style={styles.levelTitleRow}>
-            <Text style={styles.levelTitle}>{levelInfo?.titleKo ?? '초급'} 학습자</Text>
+            <Text style={styles.levelTitle}>{levelInfo?.titleKo ?? '초급'} {t.profile.learnerSuffix}</Text>
             {isPro && (
               <View style={styles.proBadge}>
                 <Text style={styles.proBadgeText}>👑 PRO</Text>
               </View>
             )}
           </View>
-          <Text style={styles.goalLabel}>{GOAL_LABELS[user?.learning_goal ?? 'travel']} 목표</Text>
+          <Text style={styles.goalLabel}>{t.goalLabels[user?.learning_goal ?? 'travel']} {t.profile.goalSuffix}</Text>
           <Text style={styles.langLabel}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
         </View>
 
@@ -128,8 +123,8 @@ export default function ProfileScreen() {
           >
             <Text style={styles.upgradeBannerEmoji}>👑</Text>
             <View style={styles.upgradeBannerText}>
-              <Text style={styles.upgradeBannerTitle}>HANURI PRO로 업그레이드</Text>
-              <Text style={styles.upgradeBannerSub}>비즈니스 · TOPIK · 무제한 AI 대화</Text>
+              <Text style={styles.upgradeBannerTitle}>{t.profile.upgradeTitle}</Text>
+              <Text style={styles.upgradeBannerSub}>{t.profile.upgradeSub}</Text>
             </View>
             <Text style={styles.upgradeBannerArrow}>›</Text>
           </TouchableOpacity>
@@ -139,15 +134,15 @@ export default function ProfileScreen() {
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statValue}>{xp}</Text>
-            <Text style={styles.statLabel}>총 XP</Text>
+            <Text style={styles.statLabel}>{t.profile.xpLabel}</Text>
           </View>
           <View style={[styles.statBox, styles.statBoxMiddle]}>
             <Text style={styles.statValue}>{streak}</Text>
-            <Text style={styles.statLabel}>🔥 연속</Text>
+            <Text style={styles.statLabel}>{t.profile.streakLabel}</Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statValue}>{completedLessons}</Text>
-            <Text style={styles.statLabel}>완료 레슨</Text>
+            <Text style={styles.statLabel}>{t.profile.completedLabel}</Text>
           </View>
         </View>
 
@@ -160,31 +155,31 @@ export default function ProfileScreen() {
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${xpProgress * 100}%` }]} />
           </View>
-          <Text style={styles.progressHint}>다음 레벨까지 {xpForNext - (xp % xpForNext)} XP 남았어요!</Text>
+          <Text style={styles.progressHint}>{xpForNext - (xp % xpForNext)} XP {t.profile.xpUntilNext}</Text>
         </View>
 
         {/* Badges */}
-        <Text style={styles.sectionTitle}>🏅 배지</Text>
+        <Text style={styles.sectionTitle}>{t.profile.badges}</Text>
         <View style={styles.badgeGrid}>
-          {BADGE_TEMPLATES.map((badge) => {
+          {BADGE_IDS.map((badge) => {
             const unlocked = unlockedBadges.has(badge.id);
             return (
               <View key={badge.id} style={[styles.badgeCard, !unlocked && styles.badgeLocked]}>
                 <Text style={styles.badgeEmoji}>{unlocked ? badge.emoji : '🔒'}</Text>
-                <Text style={[styles.badgeName, !unlocked && styles.badgeNameLocked]}>{badge.name}</Text>
-                <Text style={styles.badgeDesc}>{badge.desc}</Text>
+                <Text style={[styles.badgeName, !unlocked && styles.badgeNameLocked]}>{t.profile.badgeNames[badge.nameKey]}</Text>
+                <Text style={styles.badgeDesc}>{t.profile.badgeDescs[badge.descKey]}</Text>
               </View>
             );
           })}
         </View>
 
         {/* Settings */}
-        <Text style={styles.sectionTitle}>⚙️ 설정</Text>
+        <Text style={styles.sectionTitle}>{t.profile.settings}</Text>
         <View style={styles.settingsCard}>
           <View style={styles.settingRow}>
             <View>
-              <Text style={styles.settingLabel}>📅 학습 알림</Text>
-              <Text style={styles.settingHint}>매일 오후 8시 리마인더</Text>
+              <Text style={styles.settingLabel}>{t.profile.notifLabel}</Text>
+              <Text style={styles.settingHint}>{t.profile.notifHint}</Text>
             </View>
             <Switch
               value={notificationsEnabled}
@@ -195,18 +190,18 @@ export default function ProfileScreen() {
           </View>
           <View style={styles.divider} />
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>🎯 일일 목표</Text>
-            <Text style={styles.settingValue}>{user?.daily_goal_minutes ?? 15}분</Text>
+            <Text style={styles.settingLabel}>{t.profile.dailyGoal}</Text>
+            <Text style={styles.settingValue}>{user?.daily_goal_minutes ?? 15}min</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>🌍 모국어</Text>
+            <Text style={styles.settingLabel}>{t.profile.nativeLang}</Text>
             <Text style={styles.settingValue}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
           </View>
         </View>
 
         <TouchableOpacity style={styles.signOutBtn} onPress={signOut}>
-          <Text style={styles.signOutText}>로그아웃</Text>
+          <Text style={styles.signOutText}>{t.profile.signOut}</Text>
         </TouchableOpacity>
 
         <View style={{ height: spacing.xl }} />

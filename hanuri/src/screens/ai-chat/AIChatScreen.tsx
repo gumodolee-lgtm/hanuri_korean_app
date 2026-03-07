@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   TextInput,
@@ -11,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -20,6 +20,7 @@ import { sendMessage, parseCorrection } from '../../services/aiService';
 import { useUserStore } from '../../store/userStore';
 import { speakKorean } from '../../utils/tts';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 type RouteType = RouteProp<RootStackParamList, 'AIChat'>;
@@ -55,12 +56,13 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 }
 
 function TypingIndicator() {
+  const t = useT();
   return (
     <View style={styles.bubbleRow}>
       <Text style={styles.aiAvatar}>🤖</Text>
       <View style={[styles.bubble, styles.bubbleAI, styles.typingBubble]}>
         <ActivityIndicator size="small" color={colors.gray} />
-        <Text style={styles.typingText}>입력 중...</Text>
+        <Text style={styles.typingText}>{t.aiChat.typing}</Text>
       </View>
     </View>
   );
@@ -70,6 +72,7 @@ export default function AIChatScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
   const { addXP } = useUserStore();
+  const t = useT();
 
   const scenarioId = route.params?.scenarioId ?? 'cafe';
   const scenario = getScenarioById(scenarioId);
@@ -130,7 +133,7 @@ export default function AIChatScreen() {
       const errMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: '죄송해요, 연결에 문제가 있어요. 잠시 후 다시 시도해주세요. 😅',
+        content: t.aiChat.connectionError,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errMsg]);
@@ -142,7 +145,7 @@ export default function AIChatScreen() {
   if (!scenario) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={{ padding: spacing.lg, color: colors.gray }}>시나리오를 찾을 수 없습니다.</Text>
+        <Text style={{ padding: spacing.lg, color: colors.gray }}>{t.aiChat.notFound}</Text>
       </SafeAreaView>
     );
   }
@@ -160,11 +163,11 @@ export default function AIChatScreen() {
           <Text style={styles.headerEmoji}>{scenario.emoji}</Text>
           <View>
             <Text style={styles.headerTitle}>{scenario.titleKo}</Text>
-            <Text style={styles.headerSub}>{userMessageCount}개 대화 · +{xpEarned} XP</Text>
+            <Text style={styles.headerSub}>{userMessageCount} {t.aiChat.convUnit} · +{xpEarned} XP</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.endBtn} onPress={() => navigation.goBack()}>
-          <Text style={styles.endBtnText}>종료</Text>
+          <Text style={styles.endBtnText}>{t.aiChat.end}</Text>
         </TouchableOpacity>
       </View>
 
@@ -176,6 +179,7 @@ export default function AIChatScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          style={styles.flex}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={scrollToBottom}
@@ -200,7 +204,7 @@ export default function AIChatScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.suggestions}
           >
-            {['안녕하세요!', '네, 주문할게요', '감사합니다'].map((s) => (
+            {scenario.quickReplies.map((s) => (
               <TouchableOpacity
                 key={s}
                 style={styles.suggestionChip}
@@ -218,7 +222,7 @@ export default function AIChatScreen() {
             style={styles.input}
             value={input}
             onChangeText={setInput}
-            placeholder="한국어로 입력하세요..."
+            placeholder={t.aiChat.inputPlaceholder}
             placeholderTextColor={colors.gray}
             multiline
             maxLength={300}

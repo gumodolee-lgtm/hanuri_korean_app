@@ -8,6 +8,7 @@ interface OnboardingData {
   nativeLanguage: NativeLanguage;
   learningGoal: LearningGoal;
   dailyGoalMinutes: DailyGoalMinutes;
+  currentLevel: number;
 }
 
 interface AuthState {
@@ -20,6 +21,7 @@ interface AuthState {
   completeOnboarding: () => void;
   loginWithSupabase: (user: User) => Promise<void>;
   upgradeToPro: () => void;
+  levelUp: () => void;
   signOut: () => void;
   recordActivity: () => void;
 }
@@ -45,7 +47,7 @@ export const useAuthStore = create<AuthState>()(
           id: 'guest_' + Date.now(),
           email: '',
           native_lang: (state.onboardingData.nativeLanguage ?? 'en') as NativeLanguage,
-          current_level: 1,
+          current_level: (state.onboardingData.currentLevel ?? 1),
           xp: 0,
           streak: 0,
           daily_goal_minutes: (state.onboardingData.dailyGoalMinutes ?? 15) as DailyGoalMinutes,
@@ -85,6 +87,14 @@ export const useAuthStore = create<AuthState>()(
       upgradeToPro: () =>
         set((state) => ({
           user: state.user ? { ...state.user, isPro: true } : state.user,
+        })),
+
+      // Advances the user to the next level
+      levelUp: () =>
+        set((state) => ({
+          user: state.user
+            ? { ...state.user, current_level: state.user.current_level + 1 }
+            : state.user,
         })),
 
       signOut: () =>

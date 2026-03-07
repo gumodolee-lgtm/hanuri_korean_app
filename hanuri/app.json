@@ -1,21 +1,24 @@
 {
   "expo": {
-    "name": "hanuri",
+    "name": "HANURI",
     "slug": "hanuri",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "hanuri",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FF6B6B"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.hanuri.app",
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "매일 한국어 학습 리마인더를 받으세요."
+        "NSUserNotificationUsageDescription": "매일 한국어 학습 리마인더를 받으세요.",
+        "NSMicrophoneUsageDescription": "발음 연습을 위해 마이크를 사용합니다.",
+        "NSSpeechRecognitionUsageDescription": "발음 채점을 위해 음성 인식을 사용합니다."
       }
     },
     "android": {
@@ -30,7 +33,8 @@
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.SCHEDULE_EXACT_ALARM",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -47,7 +51,18 @@
           "color": "#FF6B6B",
           "sounds": []
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "발음 연습을 위해 마이크를 사용합니다."
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a31c6f44-af34-4a61-9a96-8e04d20a2d60"
+      }
+    }
   }
 }

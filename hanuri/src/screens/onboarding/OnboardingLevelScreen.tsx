@@ -1,22 +1,27 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OnboardingStackParamList } from '../../types/navigation';
+import { useAuthStore } from '../../store/authStore';
+import { useT } from '../../i18n';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingLevel'>;
 
-const levels = [
-  { icon: '🌱', label: '완전 처음이에요', value: 1 },
-  { icon: '🌿', label: '한글은 읽을 수 있어요', value: 2 },
-  { icon: '🌳', label: '기초 회화 가능해요', value: 3 },
-  { icon: '⚡', label: '중급 이상이에요', value: 5 },
-];
-
 export default function OnboardingLevelScreen() {
   const navigation = useNavigation<NavProp>();
+  const { setOnboardingData } = useAuthStore();
+  const t = useT();
   const [selected, setSelected] = React.useState(1);
+
+  const levels = [
+    { icon: '🌱', label: t.onboarding.levels.absolute, value: 1 },
+    { icon: '🌿', label: t.onboarding.levels.canRead, value: 2 },
+    { icon: '🌳', label: t.onboarding.levels.basicConv, value: 3 },
+    { icon: '⚡', label: t.onboarding.levels.intermediate, value: 5 },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,7 +33,7 @@ export default function OnboardingLevelScreen() {
         </View>
 
         <Text style={styles.emoji}>📊</Text>
-        <Text style={styles.title}>현재 한국어 실력은?</Text>
+        <Text style={styles.title}>{t.onboarding.levelTitle}</Text>
 
         <View style={styles.options}>
           {levels.map((level) => (
@@ -45,16 +50,13 @@ export default function OnboardingLevelScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.testLink}>
-          <Text style={styles.testLinkText}>→ 레벨 테스트로 확인하기</Text>
+        <TouchableOpacity style={styles.testLink} onPress={() => navigation.navigate('OnboardingLevelTest')}>
+          <Text style={styles.testLinkText}>{t.onboarding.levelTest}</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.nextBtn}
-        onPress={() => navigation.navigate('OnboardingTime')}
-      >
-        <Text style={styles.nextBtnText}>다음 →</Text>
+      <TouchableOpacity style={styles.nextBtn} onPress={() => { setOnboardingData({ currentLevel: selected }); navigation.navigate('OnboardingTime'); }}>
+        <Text style={styles.nextBtnText}>{t.onboarding.next}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -70,14 +72,9 @@ const styles = StyleSheet.create({
   title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
   options: { gap: spacing.sm },
   option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
+    backgroundColor: colors.white, borderRadius: borderRadius.md,
+    padding: spacing.md, borderWidth: 2, borderColor: 'transparent',
   },
   optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
   icon: { fontSize: 24 },
@@ -86,11 +83,8 @@ const styles = StyleSheet.create({
   testLink: { alignItems: 'center', marginTop: spacing.sm },
   testLinkText: { ...typography.body, color: colors.secondary, fontWeight: '600' },
   nextBtn: {
-    backgroundColor: colors.primary,
-    margin: spacing.lg,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
+    backgroundColor: colors.primary, margin: spacing.lg,
+    borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center',
   },
   nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
 });

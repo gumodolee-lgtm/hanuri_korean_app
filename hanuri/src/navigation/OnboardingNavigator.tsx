@@ -6,6 +6,7 @@ import OnboardingGoalScreen from '../screens/onboarding/OnboardingGoalScreen';
 import OnboardingLevelScreen from '../screens/onboarding/OnboardingLevelScreen';
 import OnboardingTimeScreen from '../screens/onboarding/OnboardingTimeScreen';
 import OnboardingNotificationScreen from '../screens/onboarding/OnboardingNotificationScreen';
+import OnboardingLevelTestScreen from '../screens/onboarding/OnboardingLevelTestScreen';
 const Stack = createStackNavigator<OnboardingStackParamList>();
 
 export default function OnboardingNavigator() {
@@ -14,6 +15,7 @@ export default function OnboardingNavigator() {
       <Stack.Screen name="OnboardingLanguage" component={OnboardingLanguageScreen} />
       <Stack.Screen name="OnboardingGoal" component={OnboardingGoalScreen} />
       <Stack.Screen name="OnboardingLevel" component={OnboardingLevelScreen} />
+      <Stack.Screen name="OnboardingLevelTest" component={OnboardingLevelTestScreen} />
       <Stack.Screen name="OnboardingTime" component={OnboardingTimeScreen} />
       <Stack.Screen name="OnboardingNotification" component={OnboardingNotificationScreen} />
     </Stack.Navigator>

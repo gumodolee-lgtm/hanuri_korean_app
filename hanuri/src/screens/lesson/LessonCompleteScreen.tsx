@@ -3,14 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 type RouteType = RouteProp<RootStackParamList, 'LessonComplete'>;
@@ -19,6 +20,7 @@ export default function LessonCompleteScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
   const { xp, score, expressions } = route.params;
+  const t = useT();
 
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -31,9 +33,9 @@ export default function LessonCompleteScreen() {
   }, []);
 
   const getRating = () => {
-    if (score >= 90) return { emoji: '🏆', label: '완벽해요!', color: '#FFD93D' };
-    if (score >= 70) return { emoji: '⭐', label: '잘했어요!', color: colors.secondary };
-    return { emoji: '💪', label: '다시 도전해봐요!', color: colors.primary };
+    if (score >= 90) return { emoji: '🏆', label: t.lessonComplete.perfect, color: '#FFD93D' };
+    if (score >= 70) return { emoji: '⭐', label: t.lessonComplete.great, color: colors.secondary };
+    return { emoji: '💪', label: t.lessonComplete.tryAgain, color: colors.primary };
   };
 
   const rating = getRating();
@@ -47,28 +49,28 @@ export default function LessonCompleteScreen() {
           <Text style={styles.trophyEmoji}>{rating.emoji}</Text>
         </Animated.View>
 
-        <Text style={styles.title}>레슨 완료!</Text>
+        <Text style={styles.title}>{t.lessonComplete.title}</Text>
         <Text style={[styles.ratingLabel, { color: rating.color }]}>{rating.label}</Text>
 
         {/* Score Cards */}
         <View style={styles.scoreRow}>
           <View style={styles.scoreCard}>
             <Text style={styles.scoreValue}>{score}%</Text>
-            <Text style={styles.scoreLabel}>정답률</Text>
+            <Text style={styles.scoreLabel}>{t.lessonComplete.accuracy}</Text>
           </View>
           <View style={[styles.scoreCard, styles.scoreCardXP]}>
             <Text style={[styles.scoreValue, { color: colors.white }]}>+{xp}</Text>
-            <Text style={[styles.scoreLabel, { color: 'rgba(255,255,255,0.85)' }]}>XP 획득</Text>
+            <Text style={[styles.scoreLabel, { color: 'rgba(255,255,255,0.85)' }]}>{t.lessonComplete.xpEarned}</Text>
           </View>
           <View style={styles.scoreCard}>
             <Text style={styles.scoreValue}>{expressions.length}</Text>
-            <Text style={styles.scoreLabel}>학습 단어</Text>
+            <Text style={styles.scoreLabel}>{t.lessonComplete.wordsLearned}</Text>
           </View>
         </View>
 
         {/* Learned Expressions */}
         <View style={styles.expressionBox}>
-          <Text style={styles.expressionTitle}>오늘 배운 표현</Text>
+          <Text style={styles.expressionTitle}>{t.lessonComplete.expressionsTitle}</Text>
           {expressions.map((expr, i) => (
             <View key={i} style={styles.expressionRow}>
               <Text style={styles.expressionBullet}>•</Text>
@@ -83,14 +85,14 @@ export default function LessonCompleteScreen() {
             style={styles.primaryBtn}
             onPress={() => navigation.navigate('Main')}
           >
-            <Text style={styles.primaryBtnText}>홈으로 돌아가기</Text>
+            <Text style={styles.primaryBtnText}>{t.lessonComplete.goHome}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryBtn}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Main', { screen: 'Lessons' } as any)}
           >
-            <Text style={styles.secondaryBtnText}>다음 레슨 보기</Text>
+            <Text style={styles.secondaryBtnText}>{t.lessonComplete.nextLesson}</Text>
           </TouchableOpacity>
         </View>
 

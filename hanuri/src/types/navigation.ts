@@ -20,6 +20,7 @@ export type OnboardingStackParamList = {
   OnboardingLanguage: undefined;
   OnboardingGoal: undefined;
   OnboardingLevel: undefined;
+  OnboardingLevelTest: undefined;
   OnboardingTime: undefined;
   OnboardingNotification: undefined;
 };
