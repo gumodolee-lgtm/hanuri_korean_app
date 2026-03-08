@@ -25,11 +25,10 @@ export default function OnboardingNotificationScreen() {
     { icon: '🌅', label: t.onboarding.notifMorning, sub: t.onboarding.recommended, value: '08:00' },
     { icon: '🌆', label: t.onboarding.notifEvening, sub: '', value: '19:00' },
     { icon: '🌙', label: t.onboarding.notifNight, sub: '', value: '22:00' },
-    { icon: '⚙️', label: t.onboarding.notifCustom, sub: '', value: 'custom' },
   ];
 
   const handleComplete = async () => {
-    const hour = selected !== 'custom' ? TIME_TO_HOUR[selected] ?? 20 : 20;
+    const hour = TIME_TO_HOUR[selected] ?? 20;
     const granted = await requestNotificationPermission();
     if (granted) {
       await scheduleDailyReminder({ hour, minute: 0 });

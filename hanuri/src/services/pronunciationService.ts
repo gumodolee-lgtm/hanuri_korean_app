@@ -1,6 +1,7 @@
 import { AudioModule, AudioRecorder, RecordingPresets } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
+// ⚠️ PRODUCTION WARNING: 프로덕션 배포 시 백엔드 프록시로 교체 필요
 const OPENAI_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '';
 
 export interface PronunciationResult {

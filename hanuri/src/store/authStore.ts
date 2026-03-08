@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, NativeLanguage, LearningGoal, DailyGoalMinutes } from '../types';
 import { syncProfile, loadUserDataFromSupabase } from '../services/dbService';
+import { useUserStore } from './userStore';
 
 interface OnboardingData {
   nativeLanguage: NativeLanguage;
@@ -97,13 +98,16 @@ export const useAuthStore = create<AuthState>()(
             : state.user,
         })),
 
-      signOut: () =>
+      signOut: () => {
+        // 모든 persist store 초기화 (계정 간 데이터 혼재 방지)
+        useUserStore.getState().resetAll();
         set({
           user: null,
           hasCompletedOnboarding: false,
           onboardingData: {},
           lastActiveDate: null,
-        }),
+        });
+      },
 
       recordActivity: () =>
         set({ lastActiveDate: new Date().toISOString().split('T')[0] }),

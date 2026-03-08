@@ -265,7 +265,7 @@ const pronStyles = StyleSheet.create({
 export default function LessonPlayerScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
-  const { updateProgress, addXP, addTodayMinutes, progress } = useUserStore();
+  const { updateProgress, addXP, addTodayMinutes, markTodayLearned, progress } = useUserStore();
   const { user, levelUp } = useAuthStore();
   const nativeLang: NativeLanguage = user?.native_lang ?? 'en';
   const t = useT();
@@ -374,6 +374,8 @@ export default function LessonPlayerScreen() {
     updateProgress({ user_id: userId, lesson_id: lesson.id, status: 'completed', score: finalScore });
     addXP(xpEarned, userId);
     addTodayMinutes(lesson.estimatedMinutes, userId);
+    // 실제 학습 완료 → streak 갱신 (화면 진입이 아닌 레슨 완료 시에만)
+    markTodayLearned(userId);
 
     // Level-up check: if all lessons at current level are now complete, advance
     const currentLevel = user?.current_level ?? 1;

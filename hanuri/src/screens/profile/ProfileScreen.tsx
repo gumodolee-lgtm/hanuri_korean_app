@@ -49,7 +49,7 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 export default function ProfileScreen() {
   const navigation = useNavigation<NavProp>();
   const { user, signOut } = useAuthStore();
-  const { xp, streak, progress } = useUserStore();
+  const { xp, streak, progress, aiChatCount } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const isPro = user?.isPro ?? false;
   const t = useT();
@@ -92,6 +92,8 @@ export default function ProfileScreen() {
   if (streak >= 7) unlockedBadges.add('week_streak');
   if (xp >= 500) unlockedBadges.add('vocab_100');
   if (progress.some((p) => p.score === 100)) unlockedBadges.add('perfect_quiz');
+  if (aiChatCount >= 5) unlockedBadges.add('ai_chat_5');
+  if (currentLevel >= 2) unlockedBadges.add('level_up');
 
   return (
     <SafeAreaView style={styles.container}>

@@ -61,3 +61,23 @@ EXPO_PUBLIC_GOOGLE_TTS_API_KEY=  # optional
 - AI Chat: uses mock responses when API keys are empty
 - Profile: daily goal and native language are display-only (no edit UI)
 - Apple Login: shows "Coming Soon" alert
+
+## MANDATORY: 구현 완료 후 교차 흐름 검증 (Cross-Flow Review)
+
+기능 구현/수정 후 커밋 전에 반드시 아래를 검증하라. 사용자 요청 없이도 자동 수행.
+
+### 검증 체크리스트
+
+1. **Store 정리**: signOut/logout 시 authStore뿐 아니라 userStore 등 **모든 persist store**가 초기화되는가?
+2. **인자 전달**: store 함수(addXP, addTodayMinutes 등)를 호출하는 **모든 지점**에서 userId가 전달되는가?
+3. **달성 조건**: streak, 배지 등 달성 기능이 **실제 학습 행위**(레슨 완료 등)를 기반으로 판정하는가? (화면 진입만으로 달성되면 안 됨)
+4. **게스트→로그인 이전**: 게스트로 쌓은 로컬 데이터가 로그인 시 **보존/이전**되는 경로가 있는가?
+5. **UI-로직 일치**: UI에 보이는 옵션 수 === 실제 동작하는 핸들러 수인가? (비활성 옵션은 disabled 처리)
+6. **키 노출**: EXPO_PUBLIC_* 변수에 비밀 API 키가 포함되어 있지 않은가?
+
+### 검증 방법
+
+```
+grep -rn "함수명(" --include="*.ts" --include="*.tsx"  # 모든 호출 지점 확인
+grep -rn "EXPO_PUBLIC_" --include="*.ts"                # 클라이언트 노출 키 확인
+```

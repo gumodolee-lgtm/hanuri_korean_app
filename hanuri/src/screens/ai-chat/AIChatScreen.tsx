@@ -17,6 +17,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { ChatMessage } from '../../types';
 import { getScenarioById } from '../../data/scenarios';
 import { sendMessage, parseCorrection } from '../../services/aiService';
+import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { speakKorean } from '../../utils/tts';
 import { colors, typography, spacing, borderRadius } from '../../theme';
@@ -71,7 +72,8 @@ function TypingIndicator() {
 export default function AIChatScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
-  const { addXP } = useUserStore();
+  const { addXP, markTodayLearned, incrementAIChatCount } = useUserStore();
+  const { user } = useAuthStore();
   const t = useT();
 
   const scenarioId = route.params?.scenarioId ?? 'cafe';
@@ -125,8 +127,12 @@ export default function AIChatScreen() {
 
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Award 2 XP per message sent
-      addXP(2);
+      // Award 2 XP per message sent (userId 전달 → 서버 동기화)
+      const userId = user?.id;
+      addXP(2, userId);
+      incrementAIChatCount();
+      // AI 채팅도 학습 활동으로 인정 → streak 갱신
+      markTodayLearned(userId);
       setXpEarned((prev) => prev + 2);
       scrollToBottom();
     } catch (err) {
@@ -140,7 +146,7 @@ export default function AIChatScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, scenario, scenarioId, addXP]);
+  }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, markTodayLearned, incrementAIChatCount]);
 
   if (!scenario) {
     return (

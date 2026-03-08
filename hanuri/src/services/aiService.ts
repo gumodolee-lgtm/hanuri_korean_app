@@ -1,5 +1,8 @@
 import { ChatMessage } from '../types';
 
+// ⚠️ PRODUCTION WARNING: EXPO_PUBLIC_* 변수는 앱 번들에서 추출 가능합니다.
+// 프로덕션 배포 시 반드시 백엔드 프록시를 통해 API를 호출하세요.
+// 현재는 개발/데모 모드에서만 사용합니다. 키가 비어있으면 mock 모드로 동작합니다.
 const ANTHROPIC_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '';
 const OPENAI_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '';
 

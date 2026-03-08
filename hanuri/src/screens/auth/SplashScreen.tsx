@@ -18,6 +18,7 @@ import { RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { supabase } from '../../services/supabase';
+import { syncStats, syncProgress } from '../../services/dbService';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { NativeLanguage, LearningGoal, DailyGoalMinutes } from '../../types';
 import { useT } from '../../i18n';
@@ -70,20 +71,54 @@ export default function SplashScreen() {
 
           const supaUser = sessionData.user;
           if (supaUser) {
+            // 로그인 전 게스트 데이터 캡처 (이전용)
+            const guestState = useUserStore.getState();
+            const hadGuestData = guestState.xp > 0 || guestState.progress.length > 0;
+
+            const { user: currentUser } = useAuthStore.getState();
             const appUser = {
               id: supaUser.id,
               email: supaUser.email ?? '',
-              native_lang: 'en' as NativeLanguage,
-              current_level: 1,
+              native_lang: (currentUser?.native_lang ?? 'en') as NativeLanguage,
+              current_level: currentUser?.current_level ?? 1,
               xp: 0,
               streak: 0,
-              daily_goal_minutes: 15 as DailyGoalMinutes,
-              learning_goal: 'travel' as LearningGoal,
+              daily_goal_minutes: (currentUser?.daily_goal_minutes ?? 15) as DailyGoalMinutes,
+              learning_goal: (currentUser?.learning_goal ?? 'travel') as LearningGoal,
               created_at: supaUser.created_at,
             };
             // Sync profile & fetch remote data
             await loginWithSupabase(appUser);
             await loadFromRemote(supaUser.id);
+
+            // 게스트 데이터가 있었고 서버 데이터가 비어있으면 게스트 데이터를 서버로 이전
+            if (hadGuestData) {
+              const serverState = useUserStore.getState();
+              // 서버 XP가 0이면 게스트 데이터가 더 많으므로 이전
+              if (serverState.xp === 0 && guestState.xp > 0) {
+                const mergedXp = guestState.xp;
+                const mergedStreak = guestState.streak;
+                const mergedLastStreakDate = guestState.lastStreakDate;
+                const mergedTodayMinutes = guestState.todayMinutes;
+                useUserStore.setState({
+                  xp: mergedXp,
+                  streak: mergedStreak,
+                  lastStreakDate: mergedLastStreakDate,
+                  todayMinutes: mergedTodayMinutes,
+                  progress: guestState.progress.map((p) => ({ ...p, user_id: supaUser.id })),
+                });
+                // 서버에 동기화
+                await syncStats(supaUser.id, {
+                  xp: mergedXp,
+                  streak: mergedStreak,
+                  lastStreakDate: mergedLastStreakDate,
+                  todayMinutes: mergedTodayMinutes,
+                });
+                for (const p of guestState.progress) {
+                  await syncProgress(supaUser.id, { ...p, user_id: supaUser.id });
+                }
+              }
+            }
           }
         }
       }

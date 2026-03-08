@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -30,13 +30,8 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
-  const { xp, streak, todayMinutes, checkAndUpdateStreak } = useUserStore();
+  const { xp, streak, todayMinutes } = useUserStore();
   const t = useT();
-
-  // 앱 진입 시 스트릭 체크 (userId 전달 → Supabase 동기화)
-  useEffect(() => {
-    checkAndUpdateStreak(user?.id);
-  }, []);
 
   const currentLevel = user?.current_level ?? 1;
   const dailyGoal = user?.daily_goal_minutes ?? 15;
