@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C d:/AI_PROJECT/hanuri_korean_app rev-parse --git-dir)",
+      "Bash(mv d:/AI_PROJECT/hanuri_korean_app/.bkit d:/AI_PROJECT/.bkit_backup)",
+      "Bash(git clone https://github.com/gumodolee-lgtm/hanuri_korean_app.git d:/AI_PROJECT/hanuri_korean_app)",
+      "Bash(mv d:/AI_PROJECT/.bkit_backup d:/AI_PROJECT/hanuri_korean_app/.bkit)",
+      "Bash(git clone https://github.com/gumodolee-lgtm/hanuri_korean_app.git d:/AI_PROJECT/hanuri_korean_app_temp)",
+      "Read(//d/AI_PROJECT/hanuri_korean_app_temp/**)",
+      "Bash(cp -r d:/AI_PROJECT/hanuri_korean_app_temp/.git d:/AI_PROJECT/hanuri_korean_app/)",
+      "Bash(cp -r d:/AI_PROJECT/hanuri_korean_app_temp/* d:/AI_PROJECT/hanuri_korean_app/)",
+      "Bash(cp d:/AI_PROJECT/hanuri_korean_app_temp/.github d:/AI_PROJECT/hanuri_korean_app/ -r)",
+      "Read(//c/Users/jungi/.claude/rules/**)"
+    ],
+    "additionalDirectories": [
+      "d:\\AI_PROJECT\\.bkit_backup",
+      "d:\\AI_PROJECT\\hanuri_korean_app_temp",
+      "C:\\Users\\jungi\\.claude\\rules",
+      "C:\\Users\\jungi\\.claude\\projects\\d--AI-PROJECT-hanuri-korean-app"
+    ]
+  }
+}

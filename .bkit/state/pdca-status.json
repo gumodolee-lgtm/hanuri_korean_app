@@ -1,0 +1,235 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-03-08T11:01:43.028Z",
+  "activeFeatures": [
+    "store",
+    "home",
+    "lesson",
+    "hanuri",
+    "auth",
+    "ai-chat",
+    "onboarding",
+    "profile"
+  ],
+  "primaryFeature": "store",
+  "features": {
+    "store": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T10:57:50.075Z",
+        "lastUpdated": "2026-03-08T10:58:14.726Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\store\\authStore.ts"
+    },
+    "home": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T10:58:42.621Z",
+        "lastUpdated": "2026-03-08T10:58:47.521Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\home\\HomeScreen.tsx"
+    },
+    "lesson": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T10:58:55.980Z",
+        "lastUpdated": "2026-03-08T10:59:02.399Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\lesson\\LessonPlayerScreen.tsx"
+    },
+    "hanuri": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T10:59:28.149Z",
+        "lastUpdated": "2026-03-08T10:59:36.981Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\services\\pronunciationService.ts"
+    },
+    "auth": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T11:00:08.763Z",
+        "lastUpdated": "2026-03-08T11:00:22.659Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\auth\\SplashScreen.tsx"
+    },
+    "ai-chat": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T11:00:43.543Z",
+        "lastUpdated": "2026-03-08T11:01:01.491Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\ai-chat\\AIChatScreen.tsx"
+    },
+    "onboarding": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T11:01:20.632Z",
+        "lastUpdated": "2026-03-08T11:01:20.632Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\onboarding\\OnboardingNotificationScreen.tsx"
+    },
+    "profile": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-08T11:01:36.393Z",
+        "lastUpdated": "2026-03-08T11:01:43.028Z"
+      },
+      "lastFile": "d:\\AI_PROJECT\\hanuri_korean_app\\hanuri\\src\\screens\\profile\\ProfileScreen.tsx"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-03-07T07:13:45.017Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-03-08T11:01:43.028Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-03-08T10:57:50.075Z",
+      "feature": "store",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:58:08.942Z",
+      "feature": "store",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:58:14.726Z",
+      "feature": "store",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:58:42.621Z",
+      "feature": "home",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:58:47.521Z",
+      "feature": "home",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:58:55.980Z",
+      "feature": "lesson",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:59:02.399Z",
+      "feature": "lesson",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:59:28.149Z",
+      "feature": "hanuri",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T10:59:36.982Z",
+      "feature": "hanuri",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:00:08.763Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:00:22.659Z",
+      "feature": "auth",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:00:43.543Z",
+      "feature": "ai-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:00:53.208Z",
+      "feature": "ai-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:01:01.491Z",
+      "feature": "ai-chat",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:01:20.632Z",
+      "feature": "onboarding",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:01:36.393Z",
+      "feature": "profile",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-08T11:01:43.028Z",
+      "feature": "profile",
+      "phase": "do",
+      "action": "updated"
+    }
+  ]
+}
