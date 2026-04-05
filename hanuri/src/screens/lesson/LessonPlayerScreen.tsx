@@ -369,13 +369,14 @@ export default function LessonPlayerScreen() {
     const pronAvg = vocab.length > 0 ? Math.round(pronTotalScore / vocab.length) : 0;
     const finalScore = Math.round((quizScore + pronAvg) / 2);
     const xpEarned = Math.round(lesson.xpReward * (finalScore / 100));
-    const userId = user?.id ?? 'guest';
+    // 'guest_' 접두사 규칙 준수: isGuest() 체크가 startsWith('guest_')로 동작함
+    const userId = user?.id ?? 'guest_anonymous';
 
     updateProgress({ user_id: userId, lesson_id: lesson.id, status: 'completed', score: finalScore });
     addXP(xpEarned, userId);
-    addTodayMinutes(lesson.estimatedMinutes, userId);
-    // 실제 학습 완료 → streak 갱신 (화면 진입이 아닌 레슨 완료 시에만)
+    // 실제 학습 완료 기록: streak/todayLearned 갱신 후 학습 시간 누적
     markTodayLearned(userId);
+    addTodayMinutes(lesson.estimatedMinutes, userId);
 
     // Level-up check: if all lessons at current level are now complete, advance
     const currentLevel = user?.current_level ?? 1;

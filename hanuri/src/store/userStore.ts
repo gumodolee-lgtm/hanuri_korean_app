@@ -14,14 +14,13 @@ interface UserState {
   todayLearned: boolean;
   aiChatCount: number;
   addXP: (amount: number, userId?: string) => void;
-  checkAndUpdateStreak: (userId?: string) => void;
   markTodayLearned: (userId?: string) => void;
   incrementAIChatCount: () => void;
   resetStreak: () => void;
   updateProgress: (progress: UserProgress) => void;
-  unlockBadge: (badgeId: string) => void;
   addTodayMinutes: (minutes: number, userId?: string) => void;
   resetTodayMinutes: () => void;
+  checkNewDay: () => void;
   loadFromRemote: (userId: string) => Promise<void>;
   resetAll: () => void;
 }
@@ -51,47 +50,28 @@ export const useUserStore = create<UserState>()(
         }
       },
 
-      // streak는 markTodayLearned()가 호출된 날에만 갱신됨
-      // 화면 마운트가 아닌 실제 학습(레슨 완료, AI 채팅 등) 후 호출할 것
-      checkAndUpdateStreak: (userId) => {
-        const today = new Date().toISOString().split('T')[0];
-        const { lastStreakDate, streak, xp, todayLearned } = get();
-
-        // 오늘 학습한 적 없으면 streak 갱신하지 않음
-        if (!todayLearned) return;
-        if (lastStreakDate === today) return;
-
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        const newStreak = lastStreakDate === yesterday ? streak + 1 : 1;
-
-        // 날짜가 바뀌었으므로 오늘 학습시간 리셋
-        set({ streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
-        if (userId) {
-          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
-        }
-      },
-
       // 실제 학습 행위(레슨 완료, AI 채팅 등) 후 호출
+      // 날짜 경계 리셋(todayMinutes, streak)은 checkNewDay가 담당하므로
+      // 이 함수는 streak 갱신과 todayLearned 마킹만 수행
       markTodayLearned: (userId) => {
         const today = new Date().toISOString().split('T')[0];
-        const { lastStreakDate } = get();
+        const { lastStreakDate, streak, xp, todayMinutes } = get();
 
-        // 이미 오늘 학습 기록이 있으면 스킵
+        // 이미 오늘 streak이 갱신되었으면 스킵
         if (lastStreakDate === today) return;
 
-        set({ todayLearned: true });
-
-        // markTodayLearned 후 바로 streak 갱신
-        const { streak, xp } = get();
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
         const newStreak = lastStreakDate === yesterday ? streak + 1 : 1;
 
-        set({ streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
+        set({ todayLearned: true, streak: newStreak, lastStreakDate: today });
         if (userId) {
-          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes: 0 });
+          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes });
         }
       },
 
+      // aiChatCount는 로컬(AsyncStorage) 전용으로 관리
+      // ProfileScreen이 직접 이 값을 읽어 ai_chat_5 배지 달성 여부를 계산하므로
+      // 서버 동기화 없이도 정상 동작함 (기기 변경 시 초기화되는 known limitation)
       incrementAIChatCount: () => {
         set((state) => ({ aiChatCount: state.aiChatCount + 1 }));
       },
@@ -111,13 +91,6 @@ export const useUserStore = create<UserState>()(
         }
       },
 
-      unlockBadge: (badgeId) =>
-        set((state) => ({
-          badges: state.badges.map((b) =>
-            b.id === badgeId ? { ...b, unlocked: true } : b
-          ),
-        })),
-
       addTodayMinutes: (minutes, userId) => {
         const newMinutes = get().todayMinutes + minutes;
         set({ todayMinutes: newMinutes });
@@ -128,6 +101,22 @@ export const useUserStore = create<UserState>()(
       },
 
       resetTodayMinutes: () => set({ todayMinutes: 0 }),
+
+      // 앱 실행 시 날짜가 바뀌었으면 당일 학습 상태 초기화 (RootNavigator 마운트 시 호출)
+      // - 하루 지난 경우: todayMinutes, todayLearned 초기화
+      // - 이틀 이상 건너뛴 경우: streak도 0으로 초기화 (연속 학습 끊김)
+      checkNewDay: () => {
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const { lastStreakDate } = get();
+        if (lastStreakDate === today) return;
+        const streakBroken = lastStreakDate !== null && lastStreakDate !== yesterday;
+        set({
+          todayMinutes: 0,
+          todayLearned: false,
+          ...(streakBroken && { streak: 0 }),
+        });
+      },
 
       // Called after Supabase login to hydrate store from server
       loadFromRemote: async (userId: string) => {
