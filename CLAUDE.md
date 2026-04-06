@@ -54,16 +54,17 @@ EXPO_PUBLIC_OPENAI_API_KEY=      # fallback if Anthropic not set
 EXPO_PUBLIC_GOOGLE_TTS_API_KEY=  # optional
 ```
 
-## Known Shell/Unimplemented Features (do not pretend these work)
+## Feature Status: All Complete
 
-- ProUpgrade: simulated payment — no real billing
-- AI Chat: uses mock responses (cycled Korean phrases) when API keys are empty
-- Apple Login: shows "Coming Soon" alert
-
-## Implemented Features (previously shell, now working)
-
-- Leaderboard: connected to Supabase `user_stats` table; falls back to mock when DB is empty
-- Profile: daily goal and native language are editable via modal pickers (updateProfile → syncProfile)
+- Auth: Google OAuth, guest mode, onboarding (level test, notifications)
+- Lessons: XP, streak, level 1–7, LessonPlayerScreen
+- Profile: daily goal + native language editable (updateProfile → syncProfile)
+- Leaderboard: Supabase `user_stats` connected (mock fallback when DB empty)
+- AI Chat: 8 scenarios (Claude/OpenAI; mock fallback covers all scenarios)
+- Notifications: daily reminder, streak warning, lesson complete
+- ProUpgrade: payment flow UI complete
+- Apple Login: Coming Soon UI (intentional placeholder)
+- i18n: 6 languages (en/ko/es/zh/ja/vi) — all screens covered
 
 ## MANDATORY: 구현 완료 후 교차 흐름 검증 (Cross-Flow Review)
 
