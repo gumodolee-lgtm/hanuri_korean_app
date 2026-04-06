@@ -45,6 +45,8 @@ export async function getNotificationPermissionStatus(): Promise<string> {
 export interface DailyReminderOptions {
   hour: number;   // 0–23
   minute: number; // 0–59
+  title?: string;
+  body?: string;
 }
 
 export async function scheduleDailyReminder(options: DailyReminderOptions): Promise<void> {
@@ -54,8 +56,8 @@ export async function scheduleDailyReminder(options: DailyReminderOptions): Prom
   await Notifications.scheduleNotificationAsync({
     identifier: DAILY_REMINDER_ID,
     content: {
-      title: '오늘 한국어 공부 했나요? 🇰🇷',
-      body: '매일 조금씩 — 오늘의 레슨을 시작해보세요!',
+      title: options.title ?? '오늘 한국어 공부 했나요? 🇰🇷',
+      body: options.body ?? '매일 조금씩 — 오늘의 레슨을 시작해보세요!',
       sound: true,
       data: { type: 'daily_reminder' },
     },
@@ -73,14 +75,19 @@ export async function cancelDailyReminder(): Promise<void> {
 
 // ─── STREAK WARNING (if no activity by 9 PM) ─────────────────
 
-export async function scheduleStreakWarning(): Promise<void> {
+export interface StreakWarningOptions {
+  title?: string;
+  body?: string;
+}
+
+export async function scheduleStreakWarning(options: StreakWarningOptions = {}): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(STREAK_REMINDER_ID);
 
   await Notifications.scheduleNotificationAsync({
     identifier: STREAK_REMINDER_ID,
     content: {
-      title: '🔥 스트릭이 끊길 것 같아요!',
-      body: '오늘 자정 전에 레슨 하나만 완료하면 스트릭을 지킬 수 있어요!',
+      title: options.title ?? '🔥 스트릭이 끊길 것 같아요!',
+      body: options.body ?? '오늘 자정 전에 레슨 하나만 완료하면 스트릭을 지킬 수 있어요!',
       sound: true,
       data: { type: 'streak_warning' },
     },
@@ -98,11 +105,16 @@ export async function cancelStreakWarning(): Promise<void> {
 
 // ─── IMMEDIATE (celebration) ──────────────────────────────────
 
-export async function sendLessonCompleteNotification(xp: number): Promise<void> {
+export interface LessonCompleteOptions {
+  title?: string;
+  body?: string;
+}
+
+export async function sendLessonCompleteNotification(xp: number, options: LessonCompleteOptions = {}): Promise<void> {
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: '레슨 완료! 🎉',
-      body: `+${xp} XP 획득! 오늘도 대단해요!`,
+      title: options.title ?? '레슨 완료! 🎉',
+      body: options.body ?? `+${xp} XP 획득! 오늘도 대단해요!`,
       sound: true,
       data: { type: 'lesson_complete' },
     },

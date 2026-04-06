@@ -64,8 +64,8 @@ export default function ProfileScreen() {
     if (value) {
       const granted = await requestNotificationPermission();
       if (granted) {
-        await scheduleDailyReminder({ hour: 20, minute: 0 });
-        await scheduleStreakWarning();
+        await scheduleDailyReminder({ hour: 20, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+        await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
         setNotificationsEnabled(true);
       } else {
         Alert.alert(

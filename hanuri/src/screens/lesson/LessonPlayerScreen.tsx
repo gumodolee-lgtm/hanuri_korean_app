@@ -388,7 +388,10 @@ export default function LessonPlayerScreen() {
     markTodayLearned(userId);
     addTodayMinutes(lesson.estimatedMinutes, userId);
     // 레슨 완료 축하 알림 (fire-and-forget)
-    sendLessonCompleteNotification(xpEarned).catch(() => {});
+    sendLessonCompleteNotification(xpEarned, {
+      title: t.notifContent.lessonTitle,
+      body: `+${xpEarned}${t.notifContent.lessonBody}`,
+    }).catch(() => {});
 
     // Level-up check: if all lessons at current level are now complete, advance
     const currentLevel = user?.current_level ?? 1;

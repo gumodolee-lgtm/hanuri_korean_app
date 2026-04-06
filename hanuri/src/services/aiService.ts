@@ -61,8 +61,7 @@ async function callClaude(
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Claude API error ${res.status}: ${err}`);
+    throw new Error(`Claude API error ${res.status}`);
   }
 
   const data = await res.json();
@@ -94,8 +93,7 @@ async function callOpenAI(
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenAI API error ${res.status}: ${err}`);
+    throw new Error(`OpenAI API error ${res.status}`);
   }
 
   const data = await res.json();

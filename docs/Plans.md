@@ -4,19 +4,19 @@
 Connect LeaderboardScreen to Supabase user_stats, show real top-10 with loading/error states and the current user's true rank. Fall back to mock data gracefully for guests and on network errors.
 
 ## Requirements
-- [ ] REQ-1: Add `fetchLeaderboard()` to dbService.ts — queries user_stats + profiles, returns top 10 by XP
-- [ ] REQ-2: LeaderboardScreen shows loading indicator while fetching
-- [ ] REQ-3: Current user's real XP/streak/level appears at correct rank position
-- [ ] REQ-4: Guest users and network errors fall back to mock data (no crash)
-- [ ] REQ-5: Add RefreshControl (pull-to-refresh)
+- [x] REQ-1: Add `fetchLeaderboard()` to dbService.ts — queries user_stats + profiles, returns top 10 by XP
+- [x] REQ-2: LeaderboardScreen shows loading indicator while fetching
+- [x] REQ-3: Current user's real XP/streak/level appears at correct rank position
+- [x] REQ-4: Guest users and network errors fall back to mock data (no crash)
+- [x] REQ-5: Add RefreshControl (pull-to-refresh)
 
 ## Acceptance Criteria
-- [ ] AC-1: Authenticated user sees a loading spinner on first mount
-- [ ] AC-2: After load, top 10 rows show real data (xp, streak, level from DB) or mock on error
-- [ ] AC-3: Current user row always shows their real xp/streak from userStore (not DB — avoids stale)
-- [ ] AC-4: Guest users see mock data with no error thrown
-- [ ] AC-5: Pull-to-refresh re-fetches and updates the list
-- [ ] AC-6: If user is in top 10, their row is highlighted (isMe); if not, their row appears below with separator
+- [x] AC-1: Authenticated user sees a loading spinner on first mount
+- [x] AC-2: After load, top 10 rows show real data (xp, streak, level from DB) or mock on error
+- [x] AC-3: Current user row always shows their real xp/streak from userStore (not DB — avoids stale)
+- [x] AC-4: Guest users see mock data with no error thrown
+- [x] AC-5: Pull-to-refresh re-fetches and updates the list
+- [x] AC-6: If user is in top 10, their row is highlighted (isMe); if not, their row appears below with separator
 
 ## Implementation Steps
 

@@ -31,8 +31,8 @@ export default function OnboardingNotificationScreen() {
     const hour = TIME_TO_HOUR[selected] ?? 20;
     const granted = await requestNotificationPermission();
     if (granted) {
-      await scheduleDailyReminder({ hour, minute: 0 });
-      await scheduleStreakWarning();
+      await scheduleDailyReminder({ hour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+      await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
     }
     completeOnboarding();
   };

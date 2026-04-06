@@ -45,11 +45,11 @@ export default function ProUpgradeScreen() {
     setIsLoading(false);
 
     Alert.alert(
-      '구독 완료!',
-      'HANURI PRO에 오신 것을 환영해요! 모든 PRO 기능이 잠금 해제되었습니다.',
+      t.proUpgrade.successTitle,
+      t.proUpgrade.successMsg,
       [
         {
-          text: '시작하기',
+          text: t.proUpgrade.successBtn,
           onPress: () => {
             upgradeToPro();
             navigation.goBack();

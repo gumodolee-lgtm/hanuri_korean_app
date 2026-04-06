@@ -74,6 +74,11 @@ export interface Translations {
     expressionsTitle: string; goHome: string; nextLesson: string;
   };
   pron: { perfect: string; good: string; practice: string; tryAgain: string; error: string };
+  notifContent: {
+    dailyTitle: string; dailyBody: string;
+    streakTitle: string; streakBody: string;
+    lessonTitle: string; lessonBody: string;
+  };
   proUpgrade: {
     heroSub: string;
     benefitsTitle: string;
@@ -86,6 +91,7 @@ export interface Translations {
     monthly: string; yearly: string; yearlyBadge: string;
     subscribeMonthly: string; subscribeYearly: string;
     disclaimer: string;
+    successTitle: string; successMsg: string; successBtn: string;
   };
 }
 
@@ -179,6 +185,14 @@ const en: Translations = {
     tryAgain: 'Try again slowly. You got this! 🔄',
     error: 'Error occurred. Please try again.',
   },
+  notifContent: {
+    dailyTitle: 'Time to study Korean! 🇰🇷',
+    dailyBody: 'A little each day — start today\'s lesson!',
+    streakTitle: '🔥 Your streak is at risk!',
+    streakBody: 'Complete one lesson before midnight to keep your streak!',
+    lessonTitle: 'Lesson complete! 🎉',
+    lessonBody: ' XP earned! Great job today!',
+  },
   proUpgrade: {
     heroSub: 'Take your Korean to the next level',
     benefitsTitle: 'PRO Benefits',
@@ -192,6 +206,7 @@ const en: Translations = {
     subscribeMonthly: 'Start Monthly Subscription',
     subscribeYearly: 'Start Annual Subscription',
     disclaimer: 'Cancel anytime. Subscription renews automatically.',
+    successTitle: 'Subscribed!', successMsg: 'Welcome to HANURI PRO! All PRO features are now unlocked.', successBtn: 'Get Started',
   },
 };
 
@@ -285,6 +300,14 @@ const ko: Translations = {
     tryAgain: '다시 한번 천천히 따라 읽어보세요. 화이팅! 🔄',
     error: '오류가 발생했어요. 다시 시도해주세요.',
   },
+  notifContent: {
+    dailyTitle: '오늘 한국어 공부 했나요? 🇰🇷',
+    dailyBody: '매일 조금씩 — 오늘의 레슨을 시작해보세요!',
+    streakTitle: '🔥 스트릭이 끊길 것 같아요!',
+    streakBody: '오늘 자정 전에 레슨 하나만 완료하면 스트릭을 지킬 수 있어요!',
+    lessonTitle: '레슨 완료! 🎉',
+    lessonBody: ' XP 획득! 오늘도 대단해요!',
+  },
   proUpgrade: {
     heroSub: '한국어 실력을 한 단계 끌어올리세요',
     benefitsTitle: 'PRO 혜택',
@@ -298,6 +321,7 @@ const ko: Translations = {
     subscribeMonthly: '월간 구독 시작하기',
     subscribeYearly: '연간 구독 시작하기',
     disclaimer: '언제든지 취소할 수 있습니다. 구독은 자동 갱신됩니다.',
+    successTitle: '구독 완료!', successMsg: 'HANURI PRO에 오신 것을 환영해요! 모든 PRO 기능이 잠금 해제되었습니다.', successBtn: '시작하기',
   },
 };
 
@@ -391,6 +415,14 @@ const es: Translations = {
     tryAgain: 'Inténtalo de nuevo despacio. ¡Ánimo! 🔄',
     error: 'Ocurrió un error. Por favor intenta de nuevo.',
   },
+  notifContent: {
+    dailyTitle: '¡Hora de estudiar coreano! 🇰🇷',
+    dailyBody: 'Un poco cada día — ¡empieza la lección de hoy!',
+    streakTitle: '🔥 ¡Tu racha está en riesgo!',
+    streakBody: '¡Completa una lección antes de medianoche para mantener tu racha!',
+    lessonTitle: '¡Lección completada! 🎉',
+    lessonBody: ' XP ganado. ¡Gran trabajo hoy!',
+  },
   proUpgrade: {
     heroSub: 'Lleva tu coreano al siguiente nivel',
     benefitsTitle: 'Beneficios PRO',
@@ -404,6 +436,7 @@ const es: Translations = {
     subscribeMonthly: 'Empezar suscripción mensual',
     subscribeYearly: 'Empezar suscripción anual',
     disclaimer: 'Cancela cuando quieras. La suscripción se renueva automáticamente.',
+    successTitle: '¡Suscrito!', successMsg: '¡Bienvenido a HANURI PRO! Todas las funciones PRO están desbloqueadas.', successBtn: 'Empezar',
   },
 };
 
@@ -497,6 +530,14 @@ const zh: Translations = {
     tryAgain: '再慢慢试一次。加油！🔄',
     error: '发生错误，请重试。',
   },
+  notifContent: {
+    dailyTitle: '今天学韩语了吗？🇰🇷',
+    dailyBody: '每天一点点 — 开始今天的课程吧！',
+    streakTitle: '🔥 你的连续学习记录快断了！',
+    streakBody: '午夜前完成一节课就能保住连续记录！',
+    lessonTitle: '课程完成！🎉',
+    lessonBody: ' XP 获得！今天也很棒！',
+  },
   proUpgrade: {
     heroSub: '将您的韩语提升到新水平',
     benefitsTitle: 'PRO 权益',
@@ -510,6 +551,7 @@ const zh: Translations = {
     subscribeMonthly: '开始月度订阅',
     subscribeYearly: '开始年度订阅',
     disclaimer: '随时可以取消。订阅自动续费。',
+    successTitle: '订阅成功！', successMsg: '欢迎加入 HANURI PRO！所有PRO功能已解锁。', successBtn: '开始',
   },
 };
 
@@ -603,6 +645,14 @@ const ja: Translations = {
     tryAgain: 'もう一度ゆっくり読んでみてください。頑張って！🔄',
     error: 'エラーが発生しました。再試行してください。',
   },
+  notifContent: {
+    dailyTitle: '今日韓国語を勉強しましたか？🇰🇷',
+    dailyBody: '毎日少しずつ — 今日のレッスンを始めましょう！',
+    streakTitle: '🔥 ストリークが途切れそうです！',
+    streakBody: '今日の真夜中前にレッスンを一つ完了してストリークを守りましょう！',
+    lessonTitle: 'レッスン完了！🎉',
+    lessonBody: ' XP獲得！今日も素晴らしい！',
+  },
   proUpgrade: {
     heroSub: '韓国語をさらに上のレベルへ',
     benefitsTitle: 'PRO特典',
@@ -616,6 +666,7 @@ const ja: Translations = {
     subscribeMonthly: '月次サブスクリプション開始',
     subscribeYearly: '年次サブスクリプション開始',
     disclaimer: 'いつでもキャンセルできます。サブスクリプションは自動更新されます。',
+    successTitle: '購読完了！', successMsg: 'HANURI PROへようこそ！すべてのPRO機能が解放されました。', successBtn: '始める',
   },
 };
 
@@ -709,6 +760,14 @@ const vi: Translations = {
     tryAgain: 'Thử lại từ từ nhé. Cố lên! 🔄',
     error: 'Có lỗi xảy ra. Vui lòng thử lại.',
   },
+  notifContent: {
+    dailyTitle: 'Đã học tiếng Hàn hôm nay chưa? 🇰🇷',
+    dailyBody: 'Mỗi ngày một chút — bắt đầu bài học hôm nay nhé!',
+    streakTitle: '🔥 Chuỗi ngày học của bạn sắp bị mất!',
+    streakBody: 'Hoàn thành một bài học trước nửa đêm để duy trì chuỗi ngày học!',
+    lessonTitle: 'Hoàn thành bài học! 🎉',
+    lessonBody: ' XP đã nhận! Tuyệt vời hôm nay!',
+  },
   proUpgrade: {
     heroSub: 'Nâng tiếng Hàn của bạn lên tầm cao mới',
     benefitsTitle: 'Quyền lợi PRO',
@@ -722,6 +781,7 @@ const vi: Translations = {
     subscribeMonthly: 'Bắt đầu đăng ký hàng tháng',
     subscribeYearly: 'Bắt đầu đăng ký hàng năm',
     disclaimer: 'Hủy bất cứ lúc nào. Đăng ký tự động gia hạn.',
+    successTitle: 'Đã đăng ký!', successMsg: 'Chào mừng đến với HANURI PRO! Tất cả tính năng PRO đã được mở khóa.', successBtn: 'Bắt đầu',
   },
 };
 
