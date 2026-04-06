@@ -21,6 +21,10 @@ export interface WordMatch {
 let recordingInstance: AudioRecorder | null = null;
 
 export async function startRecording(): Promise<void> {
+  // 이전 녹음이 남아있으면 정리 후 시작 (리소스 릭 방지)
+  if (recordingInstance) {
+    await stopRecording();
+  }
   await AudioModule.requestRecordingPermissionsAsync();
   await AudioModule.setAudioModeAsync({
     allowsRecording: true,
@@ -64,8 +68,7 @@ async function transcribeWithWhisper(audioUri: string): Promise<string> {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Whisper API error ${res.status}: ${err}`);
+    throw new Error(`Whisper API error ${res.status}`);
   }
 
   const data = await res.json();
