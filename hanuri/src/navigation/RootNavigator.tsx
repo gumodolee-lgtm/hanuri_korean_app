@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
+import { supabase } from '../services/supabase';
 import MainTabNavigator from './MainTabNavigator';
 import SplashScreen from '../screens/auth/SplashScreen';
 import OnboardingNavigator from './OnboardingNavigator';
@@ -22,6 +23,17 @@ export default function RootNavigator() {
   useEffect(() => {
     checkNewDay();
   }, [checkNewDay]);
+
+  // Supabase 세션 외부 변경 감지: 토큰 만료, 다른 기기 로그아웃 등
+  // getState()로 직접 접근하여 클로저 stale 문제 방지
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        useAuthStore.getState().signOut();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <NavigationContainer>

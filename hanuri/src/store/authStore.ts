@@ -16,7 +16,6 @@ interface AuthState {
   user: User | null;
   hasCompletedOnboarding: boolean;
   onboardingData: Partial<OnboardingData>;
-  lastActiveDate: string | null;
   setUser: (user: User | null) => void;
   setOnboardingData: (data: Partial<OnboardingData>) => void;
   completeOnboarding: () => void;
@@ -24,7 +23,6 @@ interface AuthState {
   upgradeToPro: () => void;
   levelUp: () => void;
   signOut: () => void;
-  recordActivity: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -33,7 +31,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       hasCompletedOnboarding: false,
       onboardingData: {},
-      lastActiveDate: null,
 
       setUser: (user) => set({ user }),
 
@@ -62,22 +59,30 @@ export const useAuthStore = create<AuthState>()(
       // Called after Google/Apple login — fetches server data and merges
       loginWithSupabase: async (supaUser: User) => {
         set({ user: supaUser, hasCompletedOnboarding: true });
-        // Sync profile to DB first
-        await syncProfile(supaUser);
+        // Sync profile to DB first — failure is non-fatal (local state already set)
+        try {
+          await syncProfile(supaUser);
+        } catch (err) {
+          console.warn('[authStore] syncProfile failed — continuing with local state:', err);
+        }
         // Then fetch any existing server data (XP, streak, progress)
-        const remote = await loadUserDataFromSupabase(supaUser.id);
-        if (remote.profile) {
-          set((state) => ({
-            user: state.user
-              ? {
-                  ...state.user,
-                  native_lang: remote.profile!.native_lang ?? state.user.native_lang,
-                  current_level: remote.profile!.current_level ?? state.user.current_level,
-                  learning_goal: remote.profile!.learning_goal ?? state.user.learning_goal,
-                  daily_goal_minutes: remote.profile!.daily_goal_minutes ?? state.user.daily_goal_minutes,
-                }
-              : state.user,
-          }));
+        try {
+          const remote = await loadUserDataFromSupabase(supaUser.id);
+          if (remote.profile) {
+            set((state) => ({
+              user: state.user
+                ? {
+                    ...state.user,
+                    native_lang: remote.profile!.native_lang ?? state.user.native_lang,
+                    current_level: remote.profile!.current_level ?? state.user.current_level,
+                    learning_goal: remote.profile!.learning_goal ?? state.user.learning_goal,
+                    daily_goal_minutes: remote.profile!.daily_goal_minutes ?? state.user.daily_goal_minutes,
+                  }
+                : state.user,
+            }));
+          }
+        } catch (err) {
+          console.warn('[authStore] loadUserDataFromSupabase failed — local state preserved:', err instanceof Error ? err.message : String(err));
         }
         // Remote stats + progress are applied by userStore.loadFromRemote()
         // (called separately to avoid circular imports)
@@ -105,12 +110,9 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           hasCompletedOnboarding: false,
           onboardingData: {},
-          lastActiveDate: null,
         });
       },
 
-      recordActivity: () =>
-        set({ lastActiveDate: new Date().toISOString().split('T')[0] }),
     }),
     {
       name: 'hanuri-auth',
@@ -120,7 +122,6 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         onboardingData: state.onboardingData,
-        lastActiveDate: state.lastActiveDate,
       }),
     }
   )
