@@ -1,47 +1,35 @@
-# Plan: Lesson Player Hardening
+# Plan: Profile Screen Hardening
 
 ## Summary
-Guard against double-execution of finishLesson (which would double XP/minutes), add zero-step protection, and tighten type safety in LessonCompleteScreen.
+Add sign-out confirmation dialog to prevent accidental logout, and guard xpProgress from NaN when level is zero.
 
 ## Requirements
-- [ ] REQ-1: Prevent `finishLesson` double-invocation via rapid double-tap
-- [ ] REQ-2: Guard `lessonProgress` and `finishLesson` when `totalSteps === 0`
-- [ ] REQ-3: Remove `as any` cast in LessonCompleteScreen nested tab navigation
+- [ ] REQ-1: Show confirmation Alert before executing signOut
+- [ ] REQ-2: Guard `xpForNext === 0` in xpProgress calculation
 
 ## Acceptance Criteria
-- [ ] AC-1: PronunciationPhase "next/finish" button is disabled after first press until navigation completes
-- [ ] AC-2: `addXP`, `addTodayMinutes`, `updateProgress` are each called exactly once per lesson completion
-- [ ] AC-3: `lessonProgress` evaluates to a value in [0, 1] even when `totalSteps === 0`
-- [ ] AC-4: LessonCompleteScreen "Next Lesson" navigates without `as any` cast or uses a typed param
+- [ ] AC-1: Tapping sign-out button shows Alert with cancel and confirm options before calling signOut()
+- [ ] AC-2: signOut() is NOT called when user dismisses the confirmation dialog
+- [ ] AC-3: `xpProgress` is always a value in [0, 1] even when `currentLevel === 0`
 
 ## Implementation Steps
 
-### Phase 1: Double-tap Guard
-- Step 1.1: Add `isFinishing` state (boolean) to `LessonPlayerScreen` → file: `hanuri/src/screens/lesson/LessonPlayerScreen.tsx`
-- Step 1.2: Set `isFinishing = true` at the top of `finishLesson`, guard early return if already true → same file
-- Step 1.3: Pass `isFinishing` as `disabled` prop to `PronunciationPhase` and apply to the next/finish button → same file
+### Phase 1: Sign-out Confirmation
+- Step 1.1: Replace `onPress={signOut}` with `onPress={() => handleSignOut()}` on the sign-out button
+- Step 1.2: Implement `handleSignOut` function that shows `Alert.alert` with cancel + confirm → file: `hanuri/src/screens/profile/ProfileScreen.tsx`
+- Step 1.3: Use existing `t.profile` i18n keys — check if signOutConfirm keys exist, add if not → file: `hanuri/src/i18n/index.ts`
 
-### Phase 2: Zero-step Guard
-- Step 2.1: Change `lessonProgress = currentStep / totalSteps` to `totalSteps > 0 ? currentStep / totalSteps : 0` → same file
-
-### Phase 3: Navigation Type
-- Step 3.1: Use `CompositeNavigationProp` or cast only the param (not the whole navigate call) in LessonCompleteScreen → file: `hanuri/src/screens/lesson/LessonCompleteScreen.tsx`
+### Phase 2: XP Guard
+- Step 2.1: Change `xpForNext = currentLevel * 100` guard: `const xpForNext = Math.max(currentLevel * 100, 1)` → same file
 
 ## Files to Modify
 
 | File | Action | Description |
 |------|--------|-------------|
-| `hanuri/src/screens/lesson/LessonPlayerScreen.tsx` | Modify | isFinishing guard + zero-step guard |
-| `hanuri/src/screens/lesson/LessonCompleteScreen.tsx` | Modify | Remove as-any cast |
-
-## Risks & Mitigations
-
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| isFinishing state causes re-render mid-navigation | LOW | navigation.replace is synchronous enough; state won't cause visible flicker |
-| Zero-step lessons (totalSteps=0) skip all phases and go directly to finishLesson | LOW | Edge case only in dev/test data, not production lessons |
+| `hanuri/src/screens/profile/ProfileScreen.tsx` | Modify | handleSignOut + xpForNext guard |
+| `hanuri/src/i18n/index.ts` | Modify | Add signOut confirm i18n keys (if missing) |
 
 ## Out of Scope
-- Lesson replay/retry flow
-- Pronunciation service error handling improvements
-- Score algorithm changes
+- Daily goal / native language edit UI (known limitation)
+- vocab_100 badge semantic alignment (design decision)
+- Notification time customization

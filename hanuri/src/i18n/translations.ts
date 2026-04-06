@@ -63,6 +63,7 @@ export interface Translations {
     dailyGoal: string; nativeLang: string; signOut: string;
     upgradeTitle: string; upgradeSub: string;
     notifPermTitle: string; notifPermMsg: string; confirm: string;
+    signOutConfirmTitle: string; signOutConfirmMsg: string; cancel: string;
     badgeNames: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
     badgeDescs: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
   };
@@ -161,6 +162,7 @@ const en: Translations = {
     upgradeTitle: 'Upgrade to HANURI PRO', upgradeSub: 'Business · TOPIK · Unlimited AI Chat',
     notifPermTitle: 'Permission Required', notifPermMsg: 'Please allow notifications in Settings.',
     confirm: 'OK',
+    signOutConfirmTitle: 'Sign Out', signOutConfirmMsg: 'Are you sure you want to sign out?', cancel: 'Cancel',
     badgeNames: { firstLesson: 'First Lesson', weekStreak: '7-Day Streak', vocab100: 'Vocab Master', aiChat5: 'AI Champ', perfectQuiz: 'Quiz Master', levelUp: 'Level Up' },
     badgeDescs: { firstLesson: 'Complete first lesson', weekStreak: '7 days in a row', vocab100: 'Reach 500 XP', aiChat5: 'Start AI chat', perfectQuiz: 'Get 100% on quiz', levelUp: 'Reach next level' },
   },
@@ -266,6 +268,7 @@ const ko: Translations = {
     upgradeTitle: 'HANURI PRO로 업그레이드', upgradeSub: '비즈니스 · TOPIK · 무제한 AI 대화',
     notifPermTitle: '알림 권한 필요', notifPermMsg: '설정 앱에서 하누리 알림을 허용해주세요.',
     confirm: '확인',
+    signOutConfirmTitle: '로그아웃', signOutConfirmMsg: '정말 로그아웃하시겠어요?', cancel: '취소',
     badgeNames: { firstLesson: '첫 레슨', weekStreak: '7일 연속', vocab100: '단어 달인', aiChat5: 'AI 대화왕', perfectQuiz: '퀴즈 마스터', levelUp: '레벨업' },
     badgeDescs: { firstLesson: '첫 레슨 완료', weekStreak: '7일 연속 학습', vocab100: 'XP 500 달성', aiChat5: 'AI 대화 시작', perfectQuiz: '퀴즈 100% 달성', levelUp: '다음 레벨 도달' },
   },
@@ -371,6 +374,7 @@ const es: Translations = {
     upgradeTitle: 'Actualizar a HANURI PRO', upgradeSub: 'Negocios · TOPIK · Chat IA ilimitado',
     notifPermTitle: 'Permiso requerido', notifPermMsg: 'Permite notificaciones en Ajustes.',
     confirm: 'OK',
+    signOutConfirmTitle: 'Cerrar sesión', signOutConfirmMsg: '¿Seguro que quieres cerrar sesión?', cancel: 'Cancelar',
     badgeNames: { firstLesson: 'Primera lección', weekStreak: 'Racha 7 días', vocab100: 'Maestro vocab', aiChat5: 'Campeón IA', perfectQuiz: 'Maestro quiz', levelUp: 'Subir nivel' },
     badgeDescs: { firstLesson: 'Completa primera lección', weekStreak: '7 días seguidos', vocab100: 'Alcanza 500 XP', aiChat5: 'Inicia chat IA', perfectQuiz: '100% en quiz', levelUp: 'Alcanza siguiente nivel' },
   },
@@ -476,6 +480,7 @@ const zh: Translations = {
     upgradeTitle: '升级到 HANURI PRO', upgradeSub: '商务 · TOPIK · 无限AI对话',
     notifPermTitle: '需要权限', notifPermMsg: '请在设置中允许通知。',
     confirm: '确定',
+    signOutConfirmTitle: '退出登录', signOutConfirmMsg: '确定要退出登录吗？', cancel: '取消',
     badgeNames: { firstLesson: '第一课', weekStreak: '7天连续', vocab100: '单词达人', aiChat5: 'AI高手', perfectQuiz: '测验大师', levelUp: '升级' },
     badgeDescs: { firstLesson: '完成第一课', weekStreak: '连续7天', vocab100: '达到500XP', aiChat5: '开始AI对话', perfectQuiz: '测验100%', levelUp: '到达下一级' },
   },
@@ -581,6 +586,7 @@ const ja: Translations = {
     upgradeTitle: 'HANURI PROにアップグレード', upgradeSub: 'ビジネス · TOPIK · 無制限AIチャット',
     notifPermTitle: '権限が必要', notifPermMsg: '設定アプリで通知を許可してください。',
     confirm: 'OK',
+    signOutConfirmTitle: 'サインアウト', signOutConfirmMsg: 'サインアウトしますか？', cancel: 'キャンセル',
     badgeNames: { firstLesson: '最初のレッスン', weekStreak: '7日連続', vocab100: '単語の達人', aiChat5: 'AIチャンプ', perfectQuiz: 'クイズマスター', levelUp: 'レベルアップ' },
     badgeDescs: { firstLesson: '最初のレッスン完了', weekStreak: '7日連続学習', vocab100: '500XP達成', aiChat5: 'AIチャット開始', perfectQuiz: 'クイズ100%', levelUp: '次のレベルへ' },
   },
@@ -686,6 +692,7 @@ const vi: Translations = {
     upgradeTitle: 'Nâng cấp lên HANURI PRO', upgradeSub: 'Kinh doanh · TOPIK · Chat AI không giới hạn',
     notifPermTitle: 'Cần cấp quyền', notifPermMsg: 'Vui lòng cho phép thông báo trong Cài đặt.',
     confirm: 'OK',
+    signOutConfirmTitle: 'Đăng xuất', signOutConfirmMsg: 'Bạn có chắc muốn đăng xuất không?', cancel: 'Hủy',
     badgeNames: { firstLesson: 'Bài học đầu', weekStreak: '7 ngày liên tục', vocab100: 'Bậc thầy từ vựng', aiChat5: 'Vô địch AI', perfectQuiz: 'Thạc sĩ quiz', levelUp: 'Lên cấp' },
     badgeDescs: { firstLesson: 'Hoàn thành bài học đầu', weekStreak: '7 ngày liên tiếp', vocab100: 'Đạt 500 XP', aiChat5: 'Bắt đầu chat AI', perfectQuiz: '100% quiz', levelUp: 'Đạt cấp tiếp theo' },
   },

@@ -83,9 +83,20 @@ export default function ProfileScreen() {
 
   const currentLevel = user?.current_level ?? 1;
   const levelInfo = ALL_LEVELS.find((l) => l.level === currentLevel);
-  const xpForNext = currentLevel * 100;
+  const xpForNext = Math.max(currentLevel * 100, 1); // guard against level 0 → NaN
   const xpProgress = Math.min((xp % xpForNext) / xpForNext, 1);
   const completedLessons = progress.filter((p) => p.status === 'completed').length;
+
+  const handleSignOut = () => {
+    Alert.alert(
+      t.profile.signOutConfirmTitle,
+      t.profile.signOutConfirmMsg,
+      [
+        { text: t.profile.cancel, style: 'cancel' },
+        { text: t.profile.confirm, style: 'destructive', onPress: signOut },
+      ]
+    );
+  };
 
   const unlockedBadges = new Set<string>();
   if (completedLessons >= 1) unlockedBadges.add('first_lesson');
@@ -202,7 +213,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.signOutBtn} onPress={signOut}>
+        <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
           <Text style={styles.signOutText}>{t.profile.signOut}</Text>
         </TouchableOpacity>
 
