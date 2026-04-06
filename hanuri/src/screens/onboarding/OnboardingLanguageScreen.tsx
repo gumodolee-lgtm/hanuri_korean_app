@@ -7,6 +7,7 @@ import { OnboardingStackParamList } from '../../types/navigation';
 import { NativeLanguage } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingLanguage'>;
 
@@ -26,6 +27,7 @@ const languages: { code: NativeLanguage; flag: string; label: string }[] = [
 export default function OnboardingLanguageScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData } = useAuthStore();
+  const t = useT();
   const [selected, setSelected] = React.useState<NativeLanguage>('en');
 
   const handleNext = () => {
@@ -43,8 +45,8 @@ export default function OnboardingLanguageScreen() {
         </View>
 
         <Text style={styles.emoji}>🌏</Text>
-        <Text style={styles.title}>What language do you speak?</Text>
-        <Text style={styles.subtitle}>어떤 언어로 설명해 드릴까요?</Text>
+        <Text style={styles.title}>{t.onboarding.langTitle}</Text>
+        <Text style={styles.subtitle}>{t.onboarding.langSubtitle}</Text>
 
         <View style={styles.options}>
           {languages.map((lang) => (

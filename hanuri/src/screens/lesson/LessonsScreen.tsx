@@ -15,6 +15,8 @@ import { RootStackParamList, MainTabParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS, LessonData } from '../../data/lessons';
+
+const MAX_LEVELS = 12;
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
 
@@ -88,7 +90,7 @@ export default function LessonsScreen() {
             </TouchableOpacity>
           );
         })}
-        {Array.from({ length: 12 - ALL_LEVELS.length }, (_, i) => ALL_LEVELS.length + i + 1).map((lvl) => (
+        {Array.from({ length: MAX_LEVELS - ALL_LEVELS.length }, (_, i) => ALL_LEVELS.length + i + 1).map((lvl) => (
           <TouchableOpacity key={`future-${lvl}`} style={[styles.levelTab, styles.levelTabLocked]} disabled>
             <Text style={styles.levelTabEmoji}>🔒</Text>
             <Text style={styles.levelTabText}>Lv.{lvl}</Text>

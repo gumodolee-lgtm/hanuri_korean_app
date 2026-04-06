@@ -68,8 +68,8 @@ export default function LeaderboardScreen() {
   const isGuest = !user || user.id.startsWith('guest_');
   const currentLevel = user?.current_level ?? 1;
 
-  const [entries, setEntries] = useState(MOCK_LEADERS);
-  // H-1 fix: start loading=true for authenticated users to avoid flash of mock content
+  const [entries, setEntries] = useState(isGuest ? [] : MOCK_LEADERS);
+  // start loading=true for authenticated users to avoid flash of mock content
   const [loading, setLoading] = useState(!isGuest);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -122,7 +122,13 @@ export default function LeaderboardScreen() {
         <Text style={styles.headerSub}>{t.leaderboard.subtitle}</Text>
       </View>
 
-      {loading ? (
+      {isGuest ? (
+        <View style={styles.guestPlaceholder}>
+          <Text style={styles.guestEmoji}>🏆</Text>
+          <Text style={styles.guestTitle}>{t.leaderboard.guestPrompt}</Text>
+          <Text style={styles.guestSub}>{t.leaderboard.notice}</Text>
+        </View>
+      ) : loading ? (
         <ActivityIndicator style={{ marginTop: spacing.xl }} color={colors.primary} />
       ) : (
         <>
@@ -248,4 +254,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   noticeText: { ...typography.caption, color: colors.dark, textAlign: 'center', lineHeight: 20 },
+
+  guestPlaceholder: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    padding: spacing.xl, gap: spacing.md,
+  },
+  guestEmoji: { fontSize: 56 },
+  guestTitle: { ...typography.h3, color: colors.dark, textAlign: 'center' },
+  guestSub: { ...typography.caption, color: colors.gray, textAlign: 'center', lineHeight: 20 },
 });

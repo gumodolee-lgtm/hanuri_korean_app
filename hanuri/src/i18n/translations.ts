@@ -3,7 +3,7 @@ import { NativeLanguage } from '../types';
 export interface Translations {
   tabs: { home: string; lessons: string; aiChat: string; ranking: string; profile: string };
   splash: {
-    slogan: string; startFree: string; haveAccount: string; or: string;
+    slogan: string; startFree: string; or: string;
     googleLogin: string; appleLogin: string;
     loginFailedTitle: string; loginFailedMsg: string;
   };
@@ -17,8 +17,11 @@ export interface Translations {
     timeTitle: string;
     timeCasual: string; timeRecommended: string; timeIntensive: string; recommended: string;
     timeTip: string;
-    notifTitle: string; notifMorning: string; notifEvening: string; notifNight: string; notifCustom: string;
+    notifTitle: string; notifMorning: string; notifEvening: string; notifNight: string;
     startApp: string; skip: string;
+    back: string;
+    levelTestSubtitle: string; levelTestComplete: string; levelTestCorrect: string;
+    levelTestRecommended: string; levelTestStart: string; levelTestManual: string;
   };
   home: {
     greeting: string; goalPrefix: string;
@@ -69,7 +72,7 @@ export interface Translations {
     badgeNames: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
     badgeDescs: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
   };
-  leaderboard: { title: string; subtitle: string; meSuffix: string; notice: string };
+  leaderboard: { title: string; subtitle: string; meSuffix: string; notice: string; guestPrompt: string };
   lessonComplete: {
     title: string; perfect: string; great: string; tryAgain: string;
     accuracy: string; xpEarned: string; wordsLearned: string;
@@ -102,7 +105,6 @@ const en: Translations = {
   splash: {
     slogan: 'Connect the world through Korean',
     startFree: '🚀 Start for Free',
-    haveAccount: 'I already have an account',
     or: 'or',
     googleLogin: 'Continue with Google',
     appleLogin: 'Continue with Apple',
@@ -120,8 +122,12 @@ const en: Translations = {
     timeCasual: 'Casual', timeRecommended: 'Recommended', timeIntensive: 'Intensive', recommended: '⭐',
     timeTip: '💡 15 min/day → basic conversation in 3 months!',
     notifTitle: 'Set your study reminder',
-    notifMorning: 'Morning 8:00', notifEvening: 'Evening 7:00', notifNight: 'Night 10:00', notifCustom: 'Custom',
+    notifMorning: 'Morning 8:00', notifEvening: 'Evening 7:00', notifNight: 'Night 10:00',
     startApp: 'Get Started 🚀', skip: 'Skip',
+    back: '← Back',
+    levelTestSubtitle: 'What does this sentence mean?', levelTestComplete: 'Test Complete!',
+    levelTestCorrect: 'correct', levelTestRecommended: 'Recommended Level',
+    levelTestStart: 'Start at this level →', levelTestManual: 'Choose level manually',
   },
   home: {
     greeting: 'Hello! 👋', goalPrefix: 'Goal:',
@@ -176,7 +182,7 @@ const en: Translations = {
     badgeNames: { firstLesson: 'First Lesson', weekStreak: '7-Day Streak', vocab100: 'Vocab Master', aiChat5: 'AI Champ', perfectQuiz: 'Quiz Master', levelUp: 'Level Up' },
     badgeDescs: { firstLesson: 'Complete first lesson', weekStreak: '7 days in a row', vocab100: 'Reach 500 XP', aiChat5: 'Start AI chat', perfectQuiz: 'Get 100% on quiz', levelUp: 'Reach next level' },
   },
-  leaderboard: { title: '🏆 Ranking', subtitle: 'This week by XP', meSuffix: '(Me)', notice: '💡 Complete lessons and AI chats to earn XP and climb the ranking!' },
+  leaderboard: { title: '🏆 Ranking', subtitle: 'This week by XP', meSuffix: '(Me)', notice: '💡 Complete lessons and AI chats to earn XP and climb the ranking!', guestPrompt: 'Sign in to see the real leaderboard' },
   lessonComplete: {
     title: 'Lesson Complete!', perfect: 'Perfect!', great: 'Great job!', tryAgain: 'Try again!',
     accuracy: 'Accuracy', xpEarned: 'XP Earned', wordsLearned: 'Words',
@@ -219,7 +225,6 @@ const ko: Translations = {
   splash: {
     slogan: '한국어로 세상을 연결하다',
     startFree: '🚀 무료로 시작하기',
-    haveAccount: '이미 계정이 있어요',
     or: '또는',
     googleLogin: 'Google로 계속하기',
     appleLogin: 'Apple로 계속하기',
@@ -237,8 +242,12 @@ const ko: Translations = {
     timeCasual: '가볍게', timeRecommended: '추천', timeIntensive: '집중 학습', recommended: '⭐',
     timeTip: '💡 15분/일 → 3개월 후 기초 회화 가능!',
     notifTitle: '학습 알림을 설정하세요',
-    notifMorning: '오전 8:00', notifEvening: '오후 7:00', notifNight: '오후 10:00', notifCustom: '직접 설정',
+    notifMorning: '오전 8:00', notifEvening: '오후 7:00', notifNight: '오후 10:00',
     startApp: '시작하기 🚀', skip: '건너뛰기',
+    back: '← 뒤로',
+    levelTestSubtitle: '이 문장의 뜻은 무엇인가요?', levelTestComplete: '테스트 완료!',
+    levelTestCorrect: '정답', levelTestRecommended: '추천 레벨',
+    levelTestStart: '이 레벨로 시작하기 →', levelTestManual: '직접 레벨 선택하기',
   },
   home: {
     greeting: '안녕하세요! 👋', goalPrefix: '목표:',
@@ -293,7 +302,7 @@ const ko: Translations = {
     badgeNames: { firstLesson: '첫 레슨', weekStreak: '7일 연속', vocab100: '단어 달인', aiChat5: 'AI 대화왕', perfectQuiz: '퀴즈 마스터', levelUp: '레벨업' },
     badgeDescs: { firstLesson: '첫 레슨 완료', weekStreak: '7일 연속 학습', vocab100: 'XP 500 달성', aiChat5: 'AI 대화 시작', perfectQuiz: '퀴즈 100% 달성', levelUp: '다음 레벨 도달' },
   },
-  leaderboard: { title: '🏆 랭킹', subtitle: '이번 주 XP 기준', meSuffix: '(나)', notice: '💡 레슨 완료 및 AI 대화로 XP를 얻어 랭킹을 올려보세요!' },
+  leaderboard: { title: '🏆 랭킹', subtitle: '이번 주 XP 기준', meSuffix: '(나)', notice: '💡 레슨 완료 및 AI 대화로 XP를 얻어 랭킹을 올려보세요!', guestPrompt: '로그인하면 실제 랭킹을 볼 수 있어요' },
   lessonComplete: {
     title: '레슨 완료!', perfect: '완벽해요!', great: '잘했어요!', tryAgain: '다시 도전해봐요!',
     accuracy: '정답률', xpEarned: 'XP 획득', wordsLearned: '학습 단어',
@@ -336,7 +345,6 @@ const es: Translations = {
   splash: {
     slogan: 'Conecta el mundo a través del coreano',
     startFree: '🚀 Empezar gratis',
-    haveAccount: 'Ya tengo una cuenta',
     or: 'o',
     googleLogin: 'Continuar con Google',
     appleLogin: 'Continuar con Apple',
@@ -354,8 +362,12 @@ const es: Translations = {
     timeCasual: 'Casual', timeRecommended: 'Recomendado', timeIntensive: 'Intensivo', recommended: '⭐',
     timeTip: '💡 15 min/día → conversación básica en 3 meses!',
     notifTitle: 'Configura tu recordatorio de estudio',
-    notifMorning: 'Mañana 8:00', notifEvening: 'Tarde 7:00', notifNight: 'Noche 10:00', notifCustom: 'Personalizado',
+    notifMorning: 'Mañana 8:00', notifEvening: 'Tarde 7:00', notifNight: 'Noche 10:00',
     startApp: 'Comenzar 🚀', skip: 'Omitir',
+    back: '← Atrás',
+    levelTestSubtitle: '¿Qué significa esta frase?', levelTestComplete: '¡Test completado!',
+    levelTestCorrect: 'correctas', levelTestRecommended: 'Nivel recomendado',
+    levelTestStart: 'Empezar en este nivel →', levelTestManual: 'Elegir nivel manualmente',
   },
   home: {
     greeting: '¡Hola! 👋', goalPrefix: 'Meta:',
@@ -410,7 +422,7 @@ const es: Translations = {
     badgeNames: { firstLesson: 'Primera lección', weekStreak: 'Racha 7 días', vocab100: 'Maestro vocab', aiChat5: 'Campeón IA', perfectQuiz: 'Maestro quiz', levelUp: 'Subir nivel' },
     badgeDescs: { firstLesson: 'Completa primera lección', weekStreak: '7 días seguidos', vocab100: 'Alcanza 500 XP', aiChat5: 'Inicia chat IA', perfectQuiz: '100% en quiz', levelUp: 'Alcanza siguiente nivel' },
   },
-  leaderboard: { title: '🏆 Ranking', subtitle: 'Esta semana por XP', meSuffix: '(Yo)', notice: '💡 ¡Completa lecciones y chats IA para ganar XP y subir en el ranking!' },
+  leaderboard: { title: '🏆 Ranking', subtitle: 'Esta semana por XP', meSuffix: '(Yo)', notice: '💡 ¡Completa lecciones y chats IA para ganar XP y subir en el ranking!', guestPrompt: 'Inicia sesión para ver el ranking real' },
   lessonComplete: {
     title: '¡Lección completada!', perfect: '¡Perfecto!', great: '¡Bien hecho!', tryAgain: '¡Inténtalo de nuevo!',
     accuracy: 'Precisión', xpEarned: 'XP ganado', wordsLearned: 'Palabras',
@@ -453,7 +465,6 @@ const zh: Translations = {
   splash: {
     slogan: '用韩语连接世界',
     startFree: '🚀 免费开始',
-    haveAccount: '我已有账号',
     or: '或者',
     googleLogin: '使用Google继续',
     appleLogin: '使用Apple继续',
@@ -471,7 +482,14 @@ const zh: Translations = {
     timeCasual: '轻松', timeRecommended: '推荐', timeIntensive: '强化', recommended: '⭐',
     timeTip: '💡 每天15分钟 → 3个月后可进行基础对话！',
     notifTitle: '设置学习提醒',
-    notifMorning: '早上 8:00', notifEvening: '下午 7:00', notifNight: '晚上 10:00', notifCustom: '自定义',
+    notifMorning: '早上 8:00', notifEvening: '下午 7:00', notifNight: '晚上 10:00',
+    back: '← 返回',
+    levelTestSubtitle: '这句话是什么意思？',
+    levelTestComplete: '测试完成！',
+    levelTestCorrect: '正确',
+    levelTestRecommended: '推荐等级',
+    levelTestStart: '以此等级开始 →',
+    levelTestManual: '手动选择等级',
     startApp: '开始 🚀', skip: '跳过',
   },
   home: {
@@ -527,7 +545,7 @@ const zh: Translations = {
     badgeNames: { firstLesson: '第一课', weekStreak: '7天连续', vocab100: '单词达人', aiChat5: 'AI高手', perfectQuiz: '测验大师', levelUp: '升级' },
     badgeDescs: { firstLesson: '完成第一课', weekStreak: '连续7天', vocab100: '达到500XP', aiChat5: '开始AI对话', perfectQuiz: '测验100%', levelUp: '到达下一级' },
   },
-  leaderboard: { title: '🏆 排名', subtitle: '本周XP排名', meSuffix: '(我)', notice: '💡 完成课程和AI对话来获得XP，提升排名！' },
+  leaderboard: { title: '🏆 排名', subtitle: '本周XP排名', meSuffix: '(我)', notice: '💡 完成课程和AI对话来获得XP，提升排名！', guestPrompt: '登录后查看真实排名' },
   lessonComplete: {
     title: '课程完成！', perfect: '完美！', great: '做得好！', tryAgain: '再次挑战！',
     accuracy: '正确率', xpEarned: '获得XP', wordsLearned: '学习单词',
@@ -570,7 +588,6 @@ const ja: Translations = {
   splash: {
     slogan: '韓国語で世界をつなぐ',
     startFree: '🚀 無料で始める',
-    haveAccount: 'すでにアカウントがあります',
     or: 'または',
     googleLogin: 'Googleで続ける',
     appleLogin: 'Appleで続ける',
@@ -588,7 +605,14 @@ const ja: Translations = {
     timeCasual: '気軽に', timeRecommended: 'おすすめ', timeIntensive: '集中学習', recommended: '⭐',
     timeTip: '💡 1日15分 → 3ヶ月後に基礎会話ができる！',
     notifTitle: '学習リマインダーを設定',
-    notifMorning: '午前 8:00', notifEvening: '午後 7:00', notifNight: '夜 10:00', notifCustom: 'カスタム',
+    notifMorning: '午前 8:00', notifEvening: '午後 7:00', notifNight: '夜 10:00',
+    back: '← 戻る',
+    levelTestSubtitle: 'この文の意味は何ですか？',
+    levelTestComplete: 'テスト完了！',
+    levelTestCorrect: '正解',
+    levelTestRecommended: 'おすすめレベル',
+    levelTestStart: 'このレベルで始める →',
+    levelTestManual: 'レベルを手動で選択',
     startApp: '始める 🚀', skip: 'スキップ',
   },
   home: {
@@ -644,7 +668,7 @@ const ja: Translations = {
     badgeNames: { firstLesson: '最初のレッスン', weekStreak: '7日連続', vocab100: '単語の達人', aiChat5: 'AIチャンプ', perfectQuiz: 'クイズマスター', levelUp: 'レベルアップ' },
     badgeDescs: { firstLesson: '最初のレッスン完了', weekStreak: '7日連続学習', vocab100: '500XP達成', aiChat5: 'AIチャット開始', perfectQuiz: 'クイズ100%', levelUp: '次のレベルへ' },
   },
-  leaderboard: { title: '🏆 ランキング', subtitle: '今週のXP順', meSuffix: '(私)', notice: '💡 レッスン完了とAIチャットでXPを獲得してランクアップしよう！' },
+  leaderboard: { title: '🏆 ランキング', subtitle: '今週のXP順', meSuffix: '(私)', notice: '💡 レッスン完了とAIチャットでXPを獲得してランクアップしよう！', guestPrompt: 'ログインして本当のランキングを見よう' },
   lessonComplete: {
     title: 'レッスン完了！', perfect: '完璧！', great: 'よくできました！', tryAgain: '再挑戦しよう！',
     accuracy: '正答率', xpEarned: 'XP獲得', wordsLearned: '学習単語',
@@ -687,7 +711,6 @@ const vi: Translations = {
   splash: {
     slogan: 'Kết nối thế giới qua tiếng Hàn',
     startFree: '🚀 Bắt đầu miễn phí',
-    haveAccount: 'Tôi đã có tài khoản',
     or: 'hoặc',
     googleLogin: 'Tiếp tục với Google',
     appleLogin: 'Tiếp tục với Apple',
@@ -705,7 +728,14 @@ const vi: Translations = {
     timeCasual: 'Nhẹ nhàng', timeRecommended: 'Khuyến nghị', timeIntensive: 'Chuyên sâu', recommended: '⭐',
     timeTip: '💡 15 phút/ngày → hội thoại cơ bản sau 3 tháng!',
     notifTitle: 'Đặt nhắc nhở học tập',
-    notifMorning: 'Sáng 8:00', notifEvening: 'Chiều 7:00', notifNight: 'Tối 10:00', notifCustom: 'Tùy chỉnh',
+    notifMorning: 'Sáng 8:00', notifEvening: 'Chiều 7:00', notifNight: 'Tối 10:00',
+    back: '← Quay lại',
+    levelTestSubtitle: 'Câu này có nghĩa là gì?',
+    levelTestComplete: 'Hoàn thành bài test!',
+    levelTestCorrect: 'đúng',
+    levelTestRecommended: 'Cấp độ khuyến nghị',
+    levelTestStart: 'Bắt đầu với cấp độ này →',
+    levelTestManual: 'Chọn cấp độ thủ công',
     startApp: 'Bắt đầu 🚀', skip: 'Bỏ qua',
   },
   home: {
@@ -761,7 +791,7 @@ const vi: Translations = {
     badgeNames: { firstLesson: 'Bài học đầu', weekStreak: '7 ngày liên tục', vocab100: 'Bậc thầy từ vựng', aiChat5: 'Vô địch AI', perfectQuiz: 'Thạc sĩ quiz', levelUp: 'Lên cấp' },
     badgeDescs: { firstLesson: 'Hoàn thành bài học đầu', weekStreak: '7 ngày liên tiếp', vocab100: 'Đạt 500 XP', aiChat5: 'Bắt đầu chat AI', perfectQuiz: '100% quiz', levelUp: 'Đạt cấp tiếp theo' },
   },
-  leaderboard: { title: '🏆 Xếp hạng', subtitle: 'XP tuần này', meSuffix: '(Tôi)', notice: '💡 Hoàn thành bài học và chat AI để kiếm XP và leo bảng xếp hạng!' },
+  leaderboard: { title: '🏆 Xếp hạng', subtitle: 'XP tuần này', meSuffix: '(Tôi)', notice: '💡 Hoàn thành bài học và chat AI để kiếm XP và leo bảng xếp hạng!', guestPrompt: 'Đăng nhập để xem bảng xếp hạng thực' },
   lessonComplete: {
     title: 'Hoàn thành bài học!', perfect: 'Hoàn hảo!', great: 'Làm tốt lắm!', tryAgain: 'Thử lại nào!',
     accuracy: 'Độ chính xác', xpEarned: 'XP kiếm được', wordsLearned: 'Từ vựng',

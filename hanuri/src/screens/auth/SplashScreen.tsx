@@ -155,14 +155,6 @@ export default function SplashScreen() {
             <Text style={styles.primaryButtonText}>{t.splash.startFree}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={handleGoogleLogin}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.secondaryButtonText}>{t.splash.haveAccount}</Text>
-          </TouchableOpacity>
-
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>{t.splash.or}</Text>
@@ -183,7 +175,7 @@ export default function SplashScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.socialButton}
+            style={[styles.socialButton, { opacity: 0.6 }]}
             activeOpacity={0.85}
             onPress={() => Alert.alert(t.splash.appleLogin, t.home.comingSoon)}
           >

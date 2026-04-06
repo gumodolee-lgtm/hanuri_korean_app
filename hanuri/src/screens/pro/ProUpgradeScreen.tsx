@@ -16,6 +16,8 @@ import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
 
 const BENEFIT_EMOJIS = ['💼', '📝', '🔁', '📊', '🏆'];
+const PRICE_MONTHLY = '₩9,900';
+const PRICE_YEARLY = '₩69,900';
 
 export default function ProUpgradeScreen() {
   const navigation = useNavigation();
@@ -33,14 +35,18 @@ export default function ProUpgradeScreen() {
   ];
 
   const PLANS = [
-    { id: 'monthly', label: t.proUpgrade.monthly, price: '₩9,900', period: '/월', badge: null },
-    { id: 'yearly', label: t.proUpgrade.yearly, price: '₩69,900', period: '/년', badge: t.proUpgrade.yearlyBadge },
+    { id: 'monthly', label: t.proUpgrade.monthly, price: PRICE_MONTHLY, period: '/월', badge: null },
+    { id: 'yearly', label: t.proUpgrade.yearly, price: PRICE_YEARLY, period: '/년', badge: t.proUpgrade.yearlyBadge },
   ];
 
   const handleSubscribe = async () => {
+    if (!__DEV__) {
+      // Production: payment gateway not yet integrated — inform the user.
+      Alert.alert('HANURI PRO', t.home.comingSoon);
+      return;
+    }
+    // DEV / demo mode only: simulate a purchase flow
     setIsLoading(true);
-    // In production: integrate with expo-in-app-purchases or RevenueCat here
-    // For now, simulate a purchase flow
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
 

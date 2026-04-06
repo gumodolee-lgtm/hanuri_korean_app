@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -31,7 +30,7 @@ type NavProp = BottomTabNavigationProp<MainTabParamList>;
 export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
-  const { xp, streak, todayMinutes } = useUserStore();
+  const { xp, streak, todayMinutes, progress } = useUserStore();
   const t = useT();
 
   const currentLevel = user?.current_level ?? 1;
@@ -84,7 +83,7 @@ export default function HomeScreen() {
           </View>
           <View style={[styles.statCard, { backgroundColor: '#FFD93D' }]}>
             <Text style={styles.statIcon}>⭐</Text>
-            <Text style={styles.statValue}>{Math.floor(xp / 100)}</Text>
+            <Text style={styles.statValue}>{progress.filter((p) => p.status === 'completed').length}</Text>
             <Text style={styles.statLabel}>{t.home.completedLabel}</Text>
           </View>
         </View>
@@ -146,14 +145,11 @@ export default function HomeScreen() {
             <Text style={styles.quickLabel}>{t.home.todaysWord}</Text>
             <Text style={styles.quickSub}>{t.home.todaysWordSub}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.quickCard}
-            onPress={() => Alert.alert(t.home.kpop, t.home.comingSoon)}
-          >
+          <View style={[styles.quickCard, styles.quickCardDisabled]}>
             <Text style={styles.quickIcon}>🎵</Text>
             <Text style={styles.quickLabel}>{t.home.kpop}</Text>
             <Text style={styles.quickSub}>{t.home.comingSoon}</Text>
-          </TouchableOpacity>
+          </View>
         </View>
 
       </ScrollView>
@@ -244,6 +240,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
+  quickCardDisabled: { opacity: 0.45 },
   quickIcon: { fontSize: 28 },
   quickLabel: { ...typography.caption, color: colors.dark, fontWeight: '600', textAlign: 'center' },
   quickSub: { fontSize: 10, color: colors.gray, textAlign: 'center' },

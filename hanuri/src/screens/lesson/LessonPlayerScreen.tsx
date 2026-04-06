@@ -99,9 +99,15 @@ function PronunciationPhase({
         await startRecording();
       } catch {
         setIsRecording(false);
+        setResult({
+          transcript: '',
+          score: 0,
+          feedback: t.lesson.pronError,
+          wordMatches: [],
+        });
       }
     }
-  }, [isRecording, card.korean]);
+  }, [isRecording, card.korean, t]);
 
   const scoreColor =
     !result ? colors.gray

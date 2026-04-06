@@ -6,6 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { OnboardingStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
+import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingLevelTest'>;
 
@@ -57,6 +58,7 @@ function getSuggestedLevel(correctCount: number): number {
 export default function OnboardingLevelTestScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData } = useAuthStore();
+  const t = useT();
   const [currentQ, setCurrentQ] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
@@ -96,23 +98,22 @@ export default function OnboardingLevelTestScreen() {
       2: '🌿 초급 (Elementary)',
       3: '🌳 초중급 (Pre-Intermediate)',
       5: '⚡ 중급 (Intermediate)',
-      6: '🔥 중고급 (Upper-Intermediate)',
     };
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.resultContainer}>
           <Text style={styles.resultEmoji}>🎯</Text>
-          <Text style={styles.resultTitle}>테스트 완료!</Text>
-          <Text style={styles.resultScore}>{finalCorrect} / {QUESTIONS.length} 정답</Text>
+          <Text style={styles.resultTitle}>{t.onboarding.levelTestComplete}</Text>
+          <Text style={styles.resultScore}>{finalCorrect} / {QUESTIONS.length} {t.onboarding.levelTestCorrect}</Text>
           <View style={styles.resultLevelBox}>
-            <Text style={styles.resultLevelLabel}>추천 레벨</Text>
+            <Text style={styles.resultLevelLabel}>{t.onboarding.levelTestRecommended}</Text>
             <Text style={styles.resultLevel}>{levelLabels[level]}</Text>
           </View>
           <TouchableOpacity style={styles.nextBtn} onPress={handleFinish}>
-            <Text style={styles.nextBtnText}>이 레벨로 시작하기 →</Text>
+            <Text style={styles.nextBtnText}>{t.onboarding.levelTestStart}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.retryLink}>
-            <Text style={styles.retryText}>직접 레벨 선택하기</Text>
+            <Text style={styles.retryText}>{t.onboarding.levelTestManual}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -123,7 +124,7 @@ export default function OnboardingLevelTestScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backBtn}>← 뒤로</Text>
+          <Text style={styles.backBtn}>{t.onboarding.back}</Text>
         </TouchableOpacity>
         <Text style={styles.progressText}>{currentQ + 1} / {QUESTIONS.length}</Text>
       </View>
@@ -133,7 +134,7 @@ export default function OnboardingLevelTestScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.subtitle}>이 문장의 뜻은 무엇인가요?</Text>
+        <Text style={styles.subtitle}>{t.onboarding.levelTestSubtitle}</Text>
         <View style={styles.questionBox}>
           <Text style={styles.question}>{q.question}</Text>
         </View>

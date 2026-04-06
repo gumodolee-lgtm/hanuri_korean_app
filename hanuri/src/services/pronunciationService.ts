@@ -1,8 +1,8 @@
 import { AudioModule, AudioRecorder, RecordingPresets } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
-// ⚠️ PRODUCTION WARNING: 프로덕션 배포 시 백엔드 프록시로 교체 필요
-const OPENAI_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '';
+// Key is only read in __DEV__ builds — production always falls back to mock mode.
+const OPENAI_KEY = __DEV__ ? (process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '') : '';
 
 export interface PronunciationResult {
   transcript: string;
@@ -159,16 +159,11 @@ export async function assessPronunciation(
 }
 
 function mockAssessment(targetText: string, feedbackStrings?: PronFeedbackStrings): PronunciationResult {
-  const score = Math.floor(Math.random() * 30) + 65; // 65–94
+  // No API key — return a clear "unavailable" result instead of fake random scores.
   const tokens = tokenize(targetText);
-  const wordMatches: WordMatch[] = tokens.map((word, i) => ({
-    word,
-    matched: i % 3 !== 2, // 매 3번째 단어는 틀린 것으로 처리
-  }));
-  return {
-    transcript: targetText,
-    score,
-    feedback: buildFeedback(score, wordMatches, feedbackStrings),
-    wordMatches,
-  };
+  const wordMatches: WordMatch[] = tokens.map((word) => ({ word, matched: false }));
+  const feedback = feedbackStrings?.tryAgain
+    ? feedbackStrings.tryAgain
+    : '🎤 발음 평가 데모 모드입니다. 실제 채점은 OpenAI Whisper API 키 설정 후 사용 가능합니다.';
+  return { transcript: '', score: 0, feedback, wordMatches };
 }
