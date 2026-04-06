@@ -22,6 +22,7 @@ import {
   assessPronunciation,
   PronunciationResult,
 } from '../../services/pronunciationService';
+import { sendLessonCompleteNotification } from '../../services/notificationService';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
 
@@ -386,6 +387,8 @@ export default function LessonPlayerScreen() {
     // 실제 학습 완료 기록: streak/todayLearned 갱신 후 학습 시간 누적
     markTodayLearned(userId);
     addTodayMinutes(lesson.estimatedMinutes, userId);
+    // 레슨 완료 축하 알림 (fire-and-forget)
+    sendLessonCompleteNotification(xpEarned).catch(() => {});
 
     // Level-up check: if all lessons at current level are now complete, advance
     const currentLevel = user?.current_level ?? 1;
