@@ -500,8 +500,8 @@ export default function LessonPlayerScreen() {
 
           <View style={styles.choices}>
             {currentQ.choices.map((choice, idx) => {
-              let bg = colors.white;
-              let border = colors.border;
+              let bg: string = colors.white;
+              let border: string = colors.border;
               if (selectedAnswer !== null) {
                 if (idx === currentQ.correctIndex) { bg = '#E8FFF5'; border = colors.secondary; }
                 else if (idx === selectedAnswer) { bg = '#FFF0F0'; border = colors.primary; }
@@ -558,8 +558,8 @@ export default function LessonPlayerScreen() {
 
           <View style={styles.choices}>
             {currentFill.choices.map((choice, idx) => {
-              let bg = colors.white;
-              let border = colors.border;
+              let bg: string = colors.white;
+              let border: string = colors.border;
               if (fillSelected !== null) {
                 if (choice === currentFill.answer) { bg = '#E8FFF5'; border = colors.secondary; }
                 else if (choice === fillSelected) { bg = '#FFF0F0'; border = colors.primary; }

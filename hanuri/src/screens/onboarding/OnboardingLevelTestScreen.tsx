@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -141,8 +141,8 @@ export default function OnboardingLevelTestScreen() {
 
         <View style={styles.choices}>
           {q.choices.map((choice) => {
-            let style = styles.choice;
-            let textStyle = styles.choiceText;
+            let style: ViewStyle = styles.choice;
+            let textStyle: TextStyle = styles.choiceText;
             if (answered) {
               if (choice === q.answer) {
                 style = { ...styles.choice, ...styles.choiceCorrect };

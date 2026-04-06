@@ -1,4 +1,5 @@
-import { AudioModule, AudioRecorder, RecordingPresets } from 'expo-audio';
+import { AudioModule, RecordingPresets } from 'expo-audio';
+import type { AudioRecorder } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
 // Key is only read in __DEV__ builds — production always falls back to mock mode.
@@ -30,7 +31,10 @@ export async function startRecording(): Promise<void> {
     allowsRecording: true,
     playsInSilentMode: true,
   });
-  recordingInstance = new AudioRecorder(RecordingPresets.HIGH_QUALITY);
+  // AudioRecorder is exported as 'export type' in expo-audio typedefs but is a runtime class
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { AudioRecorder: AudioRecorderClass } = require('expo-audio') as { AudioRecorder: new (preset: unknown) => AudioRecorder };
+  recordingInstance = new AudioRecorderClass(RecordingPresets.HIGH_QUALITY);
   recordingInstance.record();
 }
 

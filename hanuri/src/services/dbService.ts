@@ -135,7 +135,7 @@ export async function fetchLeaderboard(limit = 10): Promise<LeaderEntry[]> {
     streak: number;
     profiles: { current_level: number; native_lang: string } | null;
   };
-  const rows = data as Row[];
+  const rows = data as unknown as Row[];
   const nullProfileCount = rows.filter((r) => r.profiles === null).length;
   if (nullProfileCount > rows.length / 2) {
     console.warn(`[fetchLeaderboard] ${nullProfileCount}/${rows.length} rows have null profiles — RLS may be blocking the profiles join`);
