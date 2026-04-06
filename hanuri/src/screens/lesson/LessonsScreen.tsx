@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,14 +9,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigation';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { RootStackParamList, MainTabParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS, LessonData } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
 
-type NavProp = StackNavigationProp<RootStackParamList>;
+type NavProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList>,
+  StackNavigationProp<RootStackParamList>
+>;
 
 export default function LessonsScreen() {
   const navigation = useNavigation<NavProp>();
@@ -29,8 +34,12 @@ export default function LessonsScreen() {
 
   const selectedLevelData = ALL_LEVELS.find((l) => l.level === selectedLevel);
 
-  const isLessonCompleted = (lessonId: string) =>
-    progress.some((p) => p.lesson_id === lessonId && p.status === 'completed');
+  const completedSet = useMemo(
+    () => new Set(progress.filter((p) => p.status === 'completed').map((p) => p.lesson_id)),
+    [progress]
+  );
+
+  const isLessonCompleted = (lessonId: string) => completedSet.has(lessonId);
 
   const isLessonUnlocked = (lesson: LessonData, allLessons: LessonData[]) => {
     if (lesson.order === 1) return true;
@@ -42,7 +51,10 @@ export default function LessonsScreen() {
     navigation.navigate('Lesson', { lessonId });
   };
 
-  const allLessonsFlat = selectedLevelData?.units.flatMap((u) => u.lessons) ?? [];
+  const allLessonsFlat = useMemo(
+    () => selectedLevelData?.units.flatMap((u) => u.lessons) ?? [],
+    [selectedLevelData]
+  );
 
   return (
     <SafeAreaView style={styles.container}>

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -145,7 +146,10 @@ export default function HomeScreen() {
             <Text style={styles.quickLabel}>{t.home.todaysWord}</Text>
             <Text style={styles.quickSub}>{t.home.todaysWordSub}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickCard}>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() => Alert.alert(t.home.kpop, t.home.comingSoon)}
+          >
             <Text style={styles.quickIcon}>🎵</Text>
             <Text style={styles.quickLabel}>{t.home.kpop}</Text>
             <Text style={styles.quickSub}>{t.home.comingSoon}</Text>
