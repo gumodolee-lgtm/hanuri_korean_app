@@ -1,31 +1,25 @@
-# Plan: AI Chat Screen UX Fix
+# Plan: Onboarding Level Test Result Fix
 
 ## Summary
-Remove redundant onContentSizeChange auto-scroll that interrupts user scrolling, and fix Android multiline send behavior.
+Fix OnboardingLevelScreen to initialize selected level from onboardingData, so the level test result is pre-selected when the user returns from the test.
 
 ## Requirements
-- [ ] REQ-1: Remove `onContentSizeChange={scrollToBottom}` — handleSend already scrolls explicitly
-- [ ] REQ-2: Fix Android Enter key on multiline input sending newline instead of message
+- [ ] REQ-1: LevelScreen initializes `selected` from `onboardingData.currentLevel` if available
 
 ## Acceptance Criteria
-- [ ] AC-1: ScrollView no longer auto-jumps to bottom when user has manually scrolled up
-- [ ] AC-2: `scrollToBottom` is still called after user sends a message and after AI replies
-- [ ] AC-3: On Android, Enter key on the chat input sends the message (not inserts newline)
+- [ ] AC-1: After completing level test and pressing "이 레벨로 시작하기 →", returning to LevelScreen shows the test-suggested level pre-selected
+- [ ] AC-2: If user hasn't taken the test, default selection remains 1
+- [ ] AC-3: Pressing "다음" saves the currently displayed (pre-selected) level, not the hardcoded default 1
 
 ## Implementation Steps
-
-### Phase 1: Remove onContentSizeChange
-- Step 1.1: Remove `onContentSizeChange={scrollToBottom}` from the ScrollView → file: `hanuri/src/screens/ai-chat/AIChatScreen.tsx`
-
-### Phase 2: Android Enter key fix
-- Step 2.1: Add `blurOnSubmit={false}` and `onSubmitEditing` guard for Android on the TextInput — or replace `onSubmitEditing` with explicit send button only (simpler) → same file
+- Step 1: Add `onboardingData` to destructured state from `useAuthStore()` in LevelScreen
+- Step 2: Change `useState(1)` to `useState(onboardingData.currentLevel ?? 1)`
 
 ## Files to Modify
 | File | Action | Description |
 |------|--------|-------------|
-| `hanuri/src/screens/ai-chat/AIChatScreen.tsx` | Modify | Remove onContentSizeChange, fix Android Enter |
+| `hanuri/src/screens/onboarding/OnboardingLevelScreen.tsx` | Modify | Initialize selected from onboardingData |
 
 ## Out of Scope
-- Chat history persistence across sessions
-- Typing indicator animation
-- Message pagination / history limit
+- Progress dot count (5 dots, 6 screens — LevelTest is optional/branching step)
+- Notification dots showing all-active (correct for final step)

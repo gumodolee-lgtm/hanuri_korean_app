@@ -12,9 +12,10 @@ type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingLevel'>;
 
 export default function OnboardingLevelScreen() {
   const navigation = useNavigation<NavProp>();
-  const { setOnboardingData } = useAuthStore();
+  const { setOnboardingData, onboardingData } = useAuthStore();
   const t = useT();
-  const [selected, setSelected] = React.useState(1);
+  // 레벨 테스트 결과가 있으면 그 값을 초기값으로 사용
+  const [selected, setSelected] = React.useState(onboardingData.currentLevel ?? 1);
 
   const levels = [
     { icon: '🌱', label: t.onboarding.levels.absolute, value: 1 },
