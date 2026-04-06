@@ -20,6 +20,7 @@ interface AuthState {
   setOnboardingData: (data: Partial<OnboardingData>) => void;
   completeOnboarding: () => void;
   loginWithSupabase: (user: User) => Promise<void>;
+  updateProfile: (partial: Partial<Pick<User, 'native_lang' | 'daily_goal_minutes' | 'learning_goal'>>) => void;
   upgradeToPro: () => void;
   levelUp: () => void;
   signOut: () => void;
@@ -87,6 +88,17 @@ export const useAuthStore = create<AuthState>()(
         // Remote stats + progress are applied by userStore.loadFromRemote()
         // (called separately to avoid circular imports)
         return;
+      },
+
+      // Updates editable profile fields locally + syncs to Supabase (fire-and-forget)
+      updateProfile: (partial) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, ...partial } : state.user,
+        }));
+        const updated = get().user;
+        if (updated) {
+          syncProfile(updated).catch(() => {});
+        }
       },
 
       // Activates PRO (call after payment is verified)

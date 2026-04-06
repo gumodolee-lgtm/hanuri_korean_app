@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
+import { NativeLanguage } from '../../types';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
@@ -48,9 +50,13 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavProp>();
-  const { user, signOut } = useAuthStore();
+  const { user, signOut, updateProfile } = useAuthStore();
   const { xp, streak, progress, aiChatCount } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showGoalModal, setShowGoalModal] = useState(false);
+  const [showLangModal, setShowLangModal] = useState(false);
+  const [pendingGoal, setPendingGoal] = useState<5 | 15 | 30>(user?.daily_goal_minutes ?? 15);
+  const [pendingLang, setPendingLang] = useState<NativeLanguage>(user?.native_lang ?? 'en');
   const isPro = user?.isPro ?? false;
   const t = useT();
 
@@ -202,15 +208,29 @@ export default function ProfileScreen() {
             />
           </View>
           <View style={styles.divider} />
-          <View style={styles.settingRow}>
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={() => { setPendingGoal(user?.daily_goal_minutes ?? 15); setShowGoalModal(true); }}
+            activeOpacity={0.7}
+          >
             <Text style={styles.settingLabel}>{t.profile.dailyGoal}</Text>
-            <Text style={styles.settingValue}>{user?.daily_goal_minutes ?? 15}min</Text>
-          </View>
+            <View style={styles.settingEditRow}>
+              <Text style={styles.settingValue}>{user?.daily_goal_minutes ?? 15}min</Text>
+              <Text style={styles.editChevron}>›</Text>
+            </View>
+          </TouchableOpacity>
           <View style={styles.divider} />
-          <View style={styles.settingRow}>
+          <TouchableOpacity
+            style={styles.settingRow}
+            onPress={() => { setPendingLang(user?.native_lang ?? 'en' as NativeLanguage); setShowLangModal(true); }}
+            activeOpacity={0.7}
+          >
             <Text style={styles.settingLabel}>{t.profile.nativeLang}</Text>
-            <Text style={styles.settingValue}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
-          </View>
+            <View style={styles.settingEditRow}>
+              <Text style={styles.settingValue}>{LANG_FLAGS[user?.native_lang ?? 'en']}</Text>
+              <Text style={styles.editChevron}>›</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
@@ -219,6 +239,73 @@ export default function ProfileScreen() {
 
         <View style={{ height: spacing.xl }} />
       </ScrollView>
+
+      {/* ── Daily Goal Picker Modal ── */}
+      <Modal visible={showGoalModal} transparent animationType="fade" onRequestClose={() => setShowGoalModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>{t.profile.editDailyGoal}</Text>
+            {([5, 15, 30] as const).map((min) => (
+              <TouchableOpacity
+                key={min}
+                style={[styles.modalOption, pendingGoal === min && styles.modalOptionSelected]}
+                onPress={() => setPendingGoal(min)}
+              >
+                <Text style={[styles.modalOptionText, pendingGoal === min && styles.modalOptionTextSelected]}>
+                  {min === 5 ? t.profile.min5 : min === 15 ? t.profile.min15 : t.profile.min30}
+                </Text>
+                {pendingGoal === min && <Text style={styles.modalCheck}>✓</Text>}
+              </TouchableOpacity>
+            ))}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowGoalModal(false)}>
+                <Text style={styles.modalCancelText}>{t.profile.cancel}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveBtn}
+                onPress={() => { updateProfile({ daily_goal_minutes: pendingGoal }); setShowGoalModal(false); }}
+              >
+                <Text style={styles.modalSaveText}>{t.profile.save}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ── Native Language Picker Modal ── */}
+      <Modal visible={showLangModal} transparent animationType="fade" onRequestClose={() => setShowLangModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>{t.profile.editNativeLang}</Text>
+            <ScrollView style={{ maxHeight: 260 }} showsVerticalScrollIndicator={false}>
+              {(Object.entries(LANG_FLAGS) as [NativeLanguage, string][]).map(([code, label]) => (
+                <TouchableOpacity
+                  key={code}
+                  style={[styles.modalOption, pendingLang === code && styles.modalOptionSelected]}
+                  onPress={() => setPendingLang(code)}
+                >
+                  <Text style={[styles.modalOptionText, pendingLang === code && styles.modalOptionTextSelected]}>
+                    {label}
+                  </Text>
+                  {pendingLang === code && <Text style={styles.modalCheck}>✓</Text>}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowLangModal(false)}>
+                <Text style={styles.modalCancelText}>{t.profile.cancel}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveBtn}
+                onPress={() => { updateProfile({ native_lang: pendingLang }); setShowLangModal(false); }}
+              >
+                <Text style={styles.modalSaveText}>{t.profile.save}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -333,6 +420,55 @@ const styles = StyleSheet.create({
   settingHint: { ...typography.caption, color: colors.gray, marginTop: 2 },
   settingValue: { ...typography.body, color: colors.gray },
   divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.md },
+  settingEditRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  editChevron: { fontSize: 20, color: colors.gray, fontWeight: '600' },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  modalBox: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    width: '100%',
+    maxWidth: 340,
+    gap: spacing.sm,
+  },
+  modalTitle: { ...typography.h3, color: colors.dark, marginBottom: spacing.xs },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+  },
+  modalOptionSelected: { backgroundColor: colors.primary + '18' },
+  modalOptionText: { ...typography.body, color: colors.dark },
+  modalOptionTextSelected: { color: colors.primary, fontWeight: '700' },
+  modalCheck: { fontSize: 16, color: colors.primary, fontWeight: '700' },
+  modalButtons: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  modalCancelBtn: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modalCancelText: { ...typography.body, color: colors.gray },
+  modalSaveBtn: {
+    flex: 1,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+  },
+  modalSaveText: { ...typography.body, color: colors.white, fontWeight: '700' },
 
   signOutBtn: {
     backgroundColor: colors.white,
