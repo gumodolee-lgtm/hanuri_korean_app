@@ -51,8 +51,7 @@ function getSuggestedLevel(correctCount: number): number {
   if (correctCount <= 1) return 1;
   if (correctCount === 2) return 2;
   if (correctCount === 3) return 3;
-  if (correctCount === 4) return 5;
-  return 6;
+  return 5; // level 4 is not used; 6 is above the max available level (5)
 }
 
 export default function OnboardingLevelTestScreen() {

@@ -185,7 +185,7 @@ export default function SplashScreen() {
           <TouchableOpacity
             style={styles.socialButton}
             activeOpacity={0.85}
-            onPress={() => Alert.alert('준비 중', 'Apple 로그인은 곧 지원될 예정입니다.')}
+            onPress={() => Alert.alert(t.splash.appleLogin, t.home.comingSoon)}
           >
             <Text style={styles.socialButtonText}> {t.splash.appleLogin}</Text>
           </TouchableOpacity>

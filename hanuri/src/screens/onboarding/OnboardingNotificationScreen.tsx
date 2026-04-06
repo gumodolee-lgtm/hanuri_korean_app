@@ -70,7 +70,7 @@ export default function OnboardingNotificationScreen() {
         <TouchableOpacity style={styles.nextBtn} onPress={handleComplete}>
           <Text style={styles.nextBtnText}>{t.onboarding.startApp}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleComplete}>
+        <TouchableOpacity onPress={completeOnboarding}>
           <Text style={styles.skipText}>{t.onboarding.skip}</Text>
         </TouchableOpacity>
       </View>
