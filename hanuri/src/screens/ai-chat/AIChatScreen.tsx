@@ -188,7 +188,6 @@ export default function AIChatScreen() {
           style={styles.flex}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
-          onContentSizeChange={scrollToBottom}
         >
           {/* Scenario context banner */}
           <View style={styles.contextBanner}>
@@ -233,7 +232,8 @@ export default function AIChatScreen() {
             multiline
             maxLength={300}
             returnKeyType="send"
-            onSubmitEditing={handleSend}
+            blurOnSubmit={false}
+            onSubmitEditing={Platform.OS === 'ios' ? handleSend : undefined}
           />
           <TouchableOpacity
             style={[styles.sendBtn, (!input.trim() || isLoading) && styles.sendBtnDisabled]}

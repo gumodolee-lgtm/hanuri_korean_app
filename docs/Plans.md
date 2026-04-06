@@ -1,35 +1,31 @@
-# Plan: Profile Screen Hardening
+# Plan: AI Chat Screen UX Fix
 
 ## Summary
-Add sign-out confirmation dialog to prevent accidental logout, and guard xpProgress from NaN when level is zero.
+Remove redundant onContentSizeChange auto-scroll that interrupts user scrolling, and fix Android multiline send behavior.
 
 ## Requirements
-- [ ] REQ-1: Show confirmation Alert before executing signOut
-- [ ] REQ-2: Guard `xpForNext === 0` in xpProgress calculation
+- [ ] REQ-1: Remove `onContentSizeChange={scrollToBottom}` — handleSend already scrolls explicitly
+- [ ] REQ-2: Fix Android Enter key on multiline input sending newline instead of message
 
 ## Acceptance Criteria
-- [ ] AC-1: Tapping sign-out button shows Alert with cancel and confirm options before calling signOut()
-- [ ] AC-2: signOut() is NOT called when user dismisses the confirmation dialog
-- [ ] AC-3: `xpProgress` is always a value in [0, 1] even when `currentLevel === 0`
+- [ ] AC-1: ScrollView no longer auto-jumps to bottom when user has manually scrolled up
+- [ ] AC-2: `scrollToBottom` is still called after user sends a message and after AI replies
+- [ ] AC-3: On Android, Enter key on the chat input sends the message (not inserts newline)
 
 ## Implementation Steps
 
-### Phase 1: Sign-out Confirmation
-- Step 1.1: Replace `onPress={signOut}` with `onPress={() => handleSignOut()}` on the sign-out button
-- Step 1.2: Implement `handleSignOut` function that shows `Alert.alert` with cancel + confirm → file: `hanuri/src/screens/profile/ProfileScreen.tsx`
-- Step 1.3: Use existing `t.profile` i18n keys — check if signOutConfirm keys exist, add if not → file: `hanuri/src/i18n/index.ts`
+### Phase 1: Remove onContentSizeChange
+- Step 1.1: Remove `onContentSizeChange={scrollToBottom}` from the ScrollView → file: `hanuri/src/screens/ai-chat/AIChatScreen.tsx`
 
-### Phase 2: XP Guard
-- Step 2.1: Change `xpForNext = currentLevel * 100` guard: `const xpForNext = Math.max(currentLevel * 100, 1)` → same file
+### Phase 2: Android Enter key fix
+- Step 2.1: Add `blurOnSubmit={false}` and `onSubmitEditing` guard for Android on the TextInput — or replace `onSubmitEditing` with explicit send button only (simpler) → same file
 
 ## Files to Modify
-
 | File | Action | Description |
 |------|--------|-------------|
-| `hanuri/src/screens/profile/ProfileScreen.tsx` | Modify | handleSignOut + xpForNext guard |
-| `hanuri/src/i18n/index.ts` | Modify | Add signOut confirm i18n keys (if missing) |
+| `hanuri/src/screens/ai-chat/AIChatScreen.tsx` | Modify | Remove onContentSizeChange, fix Android Enter |
 
 ## Out of Scope
-- Daily goal / native language edit UI (known limitation)
-- vocab_100 badge semantic alignment (design decision)
-- Notification time customization
+- Chat history persistence across sessions
+- Typing indicator animation
+- Message pagination / history limit
