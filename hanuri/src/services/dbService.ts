@@ -110,6 +110,40 @@ export async function fetchAllProgress(userId: string): Promise<UserProgress[]> 
   }));
 }
 
+// ─── LEADERBOARD ─────────────────────────────────────────────
+
+export interface LeaderEntry {
+  userId: string;
+  xp: number;
+  streak: number;
+  level: number;
+  nativeLang: string;
+}
+
+export async function fetchLeaderboard(limit = 10): Promise<LeaderEntry[]> {
+  const { data, error } = await supabase
+    .from('user_stats')
+    .select('user_id, xp, streak, profiles(current_level, native_lang)')
+    .order('xp', { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+
+  type Row = {
+    user_id: string;
+    xp: number;
+    streak: number;
+    profiles: { current_level: number; native_lang: string } | null;
+  };
+  return (data as Row[]).map((row) => ({
+    userId: row.user_id,
+    xp: row.xp ?? 0,
+    streak: row.streak ?? 0,
+    level: row.profiles?.current_level ?? 1,
+    nativeLang: row.profiles?.native_lang ?? 'en',
+  }));
+}
+
 // ─── LOAD ALL (called on login) ───────────────────────────────
 
 export interface RemoteUserData {
