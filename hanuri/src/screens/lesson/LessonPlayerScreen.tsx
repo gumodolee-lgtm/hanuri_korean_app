@@ -56,11 +56,13 @@ function PronunciationPhase({
   pronIndex,
   onNext,
   onFinish,
+  isFinishing,
 }: {
   vocab: VocabCard[];
   pronIndex: number;
   onNext: (result: PronunciationResult) => void;
   onFinish: () => void;
+  isFinishing: boolean;
 }) {
   const card = vocab[pronIndex];
   const t = useT();
@@ -171,7 +173,8 @@ function PronunciationPhase({
           </View>
 
           <TouchableOpacity
-            style={pronStyles.nextBtn}
+            style={[pronStyles.nextBtn, isLast && isFinishing && { opacity: 0.5 }]}
+            disabled={isLast && isFinishing}
             onPress={() => {
               onNext(result);
               if (isLast) onFinish();
@@ -283,6 +286,9 @@ export default function LessonPlayerScreen() {
   const [fillScore, setFillScore] = useState(0);
   const [pronIndex, setPronIndex] = useState(0);
   const [pronTotalScore, setPronTotalScore] = useState(0);
+  // useRef: 동기적 중복 호출 차단 (setState는 비동기라 더블탭 race condition 발생 가능)
+  const isFinishingRef = useRef(false);
+  const [isFinishingUI, setIsFinishingUI] = useState(false);
 
   const flipAnim = useRef(new Animated.Value(0)).current;
   // Must be called before any conditional return (Rules of Hooks)
@@ -305,7 +311,7 @@ export default function LessonPlayerScreen() {
     phase === 'quiz'       ? vocab.length + quizIndex :
     phase === 'fillblank'  ? vocab.length + quizQuestions.length + fillIndex :
                              vocab.length + quizQuestions.length + fillBlanks.length + pronIndex;
-  const lessonProgress = currentStep / totalSteps;
+  const lessonProgress = totalSteps > 0 ? currentStep / totalSteps : 0;
 
   const handleFlip = () => {
     const toValue = flipped ? 0 : 1;
@@ -363,6 +369,9 @@ export default function LessonPlayerScreen() {
   };
 
   const finishLesson = () => {
+    if (isFinishingRef.current) return;
+    isFinishingRef.current = true; // 동기적으로 즉시 차단
+    setIsFinishingUI(true);        // UI 비활성화 트리거
     const quizTotal = quizQuestions.length + fillBlanks.length;
     const quizCorrect = score + fillScore;
     const quizScore = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 100;
@@ -581,6 +590,7 @@ export default function LessonPlayerScreen() {
           pronIndex={pronIndex}
           onNext={handlePronResult}
           onFinish={finishLesson}
+          isFinishing={isFinishingUI}
         />
       )}
     </SafeAreaView>

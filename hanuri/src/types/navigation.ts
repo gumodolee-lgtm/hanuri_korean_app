@@ -1,7 +1,7 @@
 export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
-  Main: undefined;
+  Main: { screen?: keyof MainTabParamList } | undefined;
   Lesson: { lessonId: string };
   AIChat: { scenarioId?: string };
   LessonComplete: { xp: number; score: number; expressions: string[] };

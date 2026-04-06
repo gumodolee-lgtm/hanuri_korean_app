@@ -7,13 +7,17 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigation';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { RootStackParamList, MainTabParamList } from '../../types/navigation';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
 
-type NavProp = StackNavigationProp<RootStackParamList>;
+type NavProp = CompositeNavigationProp<
+  StackNavigationProp<RootStackParamList>,
+  BottomTabNavigationProp<MainTabParamList>
+>;
 type RouteType = RouteProp<RootStackParamList, 'LessonComplete'>;
 
 export default function LessonCompleteScreen() {
@@ -90,7 +94,7 @@ export default function LessonCompleteScreen() {
 
           <TouchableOpacity
             style={styles.secondaryBtn}
-            onPress={() => navigation.navigate('Main', { screen: 'Lessons' } as any)}
+            onPress={() => navigation.navigate('Main', { screen: 'Lessons' })}
           >
             <Text style={styles.secondaryBtnText}>{t.lessonComplete.nextLesson}</Text>
           </TouchableOpacity>
