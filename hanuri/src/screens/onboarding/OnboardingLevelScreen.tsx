@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OnboardingStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
@@ -14,8 +15,16 @@ export default function OnboardingLevelScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData, onboardingData } = useAuthStore();
   const t = useT();
-  // 레벨 테스트 결과가 있으면 그 값을 초기값으로 사용
   const [selected, setSelected] = React.useState(onboardingData.currentLevel ?? 1);
+
+  // 레벨 테스트 완료 후 goBack()으로 돌아왔을 때 store 값 동기화
+  useFocusEffect(
+    React.useCallback(() => {
+      if (onboardingData.currentLevel) {
+        setSelected(onboardingData.currentLevel);
+      }
+    }, [onboardingData.currentLevel])
+  );
 
   const levels = [
     { icon: '🌱', label: t.onboarding.levels.absolute, value: 1 },

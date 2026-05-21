@@ -46,7 +46,7 @@ export const useUserStore = create<UserState>()(
         set({ xp: newXp });
         if (userId) {
           const { streak, lastStreakDate, todayMinutes } = get();
-          syncStats(userId, { xp: newXp, streak, lastStreakDate, todayMinutes });
+          syncStats(userId, { xp: newXp, streak, lastStreakDate, todayMinutes }).catch(() => {});
         }
       },
 
@@ -65,7 +65,7 @@ export const useUserStore = create<UserState>()(
 
         set({ todayLearned: true, streak: newStreak, lastStreakDate: today });
         if (userId) {
-          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes });
+          syncStats(userId, { xp, streak: newStreak, lastStreakDate: today, todayMinutes }).catch(() => {});
         }
       },
 
@@ -87,7 +87,7 @@ export const useUserStore = create<UserState>()(
         }));
         // Sync to Supabase (skip for guest)
         if (!newProgress.user_id.startsWith('guest_')) {
-          syncProgress(newProgress.user_id, newProgress);
+          syncProgress(newProgress.user_id, newProgress).catch(() => {});
         }
       },
 
@@ -96,7 +96,7 @@ export const useUserStore = create<UserState>()(
         set({ todayMinutes: newMinutes });
         if (userId) {
           const { xp, streak, lastStreakDate } = get();
-          syncStats(userId, { xp, streak, lastStreakDate, todayMinutes: newMinutes });
+          syncStats(userId, { xp, streak, lastStreakDate, todayMinutes: newMinutes }).catch(() => {});
         }
       },
 

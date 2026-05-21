@@ -9,7 +9,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { MainTabParamList } from '../../types/navigation';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MainTabParamList, RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { getFirstLesson, ALL_LEVELS } from '../../data/lessons';
@@ -25,7 +27,10 @@ const GOAL_CONTEXT: Record<LearningGoal, string> = {
   relationship: '일상 대화 기초 ❤️',
 };
 
-type NavProp = BottomTabNavigationProp<MainTabParamList>;
+type NavProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList>,
+  StackNavigationProp<RootStackParamList>
+>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
@@ -45,7 +50,7 @@ export default function HomeScreen() {
 
   const handleStartLesson = () => {
     if (firstLesson) {
-      (navigation as any).navigate('Lesson', { lessonId: firstLesson.id });
+      navigation.navigate('Lesson', { lessonId: firstLesson.id });
     }
   };
 

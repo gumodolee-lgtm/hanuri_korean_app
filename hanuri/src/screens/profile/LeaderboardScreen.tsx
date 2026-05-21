@@ -18,7 +18,17 @@ const LANG_TO_FLAG: Record<string, string> = {
   en: '🇺🇸', ko: '🇰🇷', es: '🇪🇸', zh: '🇨🇳', ja: '🇯🇵', vi: '🇻🇳',
 };
 
-const MOCK_LEADERS = [
+interface LeaderItem {
+  rank: number;
+  name: string;
+  flag: string;
+  xp: number;
+  streak: number;
+  level: number;
+  isCurrentUser?: boolean;
+}
+
+const MOCK_LEADERS: LeaderItem[] = [
   { rank: 1, name: '민준', flag: '🇰🇷', xp: 3240, streak: 42, level: 4 },
   { rank: 2, name: 'Sarah', flag: '🇺🇸', xp: 2890, streak: 31, level: 3 },
   { rank: 3, name: 'Yuki', flag: '🇯🇵', xp: 2450, streak: 28, level: 3 },
@@ -68,7 +78,7 @@ export default function LeaderboardScreen() {
   const isGuest = !user || user.id.startsWith('guest_');
   const currentLevel = user?.current_level ?? 1;
 
-  const [entries, setEntries] = useState(isGuest ? [] : MOCK_LEADERS);
+  const [entries, setEntries] = useState<LeaderItem[]>(isGuest ? [] : MOCK_LEADERS);
   // start loading=true for authenticated users to avoid flash of mock content
   const [loading, setLoading] = useState(!isGuest);
   const [refreshing, setRefreshing] = useState(false);
@@ -108,8 +118,7 @@ export default function LeaderboardScreen() {
     setRefreshing(false);
   }, [loadLeaderboard]);
 
-  // meInTop via isCurrentUser field (M-2 fix: no locale-sensitive string comparison)
-  const meInTop = (entries as any[]).some((l) => l.isCurrentUser === true);
+  const meInTop = entries.some((l) => l.isCurrentUser === true);
   const myRank = meInTop ? 0 : entries.filter((l) => l.xp > xp).length + 1;
   const showMyRow = !meInTop;
 
@@ -164,7 +173,7 @@ export default function LeaderboardScreen() {
             }
           >
             {entries.map((leader) => (
-              <LeaderRow key={leader.rank} {...leader} isMe={leader.name === t.leaderboard.meSuffix} />
+              <LeaderRow key={leader.rank} {...leader} isMe={leader.isCurrentUser === true} />
             ))}
 
             {showMyRow && (

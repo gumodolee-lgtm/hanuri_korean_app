@@ -8,7 +8,7 @@ const isGuest = (userId: string) => userId.startsWith('guest_');
 
 export async function syncProfile(user: User): Promise<void> {
   if (isGuest(user.id) || !supabase) return;
-  await supabase.from('profiles').upsert(
+  const { error } = await supabase.from('profiles').upsert(
     {
       id: user.id,
       native_lang: user.native_lang,
@@ -19,6 +19,7 @@ export async function syncProfile(user: User): Promise<void> {
     },
     { onConflict: 'id' }
   );
+  if (error) throw new Error(`[syncProfile] ${error.message}`);
 }
 
 export async function fetchProfile(userId: string): Promise<Partial<User> | null> {
@@ -48,7 +49,7 @@ interface StatsPayload {
 
 export async function syncStats(userId: string, stats: StatsPayload): Promise<void> {
   if (isGuest(userId) || !supabase) return;
-  await supabase.from('user_stats').upsert(
+  const { error } = await supabase.from('user_stats').upsert(
     {
       user_id: userId,
       xp: stats.xp,
@@ -60,6 +61,7 @@ export async function syncStats(userId: string, stats: StatsPayload): Promise<vo
     },
     { onConflict: 'user_id' }
   );
+  if (error) throw new Error(`[syncStats] ${error.message}`);
 }
 
 export async function fetchStats(userId: string): Promise<StatsPayload | null> {
@@ -82,7 +84,7 @@ export async function fetchStats(userId: string): Promise<StatsPayload | null> {
 
 export async function syncProgress(userId: string, progress: UserProgress): Promise<void> {
   if (isGuest(userId) || !supabase) return;
-  await supabase.from('lesson_progress').upsert(
+  const { error } = await supabase.from('lesson_progress').upsert(
     {
       user_id: userId,
       lesson_id: progress.lesson_id,
@@ -92,6 +94,7 @@ export async function syncProgress(userId: string, progress: UserProgress): Prom
     },
     { onConflict: 'user_id,lesson_id' }
   );
+  if (error) throw new Error(`[syncProgress] ${error.message}`);
 }
 
 export async function fetchAllProgress(userId: string): Promise<UserProgress[]> {
