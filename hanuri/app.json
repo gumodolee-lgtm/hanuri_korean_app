@@ -43,6 +43,7 @@
     },
     "plugins": [
       "expo-apple-authentication",
+      "react-native-purchases",
       "expo-asset",
       "expo-font",
       "expo-web-browser",

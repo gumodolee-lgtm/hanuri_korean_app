@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,20 +11,43 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { PurchasesPackage, PACKAGE_TYPE } from 'react-native-purchases';
 import { useAuthStore } from '../../store/authStore';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
+import {
+  getOfferings,
+  purchasePackage,
+  restorePurchases,
+  isPro,
+} from '../../services/revenuecatService';
 
 const BENEFIT_EMOJIS = ['💼', '📝', '🔁', '📊', '🏆'];
-const PRICE_MONTHLY = '₩9,900';
-const PRICE_YEARLY = '₩69,900';
+
+type PlanId = 'monthly' | 'yearly' | 'lifetime';
+
+interface PlanConfig {
+  id: PlanId;
+  packageType: PACKAGE_TYPE;
+  badge: string | null;
+}
+
+const PLAN_CONFIGS: PlanConfig[] = [
+  { id: 'monthly', packageType: PACKAGE_TYPE.MONTHLY, badge: null },
+  { id: 'yearly', packageType: PACKAGE_TYPE.ANNUAL, badge: null },
+  { id: 'lifetime', packageType: PACKAGE_TYPE.LIFETIME, badge: null },
+];
 
 export default function ProUpgradeScreen() {
   const navigation = useNavigation();
   const { upgradeToPro } = useAuthStore();
   const t = useT();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly');
+
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>('yearly');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [packages, setPackages] = useState<Partial<Record<PlanId, PurchasesPackage>>>({});
+  const [loadingError, setLoadingError] = useState(false);
 
   const BENEFITS = [
     { emoji: BENEFIT_EMOJIS[0], title: t.proUpgrade.benefit1Title, desc: t.proUpgrade.benefit1Desc },
@@ -34,36 +57,90 @@ export default function ProUpgradeScreen() {
     { emoji: BENEFIT_EMOJIS[4], title: t.proUpgrade.benefit5Title, desc: t.proUpgrade.benefit5Desc },
   ];
 
-  const PLANS = [
-    { id: 'monthly', label: t.proUpgrade.monthly, price: PRICE_MONTHLY, period: t.proUpgrade.periodMonthly, badge: null },
-    { id: 'yearly', label: t.proUpgrade.yearly, price: PRICE_YEARLY, period: t.proUpgrade.periodYearly, badge: t.proUpgrade.yearlyBadge },
-  ];
+  const PLAN_LABELS: Record<PlanId, string> = {
+    monthly: t.proUpgrade.monthly,
+    yearly: t.proUpgrade.yearly,
+    lifetime: t.proUpgrade.lifetime,
+  };
+  const PLAN_PERIODS: Record<PlanId, string> = {
+    monthly: t.proUpgrade.periodMonthly,
+    yearly: t.proUpgrade.periodYearly,
+    lifetime: t.proUpgrade.periodLifetime,
+  };
+  const PLAN_BADGES: Record<PlanId, string | null> = {
+    monthly: null,
+    yearly: t.proUpgrade.yearlyBadge,
+    lifetime: t.proUpgrade.lifetimeBadge,
+  };
+  const SUBSCRIBE_LABELS: Record<PlanId, string> = {
+    monthly: t.proUpgrade.subscribeMonthly,
+    yearly: t.proUpgrade.subscribeYearly,
+    lifetime: t.proUpgrade.subscribeLifetime,
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const offering = await getOfferings();
+        if (!offering) { setLoadingError(true); return; }
+
+        const mapped: Partial<Record<PlanId, PurchasesPackage>> = {};
+        for (const pkg of offering.availablePackages) {
+          const config = PLAN_CONFIGS.find((c) => c.packageType === pkg.packageType);
+          if (config) mapped[config.id] = pkg;
+        }
+        setPackages(mapped);
+      } catch {
+        setLoadingError(true);
+      }
+    })();
+  }, []);
 
   const handleSubscribe = async () => {
-    if (!__DEV__) {
-      // Production: payment gateway not yet integrated — inform the user.
-      Alert.alert('HANURI PRO', t.home.comingSoon);
+    const pkg = packages[selectedPlan];
+    if (!pkg) {
+      Alert.alert('', t.proUpgrade.purchaseFailed);
       return;
     }
-    // DEV / demo mode only: simulate a purchase flow
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
-
-    Alert.alert(
-      t.proUpgrade.successTitle,
-      t.proUpgrade.successMsg,
-      [
-        {
-          text: t.proUpgrade.successBtn,
-          onPress: () => {
-            upgradeToPro();
-            navigation.goBack();
-          },
-        },
-      ]
-    );
+    try {
+      setIsLoading(true);
+      const customerInfo = await purchasePackage(pkg);
+      if (isPro(customerInfo)) {
+        upgradeToPro();
+        Alert.alert(t.proUpgrade.successTitle, t.proUpgrade.successMsg, [
+          { text: t.proUpgrade.successBtn, onPress: () => navigation.goBack() },
+        ]);
+      }
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code !== 'PURCHASE_CANCELLED') {
+        Alert.alert('', t.proUpgrade.purchaseFailed);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleRestore = async () => {
+    try {
+      setIsRestoring(true);
+      const customerInfo = await restorePurchases();
+      if (isPro(customerInfo)) {
+        upgradeToPro();
+        Alert.alert('', t.proUpgrade.restoreSuccess, [
+          { text: t.proUpgrade.successBtn, onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert('', t.proUpgrade.restoreFailed);
+      }
+    } catch {
+      Alert.alert('', t.proUpgrade.restoreFailed);
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
+  const hasPackages = Object.keys(packages).length > 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -102,50 +179,81 @@ export default function ProUpgradeScreen() {
         {/* Plan selector */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t.proUpgrade.planTitle}</Text>
-          <View style={styles.planRow}>
-            {PLANS.map((plan) => {
-              const selected = selectedPlan === plan.id;
-              return (
-                <TouchableOpacity
-                  key={plan.id}
-                  style={[styles.planCard, selected && styles.planCardSelected]}
-                  onPress={() => setSelectedPlan(plan.id as 'monthly' | 'yearly')}
-                  activeOpacity={0.7}
-                >
-                  {plan.badge && (
-                    <View style={styles.planBadge}>
-                      <Text style={styles.planBadgeText}>{plan.badge}</Text>
-                    </View>
-                  )}
-                  <Text style={[styles.planLabel, selected && styles.planLabelSelected]}>
-                    {plan.label}
-                  </Text>
-                  <Text style={[styles.planPrice, selected && styles.planPriceSelected]}>
-                    {plan.price}
-                  </Text>
-                  <Text style={[styles.planPeriod, selected && styles.planPeriodSelected]}>
-                    {plan.period}
-                  </Text>
-                  {selected && <View style={styles.planCheck}><Text style={styles.planCheckText}>✓</Text></View>}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+
+          {!hasPackages && !loadingError && (
+            <View style={styles.loadingRow}>
+              <ActivityIndicator color={colors.primary} />
+              <Text style={styles.loadingText}>{t.proUpgrade.loadingProducts}</Text>
+            </View>
+          )}
+
+          {loadingError && (
+            <Text style={styles.errorText}>{t.proUpgrade.purchaseFailed}</Text>
+          )}
+
+          {hasPackages && (
+            <View style={styles.planRow}>
+              {PLAN_CONFIGS.map((config) => {
+                const pkg = packages[config.id];
+                if (!pkg) return null;
+                const selected = selectedPlan === config.id;
+                const badge = PLAN_BADGES[config.id];
+                return (
+                  <TouchableOpacity
+                    key={config.id}
+                    style={[styles.planCard, selected && styles.planCardSelected]}
+                    onPress={() => setSelectedPlan(config.id)}
+                    activeOpacity={0.7}
+                  >
+                    {badge && (
+                      <View style={styles.planBadge}>
+                        <Text style={styles.planBadgeText}>{badge}</Text>
+                      </View>
+                    )}
+                    <Text style={[styles.planLabel, selected && styles.planLabelSelected]}>
+                      {PLAN_LABELS[config.id]}
+                    </Text>
+                    <Text style={[styles.planPrice, selected && styles.planPriceSelected]}>
+                      {pkg.product.priceString}
+                    </Text>
+                    <Text style={[styles.planPeriod, selected && styles.planPeriodSelected]}>
+                      {PLAN_PERIODS[config.id]}
+                    </Text>
+                    {selected && <View style={styles.planCheck}><Text style={styles.planCheckText}>✓</Text></View>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         {/* Subscribe button */}
         <TouchableOpacity
-          style={styles.subscribeBtn}
+          style={[styles.subscribeBtn, (!hasPackages || isLoading) && styles.subscribeBtnDisabled]}
           onPress={handleSubscribe}
-          disabled={isLoading}
+          disabled={!hasPackages || isLoading}
           activeOpacity={0.85}
         >
           {isLoading ? (
             <ActivityIndicator color={colors.white} />
           ) : (
             <Text style={styles.subscribeBtnText}>
-              👑 {selectedPlan === 'yearly' ? t.proUpgrade.subscribeYearly : t.proUpgrade.subscribeMonthly}
+              👑 {SUBSCRIBE_LABELS[selectedPlan]}
             </Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Restore purchases */}
+        <TouchableOpacity
+          style={styles.restoreBtn}
+          onPress={handleRestore}
+          disabled={isRestoring}
+          activeOpacity={0.7}
+        >
+          {isRestoring ? (
+            <ActivityIndicator color={colors.gray} size="small" />
+          ) : (
+            <Text style={styles.restoreBtnText}>{t.proUpgrade.restore}</Text>
           )}
         </TouchableOpacity>
 
@@ -204,16 +312,22 @@ const styles = StyleSheet.create({
   benefitDesc: { ...typography.caption, color: colors.gray, marginTop: 2 },
   checkMark: { color: colors.secondary, fontWeight: '800', fontSize: 18 },
 
+  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center', paddingVertical: spacing.md },
+  loadingText: { ...typography.caption, color: colors.gray },
+  errorText: { ...typography.caption, color: colors.primary, textAlign: 'center', paddingVertical: spacing.sm },
+
   planRow: { flexDirection: 'row', gap: spacing.sm },
   planCard: {
     flex: 1,
     borderRadius: borderRadius.md,
-    padding: spacing.md,
+    padding: spacing.sm,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: colors.border,
     gap: 4,
     position: 'relative',
+    minHeight: 90,
+    justifyContent: 'center',
   },
   planCardSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
   planBadge: {
@@ -224,12 +338,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
-  planBadgeText: { fontSize: 10, fontWeight: '800', color: colors.white },
-  planLabel: { ...typography.caption, color: colors.gray, fontWeight: '600' },
+  planBadgeText: { fontSize: 9, fontWeight: '800', color: colors.white },
+  planLabel: { ...typography.caption, color: colors.gray, fontWeight: '600', fontSize: 11 },
   planLabelSelected: { color: colors.primary },
-  planPrice: { fontSize: 22, fontWeight: '900', color: colors.dark },
+  planPrice: { fontSize: 18, fontWeight: '900', color: colors.dark },
   planPriceSelected: { color: colors.primary },
-  planPeriod: { ...typography.caption, color: colors.gray },
+  planPeriod: { ...typography.caption, color: colors.gray, fontSize: 10 },
   planPeriodSelected: { color: colors.primary },
   planCheck: {
     position: 'absolute',
@@ -247,7 +361,15 @@ const styles = StyleSheet.create({
     height: 52,
     justifyContent: 'center',
   },
+  subscribeBtnDisabled: { opacity: 0.6 },
   subscribeBtnText: { ...typography.body, color: colors.white, fontWeight: '800', fontSize: 16 },
+
+  restoreBtn: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    marginHorizontal: spacing.md,
+  },
+  restoreBtnText: { ...typography.caption, color: colors.gray, textDecorationLine: 'underline' },
 
   disclaimer: {
     ...typography.caption,

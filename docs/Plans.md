@@ -1,113 +1,107 @@
-# Plan: Apple Login
+# Plan: RevenueCat 인앱 결제 연동
 
 ## Summary
-iOS App Store 출시 요건(소셜 로그인 제공 시 Apple Login 필수)을 충족하기 위해,
-현재 "Coming Soon" Alert 상태인 Apple 버튼을 실제 동작하도록 구현한다.
-`expo-apple-authentication`(네이티브 Apple Sign In UI) + Supabase `signInWithIdToken` 패턴 사용.
-Google OAuth 이후 post-login 흐름(게스트 데이터 이전, loadFromRemote)을 그대로 재사용한다.
+현재 `__DEV__` 분기로 mock 처리된 ProUpgradeScreen의 결제 흐름을 RevenueCat SDK로 교체한다.
+Monthly / Yearly / Lifetime 3개 상품을 Offerings API로 동적 로딩하고,
+결제 성공 시에만 `upgradeToPro()`를 호출한다.
+기존 UI 레이아웃과 `useT()` i18n 시스템은 변경하지 않는다.
 
 ## Requirements
-- [ ] REQ-1: iOS에서 Apple 버튼 탭 시 native Apple Sign In 대화상자가 표시된다
-- [ ] REQ-2: 로그인 성공 시 Supabase 세션이 생성되고 authStore에 사용자 정보가 저장된다
-- [ ] REQ-3: 로그인 성공 시 서버 데이터(`loadFromRemote`)를 불러온다
-- [ ] REQ-4: 게스트 데이터가 있으면 서버 데이터가 비어있을 경우 이전한다 (Google과 동일 로직)
-- [ ] REQ-5: 사용자가 Apple 대화상자를 취소하면 에러 Alert 없이 조용히 종료된다
-- [ ] REQ-6: Android에서는 Apple 버튼이 숨겨지거나 비활성화 표시된다
-- [ ] REQ-7: Expo Go에서는 Apple 버튼이 비활성화 표시되며 안내 Alert를 보여준다
-- [ ] REQ-8: 로딩 중 `ActivityIndicator`를 표시하고 버튼을 `disabled` 처리한다
+- [ ] REQ-1: `react-native-purchases` 설치 및 app.json 플러그인 등록
+- [ ] REQ-2: `EXPO_PUBLIC_REVENUECAT_API_KEY`를 .env에 추가
+- [ ] REQ-3: `revenuecatService.ts` 신규 생성 — 초기화/구매/복원/사용자 연동 로직
+- [ ] REQ-4: App.tsx에서 앱 시작 시 RevenueCat 초기화
+- [ ] REQ-5: authStore.ts signIn/signOut 시 RC 사용자 로그인/로그아웃 연동
+- [ ] REQ-6: ProUpgradeScreen — Offerings API로 상품 동적 로딩 (가격 하드코딩 제거)
+- [ ] REQ-7: ProUpgradeScreen — Monthly/Yearly/Lifetime 3개 플랜 카드 표시
+- [ ] REQ-8: ProUpgradeScreen — 구매 성공 시에만 `upgradeToPro()` 호출
+- [ ] REQ-9: ProUpgradeScreen — 구매 복원(Restore Purchases) 버튼 추가
+- [ ] REQ-10: 결제 실패/취소 시 사용자 친화적 에러 처리
+- [ ] REQ-11: i18n — lifetime/restore/error 문자열 6개 언어 추가
 
 ## Acceptance Criteria
-- [ ] AC-1: iOS 기기/시뮬레이터에서 Apple 버튼 탭 → Apple Sign In 시트가 올라온다
-- [ ] AC-2: 로그인 성공 → `authStore.user.id`가 Supabase UUID와 일치한다
-- [ ] AC-3: 로그인 성공 → `MainTabs` 화면으로 자동 이동한다 (RootNavigator onAuthStateChange 처리)
-- [ ] AC-4: 취소 시 (`ERR_REQUEST_CANCELED`) → Alert 없이 로딩 상태만 해제된다
-- [ ] AC-5: 네트워크 에러 또는 Supabase 에러 → `t.splash.loginFailedTitle` Alert가 뜬다
-- [ ] AC-6: Android 빌드에서 Apple 버튼이 렌더링되지 않거나 `opacity: 0` 처리된다
-- [ ] AC-7: TypeScript 타입 에러 없음 (`tsc --noEmit` 통과)
+- [ ] AC-1: 앱 시작 시 콘솔에 RC 초기화 성공 로그가 찍힌다
+- [ ] AC-2: ProUpgradeScreen 진입 시 RC Offerings에서 가격이 로딩된다 (스피너 → 가격 표시)
+- [ ] AC-3: 상품 로딩 실패 시 에러 메시지가 표시된다 (크래시 없음)
+- [ ] AC-4: Monthly/Yearly/Lifetime 3개 플랜이 기존 카드 스타일로 표시된다
+- [ ] AC-5: 구매 버튼 탭 → RC 결제 시트가 올라온다
+- [ ] AC-6: 구매 성공 → `authStore.user.isPro === true` 확인
+- [ ] AC-7: 사용자 취소 → Alert 없이 로딩 해제
+- [ ] AC-8: Restore Purchases 탭 → 이전 구매 복원 성공/실패 Alert 표시
+- [ ] AC-9: 로그인 시 RC 사용자 ID = Supabase user.id 연동
+- [ ] AC-10: `tsc --noEmit --skipLibCheck` 통과 (에러 0)
 
 ## Implementation Steps
 
-### Phase 1: 패키지 설치 + app.json 설정
-- Step 1.1: `expo-apple-authentication` 설치 → `hanuri/package.json`에 의존성 추가
-  ```bash
-  cd hanuri && npx expo install expo-apple-authentication
-  ```
-- Step 1.2: `app.json` iOS 섹션에 `usesAppleSignIn: true` 추가 → `hanuri/app.json`
-- Step 1.3: `app.json` plugins 배열에 `"expo-apple-authentication"` 추가 → `hanuri/app.json`
+### Phase 1: 패키지 + 환경변수 설정
+- Step 1.1: `npx expo install react-native-purchases` 실행 → `hanuri/package.json`
+- Step 1.2: `app.json` plugins에 `"react-native-purchases"` 추가 → `hanuri/app.json`
+- Step 1.3: `hanuri/.env`에 `EXPO_PUBLIC_REVENUECAT_API_KEY=test_aNrgrIIyd3IhO-nke4NeTbZqpj` 추가
 
-### Phase 2: SplashScreen — handleAppleLogin 구현
-- Step 2.1: `expo-apple-authentication` import 추가 → `hanuri/src/screens/auth/SplashScreen.tsx`
-- Step 2.2: `Platform` import 추가 (react-native) → 같은 파일
-- Step 2.3: `isAppleLoading` state 추가 (`useState(false)`) → 같은 파일
-- Step 2.4: `handleAppleLogin` async 함수 구현:
-  1. `AppleAuthentication.isAvailableAsync()` → false이면 안내 Alert 후 리턴
-  2. `AppleAuthentication.signInAsync({ requestedScopes: [FULL_NAME, EMAIL] })` 호출
-  3. `ERR_REQUEST_CANCELED` 에러 코드 시 조용히 리턴
-  4. `supabase.auth.signInWithIdToken({ provider: 'apple', token: credential.identityToken! })` 호출
-  5. 세션에서 `supaUser` 추출 → Google 로그인과 동일한 post-login 흐름 실행
-  6. `appUser` 생성 → `loginWithSupabase(appUser)` → `loadFromRemote(userId)` → 게스트 데이터 이전
-- Step 2.5: Apple 버튼 JSX 수정:
-  - `opacity: 0.6` → 제거 (정상 스타일)
-  - `onPress` → `handleAppleLogin`
-  - `disabled={isAppleLoading || !isSupabaseConfigured}`
-  - `!isSupabaseConfigured` 시 `styles.socialButtonDisabled` 적용
-  - `isAppleLoading` 시 `ActivityIndicator` 렌더링
-  - `Platform.OS !== 'ios'` 시 렌더링 자체를 null로 (REQ-6)
+### Phase 2: RevenueCat 서비스 파일 생성
+- Step 2.1: `hanuri/src/services/revenuecatService.ts` 신규 생성
+  - `initRevenueCat(apiKey)` — Purchases.configure 래퍼
+  - `loginUser(userId)` — Purchases.logIn 래퍼
+  - `logoutUser()` — Purchases.logOut 래퍼
+  - `getOfferings()` — Offerings 패키지 목록 반환
+  - `purchasePackage(pkg)` — 구매 실행, CustomerInfo 반환
+  - `restorePurchases()` — 구매 복원, CustomerInfo 반환
+  - `isPro(customerInfo)` — entitlements.active에 'pro' 존재 여부 확인
 
-### Phase 3: i18n — 필요 시 문자열 추가
-- Step 3.1: 기존 `t.splash.loginFailedTitle`, `t.splash.loginFailedMsg`가 Apple 에러에도 재사용 가능한지 확인
-- Step 3.2: 재사용 가능하면 추가 번역 불필요; `t.splash.appleNotAvailable` 등이 필요하면 6개 언어에 추가
+### Phase 3: App.tsx 초기화
+- Step 3.1: `initRevenueCat(process.env.EXPO_PUBLIC_REVENUECAT_API_KEY)` 호출을
+  기존 notification 초기화 useEffect 내에 추가 → `hanuri/App.tsx`
 
-### Phase 4: 타입 체크
-- Step 4.1: `tsc --noEmit --skipLibCheck` 실행, 에러 0개 확인
+### Phase 4: authStore.ts — RC 사용자 연동
+- Step 4.1: `loginWithSupabase` 완료 후 `loginUser(supaUser.id)` 호출
+- Step 4.2: `signOut` 시 `logoutUser()` 호출
+
+### Phase 5: i18n — 신규 문자열 추가
+- Step 5.1: `Translations.proUpgrade` 인터페이스에 추가:
+  `lifetime`, `periodLifetime`, `subscribeLifetime`,
+  `restore`, `restoreSuccess`, `restoreFailed`, `purchaseFailed`, `loadingProducts`
+- Step 5.2: 6개 언어(en/ko/es/zh/ja/vi) 모두 값 추가
+
+### Phase 6: ProUpgradeScreen.tsx — 실제 결제 플로우
+- Step 6.1: `getOfferings()` 호출로 상품 동적 로딩 (useEffect + useState)
+- Step 6.2: 플랜 타입 `'monthly' | 'yearly' | 'lifetime'`으로 확장
+- Step 6.3: 하드코딩 가격(₩9,900/₩69,900) → `package.product.priceString`으로 교체
+- Step 6.4: Lifetime 플랜 카드 추가 (기존 카드 스타일 동일하게 적용)
+- Step 6.5: `handleSubscribe` → `purchasePackage(selectedPackage)` 실제 결제로 교체
+- Step 6.6: 결제 성공 시 `isPro(customerInfo)` 확인 후 `upgradeToPro()` 호출
+- Step 6.7: 사용자 취소(`PURCHASE_CANCELLED`) → Alert 없이 종료
+- Step 6.8: Restore 버튼 추가 → `restorePurchases()` 호출
+- Step 6.9: 상품 로딩 중 스피너 표시, 로딩 실패 시 에러 메시지 표시
+
+### Phase 7: 타입 체크
+- Step 7.1: `tsc --noEmit --skipLibCheck`
 
 ## Files to Modify
 | File | Action | Description |
 |------|--------|-------------|
-| `hanuri/package.json` | Modify | `expo-apple-authentication` 의존성 추가 |
-| `hanuri/app.json` | Modify | iOS `usesAppleSignIn: true`, plugin 추가 |
-| `hanuri/src/screens/auth/SplashScreen.tsx` | Modify | `handleAppleLogin` 구현, Apple 버튼 활성화 |
-| `hanuri/src/i18n/translations.ts` | Modify (조건부) | Apple 관련 에러 문자열 (재사용 가능하면 변경 불필요) |
+| `hanuri/.env` | Modify | RC API 키 추가 |
+| `hanuri/app.json` | Modify | react-native-purchases 플러그인 추가 |
+| `hanuri/App.tsx` | Modify | RC 초기화 추가 |
+| `hanuri/src/services/revenuecatService.ts` | **Create** | RC 로직 캡슐화 |
+| `hanuri/src/store/authStore.ts` | Modify | 로그인/로그아웃 시 RC 사용자 연동 |
+| `hanuri/src/i18n/translations.ts` | Modify | 8개 신규 문자열 × 6개 언어 |
+| `hanuri/src/screens/pro/ProUpgradeScreen.tsx` | Modify | 실제 결제 플로우 구현 |
 
 ## Dependencies
-- `expo-apple-authentication` — Expo 공식 패키지, EAS Build에서 동작 (Expo Go 미지원)
-- 새 외부 라이브러리 없음 — 나머지는 이미 설치된 패키지 활용
-
-## External Setup Required (빌드 전 필수)
-| 설정 | 위치 | 내용 |
-|------|------|------|
-| Sign In with Apple capability | Apple Developer Console → Identifiers → `com.hanuri.app` | Sign In with Apple 활성화 |
-| Apple Services ID | Apple Developer Console | Web 인증 리다이렉트용 (Supabase에 등록) |
-| Supabase Apple Provider | Supabase Dashboard → Auth → Providers → Apple | Team ID, Bundle ID, Key ID, Private Key 입력 |
-
-> **개발 중 참고**: Expo Go에서는 `expo-apple-authentication`을 사용할 수 없음.
-> 테스트는 `eas build --profile development` 또는 iOS 시뮬레이터 개발 빌드에서만 가능.
+- `react-native-purchases` — RevenueCat 공식 React Native SDK
+- 추가 외부 라이브러리 없음
 
 ## Risks & Mitigations
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Expo Go에서 `expo-apple-authentication` 미지원 | HIGH | `isAvailableAsync()` 체크로 우아하게 처리; 개발은 EAS dev build 사용 |
-| Apple Developer / Supabase 설정 미완료 시 런타임 에러 | HIGH | `isSupabaseConfigured` 가드 + `isAvailableAsync()` 가드로 에러 차단 |
-| identityToken이 null일 때 크래시 | MEDIUM | `!credential.identityToken` 체크 후 에러 throw |
-| Android 빌드에서 Apple 버튼 import 에러 | LOW | `expo-apple-authentication`은 Android에서 stub 제공 — `isAvailableAsync()`가 false 반환 |
-| Apple이 email을 최초 로그인 시에만 제공 | LOW | `displayName` fallback: `supaUser.email` 앞부분 사용 |
+| Expo Go에서 react-native-purchases 미지원 | HIGH | `Platform.OS` + `__DEV__` 분기로 Expo Go 환경 감지, mock 모드 fallback |
+| RC Offerings 로딩 실패 (네트워크) | MEDIUM | try/catch + 에러 상태 표시, 재시도 없이 사용자에게 안내 |
+| test key로는 실제 결제 불가 | MEDIUM | 개발 테스트는 RC 샌드박스(Google Play sandbox) 사용 안내 |
+| entitlement ID 불일치 | MEDIUM | RC 대시보드 entitlement ID를 `'pro'`로 통일 — 다르면 상수로 관리 |
+| Lifetime 카드 3개 → 가로 레이아웃 좁아짐 | LOW | 기존 flex:1 패턴 유지, 글자 크기 조정 없이 진행 |
 
 ## Out of Scope
-- Supabase Apple Provider 실제 설정 (Apple Developer 계정 작업 — 사용자가 수동 진행)
-- Android에서 Apple Login 지원 (Apple 정책상 불가)
-- Apple ID 연동 해제 (설정 → 계정 삭제 흐름)
-- 기존 Google 계정과 같은 이메일로 Apple Login 시 계정 병합
-
----
-
-## GSTACK REVIEW REPORT
-
-| Review | Trigger | Why | Runs | Status | Findings |
-|--------|---------|-----|------|--------|----------|
-| CEO Review | `/plan-ceo-review` | Scope & strategy | 0 | — | — |
-| Codex Review | `/codex review` | Independent 2nd opinion | 0 | — | — |
-| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 0 | — | — |
-| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
-| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
-
-**VERDICT:** NO REVIEWS YET
+- 서버 측 구매 검증 (Supabase Edge Function via RC webhook)
+- 구독 만료/갱신 실시간 감지 (CustomerInfo 폴링)
+- 프로모션 코드, 무료 체험 기간 UI
+- iOS 결제 연동 (현재는 Android Play Store 우선)

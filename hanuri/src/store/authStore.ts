@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, NativeLanguage, LearningGoal, DailyGoalMinutes } from '../types';
 import { syncProfile, loadUserDataFromSupabase } from '../services/dbService';
+import { loginUser, logoutUser } from '../services/revenuecatService';
 import { useUserStore } from './userStore';
 
 interface OnboardingData {
@@ -87,6 +88,8 @@ export const useAuthStore = create<AuthState>()(
         }
         // Remote stats + progress are applied by userStore.loadFromRemote()
         // (called separately to avoid circular imports)
+        // Link RevenueCat user identity to Supabase user id for purchase restoration
+        loginUser(supaUser.id).catch(() => {});
         return;
       },
 
@@ -118,6 +121,7 @@ export const useAuthStore = create<AuthState>()(
       signOut: () => {
         // 모든 persist store 초기화 (계정 간 데이터 혼재 방지)
         useUserStore.getState().resetAll();
+        logoutUser().catch(() => {});
         set({
           user: null,
           hasCompletedOnboarding: false,

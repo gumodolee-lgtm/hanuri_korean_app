@@ -10,6 +10,7 @@ import {
   scheduleDailyReminder,
   scheduleStreakWarning,
 } from './src/services/notificationService';
+import { initRevenueCat } from './src/services/revenuecatService';
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -21,6 +22,11 @@ export default function App() {
     const timer = setTimeout(() => setIsReady(true), 300);
 
     (async () => {
+      const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+      if (rcKey) {
+        await initRevenueCat(rcKey).catch(() => {});
+      }
+
       const granted = await requestNotificationPermission();
       if (granted) {
         await scheduleDailyReminder({ hour: 20, minute: 0 });
