@@ -7,7 +7,9 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -32,6 +34,7 @@ export default function SplashScreen() {
   const { loginWithSupabase } = useAuthStore();
   const { loadFromRemote } = useUserStore();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const t = useT();
 
   const handleGoogleLogin = async () => {
@@ -137,6 +140,92 @@ export default function SplashScreen() {
     }
   };
 
+  const handleAppleLogin = async () => {
+    if (!supabase || !isSupabaseConfigured) {
+      Alert.alert('Setup Required', 'Apple sign-in needs Supabase env vars.');
+      return;
+    }
+
+    const available = await AppleAuthentication.isAvailableAsync();
+    if (!available) {
+      Alert.alert(t.splash.loginFailedTitle, t.splash.appleNotAvailable);
+      return;
+    }
+
+    try {
+      setIsAppleLoading(true);
+
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        throw new Error('Apple identity token not received');
+      }
+
+      const { data: sessionData, error } = await supabase.auth.signInWithIdToken({
+        provider: 'apple',
+        token: credential.identityToken,
+      });
+
+      if (error) throw error;
+
+      const supaUser = sessionData.user;
+      if (supaUser) {
+        const guestState = useUserStore.getState();
+        const hadGuestData = guestState.xp > 0 || guestState.progress.length > 0;
+
+        const { user: currentUser } = useAuthStore.getState();
+        const appUser = {
+          id: supaUser.id,
+          email: supaUser.email ?? credential.email ?? '',
+          native_lang: (currentUser?.native_lang ?? 'en') as NativeLanguage,
+          current_level: currentUser?.current_level ?? 1,
+          xp: 0,
+          streak: 0,
+          daily_goal_minutes: (currentUser?.daily_goal_minutes ?? 15) as DailyGoalMinutes,
+          learning_goal: (currentUser?.learning_goal ?? 'travel') as LearningGoal,
+          created_at: supaUser.created_at,
+        };
+
+        await loginWithSupabase(appUser);
+        await loadFromRemote(supaUser.id);
+
+        if (hadGuestData) {
+          const serverState = useUserStore.getState();
+          if (serverState.xp === 0 && guestState.xp > 0) {
+            useUserStore.setState({
+              xp: guestState.xp,
+              streak: guestState.streak,
+              lastStreakDate: guestState.lastStreakDate,
+              todayMinutes: guestState.todayMinutes,
+              progress: guestState.progress.map((p) => ({ ...p, user_id: supaUser.id })),
+            });
+            await syncStats(supaUser.id, {
+              xp: guestState.xp,
+              streak: guestState.streak,
+              lastStreakDate: guestState.lastStreakDate,
+              todayMinutes: guestState.todayMinutes,
+            });
+            for (const p of guestState.progress) {
+              await syncProgress(supaUser.id, { ...p, user_id: supaUser.id });
+            }
+          }
+        }
+      }
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert(t.splash.loginFailedTitle, t.splash.appleLoginFailedMsg);
+      }
+    } finally {
+      setIsAppleLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -185,13 +274,23 @@ export default function SplashScreen() {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.socialButton, { opacity: 0.6 }]}
-            activeOpacity={0.85}
-            onPress={() => Alert.alert(t.splash.appleLogin, t.home.comingSoon)}
-          >
-            <Text style={styles.socialButtonText}> {t.splash.appleLogin}</Text>
-          </TouchableOpacity>
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              style={[
+                styles.socialButton,
+                (!isSupabaseConfigured) && styles.socialButtonDisabled,
+              ]}
+              onPress={handleAppleLogin}
+              activeOpacity={0.85}
+              disabled={isAppleLoading || !isSupabaseConfigured}
+            >
+              {isAppleLoading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={styles.socialButtonText}> {t.splash.appleLogin}</Text>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </LinearGradient>
     </SafeAreaView>

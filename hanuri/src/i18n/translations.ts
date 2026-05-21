@@ -6,6 +6,7 @@ export interface Translations {
     slogan: string; startFree: string; or: string;
     googleLogin: string; appleLogin: string;
     loginFailedTitle: string; loginFailedMsg: string;
+    appleLoginFailedMsg: string; appleNotAvailable: string;
   };
   onboarding: {
     langTitle: string; langSubtitle: string; next: string;
@@ -114,6 +115,8 @@ const en: Translations = {
     appleLogin: 'Continue with Apple',
     loginFailedTitle: 'Login Failed',
     loginFailedMsg: 'A problem occurred with Google login. Please try again.',
+    appleLoginFailedMsg: 'A problem occurred with Apple login. Please try again.',
+    appleNotAvailable: 'Apple Sign In is not available on this device.',
   },
   onboarding: {
     langTitle: 'What language do you speak?', langSubtitle: '어떤 언어로 설명해 드릴까요?', next: 'Next →',
@@ -241,6 +244,8 @@ const ko: Translations = {
     appleLogin: 'Apple로 계속하기',
     loginFailedTitle: '로그인 실패',
     loginFailedMsg: 'Google 로그인 중 문제가 발생했습니다. 다시 시도해주세요.',
+    appleLoginFailedMsg: 'Apple 로그인 중 문제가 발생했습니다. 다시 시도해주세요.',
+    appleNotAvailable: '이 기기에서는 Apple 로그인을 사용할 수 없습니다.',
   },
   onboarding: {
     langTitle: '어떤 언어로 설명해 드릴까요?', langSubtitle: 'What language do you speak?', next: '다음 →',
@@ -368,6 +373,8 @@ const es: Translations = {
     appleLogin: 'Continuar con Apple',
     loginFailedTitle: 'Error de inicio de sesión',
     loginFailedMsg: 'Hubo un problema con Google. Por favor, inténtalo de nuevo.',
+    appleLoginFailedMsg: 'Hubo un problema con Apple. Por favor, inténtalo de nuevo.',
+    appleNotAvailable: 'Apple Sign In no está disponible en este dispositivo.',
   },
   onboarding: {
     langTitle: '¿Qué idioma hablas?', langSubtitle: '어떤 언어로 설명해 드릴까요?', next: 'Siguiente →',
@@ -495,6 +502,8 @@ const zh: Translations = {
     appleLogin: '使用Apple继续',
     loginFailedTitle: '登录失败',
     loginFailedMsg: 'Google登录出现问题，请重试。',
+    appleLoginFailedMsg: 'Apple登录出现问题，请重试。',
+    appleNotAvailable: '此设备不支持Apple登录。',
   },
   onboarding: {
     langTitle: '你使用哪种语言?', langSubtitle: '어떤 언어로 설명해 드릴까요?', next: '下一步 →',
@@ -625,6 +634,8 @@ const ja: Translations = {
     appleLogin: 'Appleで続ける',
     loginFailedTitle: 'ログイン失敗',
     loginFailedMsg: 'Googleログイン中に問題が発生しました。もう一度お試しください。',
+    appleLoginFailedMsg: 'Appleログイン中に問題が発生しました。もう一度お試しください。',
+    appleNotAvailable: 'このデバイスではAppleログインを使用できません。',
   },
   onboarding: {
     langTitle: 'どの言語を使いますか？', langSubtitle: '어떤 언어로 설명해 드릴까요?', next: '次へ →',
@@ -755,6 +766,8 @@ const vi: Translations = {
     appleLogin: 'Tiếp tục với Apple',
     loginFailedTitle: 'Đăng nhập thất bại',
     loginFailedMsg: 'Có vấn đề với đăng nhập Google. Vui lòng thử lại.',
+    appleLoginFailedMsg: 'Có vấn đề với đăng nhập Apple. Vui lòng thử lại.',
+    appleNotAvailable: 'Apple Sign In không khả dụng trên thiết bị này.',
   },
   onboarding: {
     langTitle: 'Bạn nói ngôn ngữ nào?', langSubtitle: '어떤 언어로 설명해 드릴까요?', next: 'Tiếp theo →',
