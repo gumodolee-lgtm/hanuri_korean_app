@@ -111,7 +111,7 @@ export interface Translations {
 const en: Translations = {
   tabs: { home: 'Home', lessons: 'Lessons', aiChat: 'AI Chat', ranking: 'Ranking', profile: 'Me' },
   splash: {
-    slogan: 'Connect the world through Korean',
+    slogan: 'Real Korean from K-Dramas & K-Pop',
     startFree: '🚀 Start for Free',
     or: 'or',
     googleLogin: 'Continue with Google',
@@ -247,7 +247,7 @@ const en: Translations = {
 const ko: Translations = {
   tabs: { home: '홈', lessons: '레슨', aiChat: 'AI대화', ranking: '랭킹', profile: '나' },
   splash: {
-    slogan: '한국어로 세상을 연결하다',
+    slogan: 'K-드라마와 K-팝으로 배우는 실전 한국어',
     startFree: '🚀 무료로 시작하기',
     or: '또는',
     googleLogin: 'Google로 계속하기',
@@ -383,7 +383,7 @@ const ko: Translations = {
 const es: Translations = {
   tabs: { home: 'Inicio', lessons: 'Lecciones', aiChat: 'Chat IA', ranking: 'Ranking', profile: 'Yo' },
   splash: {
-    slogan: 'Conecta el mundo a través del coreano',
+    slogan: 'Coreano real del mundo del K-Drama y K-Pop',
     startFree: '🚀 Empezar gratis',
     or: 'o',
     googleLogin: 'Continuar con Google',
@@ -519,7 +519,7 @@ const es: Translations = {
 const zh: Translations = {
   tabs: { home: '主页', lessons: '课程', aiChat: 'AI对话', ranking: '排名', profile: '我' },
   splash: {
-    slogan: '用韩语连接世界',
+    slogan: '通过韩剧和K-Pop学地道韩语',
     startFree: '🚀 免费开始',
     or: '或者',
     googleLogin: '使用Google继续',
@@ -658,7 +658,7 @@ const zh: Translations = {
 const ja: Translations = {
   tabs: { home: 'ホーム', lessons: 'レッスン', aiChat: 'AIチャット', ranking: 'ランキング', profile: '私' },
   splash: {
-    slogan: '韓国語で世界をつなぐ',
+    slogan: '韓ドラ・K-POPで学ぶリアル韓国語',
     startFree: '🚀 無料で始める',
     or: 'または',
     googleLogin: 'Googleで続ける',
@@ -797,7 +797,7 @@ const ja: Translations = {
 const vi: Translations = {
   tabs: { home: 'Trang chủ', lessons: 'Bài học', aiChat: 'Chat AI', ranking: 'Xếp hạng', profile: 'Tôi' },
   splash: {
-    slogan: 'Kết nối thế giới qua tiếng Hàn',
+    slogan: 'Tiếng Hàn thực tế từ phim Hàn & K-Pop',
     startFree: '🚀 Bắt đầu miễn phí',
     or: 'hoặc',
     googleLogin: 'Tiếp tục với Google',
