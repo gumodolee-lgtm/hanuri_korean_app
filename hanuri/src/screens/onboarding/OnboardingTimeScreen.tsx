@@ -18,9 +18,9 @@ export default function OnboardingTimeScreen() {
   const [selected, setSelected] = React.useState<DailyGoalMinutes>(15);
 
   const timeOptions: { minutes: DailyGoalMinutes; label: string; sub: string; recommended?: boolean }[] = [
-    { minutes: 5, label: '5min', sub: t.onboarding.timeCasual },
-    { minutes: 15, label: '15min', sub: t.onboarding.timeRecommended, recommended: true },
-    { minutes: 30, label: '30min', sub: t.onboarding.timeIntensive },
+    { minutes: 5, label: t.onboarding.time5min, sub: t.onboarding.timeCasual },
+    { minutes: 15, label: t.onboarding.time15min, sub: t.onboarding.timeRecommended, recommended: true },
+    { minutes: 30, label: t.onboarding.time30min, sub: t.onboarding.timeIntensive },
   ];
 
   const handleNext = () => {

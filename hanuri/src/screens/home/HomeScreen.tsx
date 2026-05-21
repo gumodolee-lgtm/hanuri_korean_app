@@ -17,15 +17,7 @@ import { useUserStore } from '../../store/userStore';
 import { getFirstLesson, ALL_LEVELS } from '../../data/lessons';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
-import { LearningGoal } from '../../types';
 
-const GOAL_CONTEXT: Record<LearningGoal, string> = {
-  kpop: 'K-pop · 드라마 기초 필수 표현 🎵',
-  travel: '여행 필수 표현 ✈️',
-  business: '비즈니스 한국어 기초 💼',
-  topik: 'TOPIK 기초 대비 📝',
-  relationship: '일상 대화 기초 ❤️',
-};
 
 type NavProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList>,
@@ -37,6 +29,14 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
   const { xp, streak, todayMinutes, progress } = useUserStore();
   const t = useT();
+
+  const goalContextMap: Record<string, string> = {
+    kpop: t.home.goalContextKpop,
+    travel: t.home.goalContextTravel,
+    business: t.home.goalContextBusiness,
+    topik: t.home.goalContextTopik,
+    relationship: t.home.goalContextRelationship,
+  };
 
   const currentLevel = user?.current_level ?? 1;
   const dailyGoal = user?.daily_goal_minutes ?? 15;
@@ -121,7 +121,7 @@ export default function HomeScreen() {
         {/* Continue Learning */}
         {firstLesson && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>{GOAL_CONTEXT[learningGoal as LearningGoal] ?? t.home.startNow}</Text>
+            <Text style={styles.cardLabel}>{goalContextMap[learningGoal] ?? t.home.startNow}</Text>
             <View style={styles.lessonInfo}>
               <Text style={styles.lessonEmoji}>{firstLesson.emoji}</Text>
               <View style={styles.lessonMeta}>

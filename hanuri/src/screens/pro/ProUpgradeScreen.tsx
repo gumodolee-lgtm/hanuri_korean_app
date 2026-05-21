@@ -35,8 +35,8 @@ export default function ProUpgradeScreen() {
   ];
 
   const PLANS = [
-    { id: 'monthly', label: t.proUpgrade.monthly, price: PRICE_MONTHLY, period: '/월', badge: null },
-    { id: 'yearly', label: t.proUpgrade.yearly, price: PRICE_YEARLY, period: '/년', badge: t.proUpgrade.yearlyBadge },
+    { id: 'monthly', label: t.proUpgrade.monthly, price: PRICE_MONTHLY, period: t.proUpgrade.periodMonthly, badge: null },
+    { id: 'yearly', label: t.proUpgrade.yearly, price: PRICE_YEARLY, period: t.proUpgrade.periodYearly, badge: t.proUpgrade.yearlyBadge },
   ];
 
   const handleSubscribe = async () => {

@@ -16,6 +16,7 @@ export interface Translations {
     levelTest: string;
     timeTitle: string;
     timeCasual: string; timeRecommended: string; timeIntensive: string; recommended: string;
+    time5min: string; time15min: string; time30min: string;
     timeTip: string;
     notifTitle: string; notifMorning: string; notifEvening: string; notifNight: string;
     startApp: string; skip: string;
@@ -33,6 +34,8 @@ export interface Translations {
     quickStart: string; aiChatLabel: string; aiChatSub: string;
     todaysWord: string; todaysWordSub: string;
     kpop: string; comingSoon: string;
+    goalContextKpop: string; goalContextTravel: string; goalContextBusiness: string;
+    goalContextTopik: string; goalContextRelationship: string;
   };
   goalLabels: { kpop: string; travel: string; business: string; topik: string; relationship: string };
   lessons: { title: string; comingSoon: string; minUnit: string };
@@ -94,6 +97,7 @@ export interface Translations {
     benefit5Title: string; benefit5Desc: string;
     planTitle: string;
     monthly: string; yearly: string; yearlyBadge: string;
+    periodMonthly: string; periodYearly: string;
     subscribeMonthly: string; subscribeYearly: string;
     disclaimer: string;
     successTitle: string; successMsg: string; successBtn: string;
@@ -120,6 +124,7 @@ const en: Translations = {
     levelTest: '→ Check with level test',
     timeTitle: 'How many minutes per day?',
     timeCasual: 'Casual', timeRecommended: 'Recommended', timeIntensive: 'Intensive', recommended: '⭐',
+    time5min: '5min', time15min: '15min', time30min: '30min',
     timeTip: '💡 15 min/day → basic conversation in 3 months!',
     notifTitle: 'Set your study reminder',
     notifMorning: 'Morning 8:00', notifEvening: 'Evening 7:00', notifNight: 'Night 10:00',
@@ -138,6 +143,11 @@ const en: Translations = {
     startNow: '📍 Start Now', startLessonBtn: '▶ Start Lesson',
     quickStart: '⚡ Quick Start', aiChatLabel: 'AI Chat', aiChatSub: 'Free talk',
     todaysWord: "Today's Word", todaysWordSub: '5 min', kpop: 'K-POP', comingSoon: 'Coming soon',
+    goalContextKpop: 'K-pop · Drama basics 🎵',
+    goalContextTravel: 'Travel essentials ✈️',
+    goalContextBusiness: 'Business Korean basics 💼',
+    goalContextTopik: 'TOPIK prep basics 📝',
+    goalContextRelationship: 'Everyday conversation ❤️',
   },
   goalLabels: { kpop: 'K-POP / Drama', travel: 'Travel', business: 'Business', topik: 'TOPIK Exam', relationship: 'Relationships' },
   lessons: { title: '📚 Lessons', comingSoon: 'Coming soon', minUnit: 'min' },
@@ -213,6 +223,7 @@ const en: Translations = {
     benefit5Title: 'Leaderboard Badge', benefit5Desc: 'PRO-exclusive badges and ranking display',
     planTitle: 'Choose a Plan',
     monthly: 'Monthly', yearly: 'Annual', yearlyBadge: '40% off',
+    periodMonthly: '/mo', periodYearly: '/yr',
     subscribeMonthly: 'Start Monthly Subscription',
     subscribeYearly: 'Start Annual Subscription',
     disclaimer: 'Cancel anytime. Subscription renews automatically.',
@@ -240,6 +251,7 @@ const ko: Translations = {
     levelTest: '→ 레벨 테스트로 확인하기',
     timeTitle: '하루 몇 분 학습할까요?',
     timeCasual: '가볍게', timeRecommended: '추천', timeIntensive: '집중 학습', recommended: '⭐',
+    time5min: '5분', time15min: '15분', time30min: '30분',
     timeTip: '💡 15분/일 → 3개월 후 기초 회화 가능!',
     notifTitle: '학습 알림을 설정하세요',
     notifMorning: '오전 8:00', notifEvening: '오후 7:00', notifNight: '오후 10:00',
@@ -258,6 +270,11 @@ const ko: Translations = {
     startNow: '📍 지금 시작하기', startLessonBtn: '▶ 레슨 시작하기',
     quickStart: '⚡ 빠른 시작', aiChatLabel: 'AI 대화', aiChatSub: '자유 회화',
     todaysWord: '오늘의 단어', todaysWordSub: '5분 완성', kpop: 'K-POP', comingSoon: 'Coming soon',
+    goalContextKpop: 'K-pop · 드라마 기초 필수 표현 🎵',
+    goalContextTravel: '여행 필수 표현 ✈️',
+    goalContextBusiness: '비즈니스 한국어 기초 💼',
+    goalContextTopik: 'TOPIK 기초 대비 📝',
+    goalContextRelationship: '일상 대화 기초 ❤️',
   },
   goalLabels: { kpop: 'K-POP / 드라마', travel: '여행', business: '비즈니스', topik: 'TOPIK 시험', relationship: '인간관계' },
   lessons: { title: '📚 레슨', comingSoon: '준비 중', minUnit: '분' },
@@ -333,6 +350,7 @@ const ko: Translations = {
     benefit5Title: '리더보드 뱃지', benefit5Desc: 'PRO 전용 배지와 순위 표시',
     planTitle: '요금제 선택',
     monthly: '월간', yearly: '연간', yearlyBadge: '40% 할인',
+    periodMonthly: '/월', periodYearly: '/년',
     subscribeMonthly: '월간 구독 시작하기',
     subscribeYearly: '연간 구독 시작하기',
     disclaimer: '언제든지 취소할 수 있습니다. 구독은 자동 갱신됩니다.',
@@ -360,6 +378,7 @@ const es: Translations = {
     levelTest: '→ Verificar con prueba de nivel',
     timeTitle: '¿Cuántos minutos al día?',
     timeCasual: 'Casual', timeRecommended: 'Recomendado', timeIntensive: 'Intensivo', recommended: '⭐',
+    time5min: '5min', time15min: '15min', time30min: '30min',
     timeTip: '💡 15 min/día → conversación básica en 3 meses!',
     notifTitle: 'Configura tu recordatorio de estudio',
     notifMorning: 'Mañana 8:00', notifEvening: 'Tarde 7:00', notifNight: 'Noche 10:00',
@@ -378,6 +397,11 @@ const es: Translations = {
     startNow: '📍 Comenzar ahora', startLessonBtn: '▶ Iniciar lección',
     quickStart: '⚡ Inicio rápido', aiChatLabel: 'Chat IA', aiChatSub: 'Habla libre',
     todaysWord: 'Palabra del día', todaysWordSub: '5 min', kpop: 'K-POP', comingSoon: 'Próximamente',
+    goalContextKpop: 'Básico K-pop · Drama 🎵',
+    goalContextTravel: 'Esencial para viajar ✈️',
+    goalContextBusiness: 'Coreano de negocios básico 💼',
+    goalContextTopik: 'Preparación TOPIK básica 📝',
+    goalContextRelationship: 'Conversación cotidiana ❤️',
   },
   goalLabels: { kpop: 'K-POP / Drama', travel: 'Viaje', business: 'Negocios', topik: 'Examen TOPIK', relationship: 'Relaciones' },
   lessons: { title: '📚 Lecciones', comingSoon: 'Próximamente', minUnit: 'min' },
@@ -453,6 +477,7 @@ const es: Translations = {
     benefit5Title: 'Insignia de ranking', benefit5Desc: 'Insignias exclusivas PRO y posición en ranking',
     planTitle: 'Elige un plan',
     monthly: 'Mensual', yearly: 'Anual', yearlyBadge: '40% descuento',
+    periodMonthly: '/mes', periodYearly: '/año',
     subscribeMonthly: 'Empezar suscripción mensual',
     subscribeYearly: 'Empezar suscripción anual',
     disclaimer: 'Cancela cuando quieras. La suscripción se renueva automáticamente.',
@@ -480,6 +505,7 @@ const zh: Translations = {
     levelTest: '→ 通过水平测试确认',
     timeTitle: '每天学习多少分钟?',
     timeCasual: '轻松', timeRecommended: '推荐', timeIntensive: '强化', recommended: '⭐',
+    time5min: '5分钟', time15min: '15分钟', time30min: '30分钟',
     timeTip: '💡 每天15分钟 → 3个月后可进行基础对话！',
     notifTitle: '设置学习提醒',
     notifMorning: '早上 8:00', notifEvening: '下午 7:00', notifNight: '晚上 10:00',
@@ -501,6 +527,11 @@ const zh: Translations = {
     startNow: '📍 立即开始', startLessonBtn: '▶ 开始课程',
     quickStart: '⚡ 快速开始', aiChatLabel: 'AI对话', aiChatSub: '自由对话',
     todaysWord: '今日单词', todaysWordSub: '5分钟', kpop: 'K-POP', comingSoon: '即将推出',
+    goalContextKpop: 'K-pop · 韩剧基础表达 🎵',
+    goalContextTravel: '旅行必备表达 ✈️',
+    goalContextBusiness: '商务韩语基础 💼',
+    goalContextTopik: 'TOPIK基础备考 📝',
+    goalContextRelationship: '日常会话基础 ❤️',
   },
   goalLabels: { kpop: 'K-POP / 韩剧', travel: '旅行', business: '商务', topik: 'TOPIK考试', relationship: '人际关系' },
   lessons: { title: '📚 课程', comingSoon: '即将推出', minUnit: '分钟' },
@@ -576,6 +607,7 @@ const zh: Translations = {
     benefit5Title: '排行榜徽章', benefit5Desc: 'PRO专属徽章和排名显示',
     planTitle: '选择套餐',
     monthly: '月度', yearly: '年度', yearlyBadge: '优惠40%',
+    periodMonthly: '/月', periodYearly: '/年',
     subscribeMonthly: '开始月度订阅',
     subscribeYearly: '开始年度订阅',
     disclaimer: '随时可以取消。订阅自动续费。',
@@ -603,6 +635,7 @@ const ja: Translations = {
     levelTest: '→ レベルテストで確認する',
     timeTitle: '1日何分学習しますか？',
     timeCasual: '気軽に', timeRecommended: 'おすすめ', timeIntensive: '集中学習', recommended: '⭐',
+    time5min: '5分', time15min: '15分', time30min: '30分',
     timeTip: '💡 1日15分 → 3ヶ月後に基礎会話ができる！',
     notifTitle: '学習リマインダーを設定',
     notifMorning: '午前 8:00', notifEvening: '午後 7:00', notifNight: '夜 10:00',
@@ -624,6 +657,11 @@ const ja: Translations = {
     startNow: '📍 今すぐ始める', startLessonBtn: '▶ レッスン開始',
     quickStart: '⚡ クイックスタート', aiChatLabel: 'AIチャット', aiChatSub: 'フリートーク',
     todaysWord: '今日の単語', todaysWordSub: '5分', kpop: 'K-POP', comingSoon: '近日公開',
+    goalContextKpop: 'K-pop · ドラマ基礎表現 🎵',
+    goalContextTravel: '旅行必須表現 ✈️',
+    goalContextBusiness: 'ビジネス韓国語基礎 💼',
+    goalContextTopik: 'TOPIK基礎対策 📝',
+    goalContextRelationship: '日常会話基礎 ❤️',
   },
   goalLabels: { kpop: 'K-POP / ドラマ', travel: '旅行', business: 'ビジネス', topik: 'TOPIK試験', relationship: '人間関係' },
   lessons: { title: '📚 レッスン', comingSoon: '準備中', minUnit: '分' },
@@ -699,6 +737,7 @@ const ja: Translations = {
     benefit5Title: 'リーダーボードバッジ', benefit5Desc: 'PRO限定バッジとランキング表示',
     planTitle: 'プランを選択',
     monthly: '月次', yearly: '年次', yearlyBadge: '40%オフ',
+    periodMonthly: '/月', periodYearly: '/年',
     subscribeMonthly: '月次サブスクリプション開始',
     subscribeYearly: '年次サブスクリプション開始',
     disclaimer: 'いつでもキャンセルできます。サブスクリプションは自動更新されます。',
@@ -726,6 +765,7 @@ const vi: Translations = {
     levelTest: '→ Kiểm tra với bài test trình độ',
     timeTitle: 'Học bao nhiêu phút mỗi ngày?',
     timeCasual: 'Nhẹ nhàng', timeRecommended: 'Khuyến nghị', timeIntensive: 'Chuyên sâu', recommended: '⭐',
+    time5min: '5 phút', time15min: '15 phút', time30min: '30 phút',
     timeTip: '💡 15 phút/ngày → hội thoại cơ bản sau 3 tháng!',
     notifTitle: 'Đặt nhắc nhở học tập',
     notifMorning: 'Sáng 8:00', notifEvening: 'Chiều 7:00', notifNight: 'Tối 10:00',
@@ -747,6 +787,11 @@ const vi: Translations = {
     startNow: '📍 Bắt đầu ngay', startLessonBtn: '▶ Bắt đầu bài học',
     quickStart: '⚡ Bắt đầu nhanh', aiChatLabel: 'Chat AI', aiChatSub: 'Hội thoại tự do',
     todaysWord: 'Từ hôm nay', todaysWordSub: '5 phút', kpop: 'K-POP', comingSoon: 'Sắp ra mắt',
+    goalContextKpop: 'K-pop · Drama cơ bản 🎵',
+    goalContextTravel: 'Cần thiết khi du lịch ✈️',
+    goalContextBusiness: 'Tiếng Hàn kinh doanh cơ bản 💼',
+    goalContextTopik: 'Luyện thi TOPIK cơ bản 📝',
+    goalContextRelationship: 'Hội thoại hàng ngày ❤️',
   },
   goalLabels: { kpop: 'K-POP / Phim', travel: 'Du lịch', business: 'Kinh doanh', topik: 'Thi TOPIK', relationship: 'Quan hệ' },
   lessons: { title: '📚 Bài học', comingSoon: 'Sắp ra mắt', minUnit: 'phút' },
@@ -822,6 +867,7 @@ const vi: Translations = {
     benefit5Title: 'Huy hiệu bảng xếp hạng', benefit5Desc: 'Huy hiệu PRO độc quyền và hiển thị thứ hạng',
     planTitle: 'Chọn gói',
     monthly: 'Hàng tháng', yearly: 'Hàng năm', yearlyBadge: 'Giảm 40%',
+    periodMonthly: '/tháng', periodYearly: '/năm',
     subscribeMonthly: 'Bắt đầu đăng ký hàng tháng',
     subscribeYearly: 'Bắt đầu đăng ký hàng năm',
     disclaimer: 'Hủy bất cứ lúc nào. Đăng ký tự động gia hạn.',
