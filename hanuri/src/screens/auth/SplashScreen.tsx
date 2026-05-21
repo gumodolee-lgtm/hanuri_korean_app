@@ -17,7 +17,7 @@ import { makeRedirectUri } from 'expo-auth-session';
 import { RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { supabase } from '../../services/supabase';
+import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import { syncStats, syncProgress } from '../../services/dbService';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { NativeLanguage, LearningGoal, DailyGoalMinutes } from '../../types';
@@ -35,6 +35,14 @@ export default function SplashScreen() {
   const t = useT();
 
   const handleGoogleLogin = async () => {
+    if (!supabase || !isSupabaseConfigured) {
+      Alert.alert(
+        'Setup Required',
+        'Google sign-in needs Supabase env vars. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env, or use Start for Free for guest mode.'
+      );
+      return;
+    }
+
     try {
       setIsGoogleLoading(true);
 
@@ -162,7 +170,10 @@ export default function SplashScreen() {
           </View>
 
           <TouchableOpacity
-            style={styles.socialButton}
+            style={[
+              styles.socialButton,
+              !isSupabaseConfigured && styles.socialButtonDisabled,
+            ]}
             onPress={handleGoogleLogin}
             activeOpacity={0.85}
             disabled={isGoogleLoading}
@@ -257,6 +268,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
+  },
+  socialButtonDisabled: {
+    opacity: 0.65,
   },
   socialButtonText: { ...typography.body, color: colors.white },
 });

@@ -27,12 +27,12 @@ export default function RootNavigator() {
   // Supabase 세션 외부 변경 감지: 토큰 만료, 다른 기기 로그아웃 등
   // getState()로 직접 접근하여 클로저 stale 문제 방지
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const subscription = supabase?.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
         useAuthStore.getState().signOut();
       }
-    });
-    return () => subscription.unsubscribe();
+    }).data.subscription;
+    return () => subscription?.unsubscribe();
   }, []);
 
   return (

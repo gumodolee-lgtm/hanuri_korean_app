@@ -7,7 +7,7 @@ const isGuest = (userId: string) => userId.startsWith('guest_');
 // ─── PROFILE ─────────────────────────────────────────────────
 
 export async function syncProfile(user: User): Promise<void> {
-  if (isGuest(user.id)) return;
+  if (isGuest(user.id) || !supabase) return;
   await supabase.from('profiles').upsert(
     {
       id: user.id,
@@ -22,7 +22,7 @@ export async function syncProfile(user: User): Promise<void> {
 }
 
 export async function fetchProfile(userId: string): Promise<Partial<User> | null> {
-  if (isGuest(userId)) return null;
+  if (isGuest(userId) || !supabase) return null;
   const { data, error } = await supabase
     .from('profiles')
     .select('native_lang, current_level, learning_goal, daily_goal_minutes')
@@ -47,7 +47,7 @@ interface StatsPayload {
 }
 
 export async function syncStats(userId: string, stats: StatsPayload): Promise<void> {
-  if (isGuest(userId)) return;
+  if (isGuest(userId) || !supabase) return;
   await supabase.from('user_stats').upsert(
     {
       user_id: userId,
@@ -63,7 +63,7 @@ export async function syncStats(userId: string, stats: StatsPayload): Promise<vo
 }
 
 export async function fetchStats(userId: string): Promise<StatsPayload | null> {
-  if (isGuest(userId)) return null;
+  if (isGuest(userId) || !supabase) return null;
   const { data, error } = await supabase
     .from('user_stats')
     .select('xp, streak, last_streak_date, today_minutes')
@@ -81,7 +81,7 @@ export async function fetchStats(userId: string): Promise<StatsPayload | null> {
 // ─── LESSON PROGRESS ─────────────────────────────────────────
 
 export async function syncProgress(userId: string, progress: UserProgress): Promise<void> {
-  if (isGuest(userId)) return;
+  if (isGuest(userId) || !supabase) return;
   await supabase.from('lesson_progress').upsert(
     {
       user_id: userId,
@@ -95,7 +95,7 @@ export async function syncProgress(userId: string, progress: UserProgress): Prom
 }
 
 export async function fetchAllProgress(userId: string): Promise<UserProgress[]> {
-  if (isGuest(userId)) return [];
+  if (isGuest(userId) || !supabase) return [];
   const { data, error } = await supabase
     .from('lesson_progress')
     .select('lesson_id, status, score, completed_at')
@@ -121,6 +121,8 @@ export interface LeaderEntry {
 }
 
 export async function fetchLeaderboard(limit = 10): Promise<LeaderEntry[]> {
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from('user_stats')
     .select('user_id, xp, streak, profiles(current_level, native_lang)')
@@ -158,7 +160,7 @@ export interface RemoteUserData {
 }
 
 export async function loadUserDataFromSupabase(userId: string): Promise<RemoteUserData> {
-  if (isGuest(userId)) return { profile: null, stats: null, progress: [] };
+  if (isGuest(userId) || !supabase) return { profile: null, stats: null, progress: [] };
   const [profile, stats, progress] = await Promise.all([
     fetchProfile(userId),
     fetchStats(userId),
