@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, typography } from '../theme';
+import { typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   message?: string;
@@ -9,6 +10,7 @@ interface Props {
 
 export default function LoadingScreen({ message = '불러오는 중...' }: Props) {
   const pulse = useRef(new Animated.Value(0.5)).current;
+  const { colors } = useTheme();
 
   useEffect(() => {
     Animated.loop(

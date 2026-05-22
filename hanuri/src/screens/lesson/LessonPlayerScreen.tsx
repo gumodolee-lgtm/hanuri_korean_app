@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   Animated,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
-import { getLessonById, getLessonsForLevel, ALL_LEVELS, getMeaning, VocabCard } from '../../data/lessons';
+import { getLessonById, getLessonsForLevel, ALL_LEVELS, getMeaning, VocabCard, DialogueLine } from '../../data/lessons';
 import { useUserStore } from '../../store/userStore';
 import { useAuthStore } from '../../store/authStore';
 import { NativeLanguage } from '../../types';
@@ -23,13 +24,14 @@ import {
   PronunciationResult,
 } from '../../services/pronunciationService';
 import { sendLessonCompleteNotification } from '../../services/notificationService';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
 type RouteType = RouteProp<RootStackParamList, 'Lesson'>;
 
-type Phase = 'flashcard' | 'quiz' | 'fillblank' | 'pronunciation';
+type Phase = 'culture' | 'flashcard' | 'quiz' | 'fillblank' | 'pronunciation';
 
 interface QuizQuestion {
   card: VocabCard;
@@ -50,6 +52,130 @@ function buildQuiz(vocab: VocabCard[], lang: NativeLanguage): QuizQuestion[] {
   });
 }
 
+// ─── 문화 소개 단계 컴포넌트 ─────────────────────────────────
+
+function CulturePhase({
+  situation,
+  lines,
+  cultural_tip,
+  key_expressions,
+  onStart,
+}: {
+  situation?: string;
+  lines?: DialogueLine[];
+  cultural_tip?: string;
+  key_expressions?: string[];
+  onStart: () => void;
+}) {
+  const t = useT();
+  const { colors } = useTheme();
+  const cultureStyles = useMemo(() => StyleSheet.create({
+    container: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xl },
+    section: { gap: spacing.sm },
+    sectionLabel: {
+      ...typography.caption,
+      color: colors.gray,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    situationText: { ...typography.body, color: colors.dark, lineHeight: 24 },
+    bubble: {
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: 2,
+      maxWidth: '85%',
+    },
+    bubbleA: { backgroundColor: colors.primary + '15', alignSelf: 'flex-start' },
+    bubbleB: { backgroundColor: colors.secondary + '15', alignSelf: 'flex-end' },
+    bubbleSpeaker: { fontSize: 11, fontWeight: '700', color: colors.gray, marginBottom: 2 },
+    bubbleKorean: { fontSize: 18, fontWeight: '800', color: colors.dark },
+    bubbleRoman: { ...typography.caption, color: colors.gray, fontStyle: 'italic' },
+    bubbleTranslation: { ...typography.caption, color: colors.primary },
+    tipBox: {
+      backgroundColor: colors.accent + '20',
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.accent,
+      gap: spacing.xs,
+    },
+    tipLabel: { fontSize: 13, fontWeight: '700', color: colors.gray },
+    tipText: { ...typography.body, color: colors.dark, lineHeight: 22 },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+    chip: {
+      backgroundColor: colors.primary + '18',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.primary + '40',
+    },
+    chipText: { ...typography.caption, color: colors.primary, fontWeight: '700' },
+    startBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    startBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+  }), [colors]);
+
+  return (
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={cultureStyles.container}>
+      {situation && (
+        <View style={cultureStyles.section}>
+          <Text style={cultureStyles.sectionLabel}>{t.lesson.situation}</Text>
+          <Text style={cultureStyles.situationText}>{situation}</Text>
+        </View>
+      )}
+
+      {lines && lines.length > 0 && (
+        <View style={cultureStyles.section}>
+          <Text style={cultureStyles.sectionLabel}>{t.lesson.dialogue}</Text>
+          {lines.map((line, i) => {
+            const isA = i % 2 === 0;
+            return (
+              <View key={i} style={[cultureStyles.bubble, isA ? cultureStyles.bubbleA : cultureStyles.bubbleB]}>
+                <Text style={cultureStyles.bubbleSpeaker}>{line.speaker}</Text>
+                <Text style={cultureStyles.bubbleKorean}>{line.korean}</Text>
+                <Text style={cultureStyles.bubbleRoman}>{line.romanization}</Text>
+                <Text style={cultureStyles.bubbleTranslation}>{line.translation}</Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {cultural_tip && (
+        <View style={cultureStyles.tipBox}>
+          <Text style={cultureStyles.tipLabel}>{t.lesson.cultureTip}</Text>
+          <Text style={cultureStyles.tipText}>{cultural_tip}</Text>
+        </View>
+      )}
+
+      {key_expressions && key_expressions.length > 0 && (
+        <View style={cultureStyles.section}>
+          <Text style={cultureStyles.sectionLabel}>{t.lesson.keyExpressions}</Text>
+          <View style={cultureStyles.chipRow}>
+            {key_expressions.map((expr, i) => (
+              <View key={i} style={cultureStyles.chip}>
+                <Text style={cultureStyles.chipText}>{expr}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      <TouchableOpacity style={cultureStyles.startBtn} onPress={onStart}>
+        <Text style={cultureStyles.startBtnText}>{t.lesson.startLesson}</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+
 // ─── 발음 연습 단계 컴포넌트 ─────────────────────────────────
 
 function PronunciationPhase({
@@ -67,6 +193,7 @@ function PronunciationPhase({
 }) {
   const card = vocab[pronIndex];
   const t = useT();
+  const { colors } = useTheme();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<PronunciationResult | null>(null);
@@ -114,6 +241,79 @@ function PronunciationPhase({
     : result.score >= 70 ? colors.secondary
     : result.score >= 40 ? '#FFD93D'
     : colors.primary;
+
+  const pronStyles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, padding: spacing.lg, gap: spacing.lg },
+    card: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    emoji: { fontSize: 48 },
+    korean: { fontSize: 36, fontWeight: '800', color: colors.dark },
+    roman: { ...typography.body, color: colors.gray },
+    listenBtn: {
+      backgroundColor: colors.secondary + '22',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.secondary,
+      marginTop: spacing.xs,
+    },
+    listenBtnText: { ...typography.caption, color: colors.secondary, fontWeight: '700' },
+
+    recordSection: { alignItems: 'center', gap: spacing.sm },
+    instruction: { ...typography.body, color: colors.gray, textAlign: 'center' },
+    micBtn: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    micBtnActive: { backgroundColor: '#CC0000' },
+    micIcon: { fontSize: 32 },
+
+    resultBox: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    scoreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    scoreNum: { fontSize: 36, fontWeight: '900' },
+    feedbackText: { ...typography.body, color: colors.dark, flex: 1, lineHeight: 22 },
+    transcriptText: { ...typography.caption, color: colors.gray, fontStyle: 'italic' },
+    wordMatchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+    wordChip: {
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+    },
+    wordChipText: { fontSize: 13, fontWeight: '600' },
+    nextBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      marginTop: spacing.xs,
+    },
+    nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+  }), [colors]);
 
   return (
     <View style={pronStyles.container}>
@@ -197,78 +397,6 @@ function PronunciationPhase({
   );
 }
 
-const pronStyles = StyleSheet.create({
-  container: { flex: 1, padding: spacing.lg, gap: spacing.lg },
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  emoji: { fontSize: 48 },
-  korean: { fontSize: 36, fontWeight: '800', color: colors.dark },
-  roman: { ...typography.body, color: colors.gray },
-  listenBtn: {
-    backgroundColor: colors.secondary + '22',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.secondary,
-    marginTop: spacing.xs,
-  },
-  listenBtnText: { ...typography.caption, color: colors.secondary, fontWeight: '700' },
-
-  recordSection: { alignItems: 'center', gap: spacing.sm },
-  instruction: { ...typography.body, color: colors.gray, textAlign: 'center' },
-  micBtn: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  micBtnActive: { backgroundColor: '#CC0000' },
-  micIcon: { fontSize: 32 },
-
-  resultBox: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  scoreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  scoreNum: { fontSize: 36, fontWeight: '900' },
-  feedbackText: { ...typography.body, color: colors.dark, flex: 1, lineHeight: 22 },
-  transcriptText: { ...typography.caption, color: colors.gray, fontStyle: 'italic' },
-  wordMatchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
-  wordChip: {
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  wordChipText: { fontSize: 13, fontWeight: '600' },
-  nextBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-});
 
 // ─── 메인 레슨 플레이어 ───────────────────────────────────────
 
@@ -279,10 +407,12 @@ export default function LessonPlayerScreen() {
   const { user, levelUp } = useAuthStore();
   const nativeLang: NativeLanguage = user?.native_lang ?? 'en';
   const t = useT();
+  const { colors } = useTheme();
 
   const lesson = getLessonById(route.params.lessonId);
 
-  const [phase, setPhase] = useState<Phase>('flashcard');
+  const hasCulture = !!(lesson?.situation || lesson?.cultural_tip || (lesson?.lines?.length ?? 0) > 0 || (lesson?.key_expressions?.length ?? 0) > 0);
+  const [phase, setPhase] = useState<Phase>(hasCulture ? 'culture' : 'flashcard');
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [quizIndex, setQuizIndex] = useState(0);
@@ -293,6 +423,8 @@ export default function LessonPlayerScreen() {
   const [fillScore, setFillScore] = useState(0);
   const [pronIndex, setPronIndex] = useState(0);
   const [pronTotalScore, setPronTotalScore] = useState(0);
+  // Ref mirrors pronTotalScore synchronously — avoids stale closure in finishLesson
+  const pronTotalScoreRef = useRef(0);
   // useRef: 동기적 중복 호출 차단 (setState는 비동기라 더블탭 race condition 발생 가능)
   const isFinishingRef = useRef(false);
   const [isFinishingUI, setIsFinishingUI] = useState(false);
@@ -300,6 +432,149 @@ export default function LessonPlayerScreen() {
   const flipAnim = useRef(new Animated.Value(0)).current;
   // Must be called before any conditional return (Rules of Hooks)
   const quizQuestions = useRef(buildQuiz(lesson?.vocabulary ?? [], nativeLang)).current;
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    errorText: { ...typography.body, color: colors.gray, textAlign: 'center', marginTop: 100 },
+
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      gap: spacing.sm,
+    },
+    closeBtn: { padding: spacing.xs },
+    closeBtnText: { fontSize: 18, color: colors.gray },
+    progressBar: {
+      flex: 1,
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: borderRadius.full,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.full,
+    },
+    progressText: { ...typography.caption, color: colors.gray, minWidth: 36, textAlign: 'right' },
+
+    lessonLabel: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.sm,
+    },
+    lessonLabelText: { ...typography.caption, color: colors.dark, fontWeight: '600' },
+    phaseLabel: { ...typography.caption, color: colors.primary, fontWeight: '600' },
+
+    body: { flex: 1, padding: spacing.lg, gap: spacing.lg },
+    scrollBody: { padding: spacing.lg, gap: spacing.lg, flexGrow: 1 },
+
+    cardWrapper: { flex: 1, position: 'relative' },
+    card: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: spacing.lg,
+      gap: spacing.md,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+      backfaceVisibility: 'hidden',
+    },
+    cardFront: { backgroundColor: colors.white },
+    cardBack: { backgroundColor: '#FFF5F5' },
+    cardEmoji: { fontSize: 56 },
+    cardKorean: { fontSize: 36, fontWeight: '800', color: colors.dark, textAlign: 'center' },
+    cardRoman: { ...typography.body, color: colors.gray, textAlign: 'center' },
+    cardHint: { ...typography.caption, color: colors.gray, position: 'absolute', bottom: spacing.md },
+    cardMeaning: { ...typography.h3, color: colors.primary, textAlign: 'center' },
+    speakBtn: {
+      backgroundColor: colors.secondary + '22',
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.secondary,
+    },
+    speakBtnText: { ...typography.caption, color: colors.secondary, fontWeight: '700' },
+
+    dotRow: { flexDirection: 'row', justifyContent: 'center', gap: spacing.xs },
+    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
+    dotActive: { backgroundColor: colors.primary, width: 24 },
+
+    nextBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+    },
+    nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+
+    quizQuestion: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    quizEmoji: { fontSize: 40 },
+    quizKorean: { fontSize: 32, fontWeight: '800', color: colors.dark },
+    quizRoman: { ...typography.body, color: colors.gray },
+    quizInstruction: { ...typography.caption, color: colors.gray, marginTop: spacing.xs },
+
+    choices: { gap: spacing.sm },
+    choiceBtn: {
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      borderWidth: 1.5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    choiceText: { ...typography.body, color: colors.dark, flex: 1 },
+    choiceIcon: { color: colors.secondary, fontWeight: '700', fontSize: 18 },
+    choiceIconWrong: { color: colors.primary, fontWeight: '700', fontSize: 18 },
+
+    feedbackRow: { gap: spacing.sm },
+    feedbackText: { ...typography.h3, color: colors.dark, textAlign: 'center' },
+
+    fillTitle: { ...typography.caption, color: colors.gray, fontWeight: '600', marginBottom: spacing.xs },
+    sentenceRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      paddingHorizontal: spacing.sm,
+    },
+    sentenceText: { fontSize: 20, color: colors.dark, fontWeight: '600' },
+    blank: {
+      borderBottomWidth: 2,
+      borderColor: colors.primary,
+      minWidth: 80,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+      alignItems: 'center',
+    },
+    blankCorrect: { borderColor: colors.secondary, backgroundColor: '#E8FFF5', borderRadius: 4, borderBottomWidth: 2 },
+    blankWrong: { borderColor: colors.primary, backgroundColor: '#FFF0F0', borderRadius: 4, borderBottomWidth: 2 },
+    blankText: { fontSize: 20, color: colors.primary, fontWeight: '700' },
+  }), [colors]);
 
   if (!lesson) {
     return (
@@ -369,7 +644,8 @@ export default function LessonPlayerScreen() {
   };
 
   const handlePronResult = (result: PronunciationResult) => {
-    setPronTotalScore((s) => s + result.score);
+    pronTotalScoreRef.current += result.score; // sync ref update — no stale closure in finishLesson
+    setPronTotalScore(pronTotalScoreRef.current);
     if (pronIndex < vocab.length - 1) {
       setPronIndex(pronIndex + 1);
     }
@@ -382,7 +658,7 @@ export default function LessonPlayerScreen() {
     const quizTotal = quizQuestions.length + fillBlanks.length;
     const quizCorrect = score + fillScore;
     const quizScore = quizTotal > 0 ? Math.round((quizCorrect / quizTotal) * 100) : 100;
-    const pronAvg = vocab.length > 0 ? Math.round(pronTotalScore / vocab.length) : 0;
+    const pronAvg = vocab.length > 0 ? Math.round(pronTotalScoreRef.current / vocab.length) : 0;
     const finalScore = Math.round((quizScore + pronAvg) / 2);
     const xpEarned = Math.round(lesson.xpReward * (finalScore / 100));
     // 'guest_' 접두사 규칙 준수: isGuest() 체크가 startsWith('guest_')로 동작함
@@ -428,6 +704,7 @@ export default function LessonPlayerScreen() {
   const currentFill = fillBlanks[fillIndex];
 
   const phaseLabel =
+    phase === 'culture'    ? t.lesson.culture :
     phase === 'flashcard'  ? t.lesson.flashcard :
     phase === 'quiz'       ? t.lesson.quiz :
     phase === 'fillblank'  ? t.lesson.fillBlank : t.lesson.pronunciation;
@@ -449,6 +726,17 @@ export default function LessonPlayerScreen() {
         <Text style={styles.lessonLabelText}>{lesson.emoji} {lesson.titleKo}</Text>
         <Text style={styles.phaseLabel}>{phaseLabel}</Text>
       </View>
+
+      {/* ─── CULTURE ─── */}
+      {phase === 'culture' && (
+        <CulturePhase
+          situation={lesson.situation}
+          lines={lesson.lines}
+          cultural_tip={lesson.cultural_tip}
+          key_expressions={lesson.key_expressions}
+          onStart={() => setPhase('flashcard')}
+        />
+      )}
 
       {/* ─── FLASHCARD ─── */}
       {phase === 'flashcard' && (
@@ -490,7 +778,7 @@ export default function LessonPlayerScreen() {
 
       {/* ─── QUIZ ─── */}
       {phase === 'quiz' && (
-        <View style={styles.body}>
+        <ScrollView style={{flex: 1}} contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
           <View style={styles.quizQuestion}>
             <Text style={styles.quizEmoji}>{currentQ.card.emoji ?? '❓'}</Text>
             <Text style={styles.quizKorean}>{currentQ.card.korean}</Text>
@@ -534,12 +822,12 @@ export default function LessonPlayerScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </ScrollView>
       )}
 
       {/* ─── FILL-IN-BLANK ─── */}
       {phase === 'fillblank' && currentFill && (
-        <View style={styles.body}>
+        <ScrollView style={{flex: 1}} contentContainerStyle={styles.scrollBody} showsVerticalScrollIndicator={false}>
           <View style={styles.quizQuestion}>
             <Text style={styles.fillTitle}>{t.lesson.fillBlankInstruction}</Text>
             <View style={styles.sentenceRow}>
@@ -592,7 +880,7 @@ export default function LessonPlayerScreen() {
               </TouchableOpacity>
             </View>
           )}
-        </View>
+        </ScrollView>
       )}
 
       {/* ─── PRONUNCIATION ─── */}
@@ -609,144 +897,3 @@ export default function LessonPlayerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  errorText: { ...typography.body, color: colors.gray, textAlign: 'center', marginTop: 100 },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  closeBtn: { padding: spacing.xs },
-  closeBtnText: { fontSize: 18, color: colors.gray },
-  progressBar: {
-    flex: 1,
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: borderRadius.full,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.full,
-  },
-  progressText: { ...typography.caption, color: colors.gray, minWidth: 36, textAlign: 'right' },
-
-  lessonLabel: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  lessonLabelText: { ...typography.caption, color: colors.dark, fontWeight: '600' },
-  phaseLabel: { ...typography.caption, color: colors.primary, fontWeight: '600' },
-
-  body: { flex: 1, padding: spacing.lg, gap: spacing.lg },
-
-  cardWrapper: { flex: 1, position: 'relative' },
-  card: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-    gap: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    backfaceVisibility: 'hidden',
-  },
-  cardFront: { backgroundColor: colors.white },
-  cardBack: { backgroundColor: '#FFF5F5' },
-  cardEmoji: { fontSize: 56 },
-  cardKorean: { fontSize: 36, fontWeight: '800', color: colors.dark, textAlign: 'center' },
-  cardRoman: { ...typography.body, color: colors.gray, textAlign: 'center' },
-  cardHint: { ...typography.caption, color: colors.gray, position: 'absolute', bottom: spacing.md },
-  cardMeaning: { ...typography.h3, color: colors.primary, textAlign: 'center' },
-  speakBtn: {
-    backgroundColor: colors.secondary + '22',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.secondary,
-  },
-  speakBtnText: { ...typography.caption, color: colors.secondary, fontWeight: '700' },
-
-  dotRow: { flexDirection: 'row', justifyContent: 'center', gap: spacing.xs },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
-  dotActive: { backgroundColor: colors.primary, width: 24 },
-
-  nextBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-
-  quizQuestion: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  quizEmoji: { fontSize: 40 },
-  quizKorean: { fontSize: 32, fontWeight: '800', color: colors.dark },
-  quizRoman: { ...typography.body, color: colors.gray },
-  quizInstruction: { ...typography.caption, color: colors.gray, marginTop: spacing.xs },
-
-  choices: { gap: spacing.sm },
-  choiceBtn: {
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 1.5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  choiceText: { ...typography.body, color: colors.dark, flex: 1 },
-  choiceIcon: { color: colors.secondary, fontWeight: '700', fontSize: 18 },
-  choiceIconWrong: { color: colors.primary, fontWeight: '700', fontSize: 18 },
-
-  feedbackRow: { gap: spacing.sm },
-  feedbackText: { ...typography.h3, color: colors.dark, textAlign: 'center' },
-
-  fillTitle: { ...typography.caption, color: colors.gray, fontWeight: '600', marginBottom: spacing.xs },
-  sentenceRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-  },
-  sentenceText: { fontSize: 20, color: colors.dark, fontWeight: '600' },
-  blank: {
-    borderBottomWidth: 2,
-    borderColor: colors.primary,
-    minWidth: 80,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-    alignItems: 'center',
-  },
-  blankCorrect: { borderColor: colors.secondary, backgroundColor: '#E8FFF5', borderRadius: 4, borderBottomWidth: 2 },
-  blankWrong: { borderColor: colors.primary, backgroundColor: '#FFF0F0', borderRadius: 4, borderBottomWidth: 2 },
-  blankText: { fontSize: 20, color: colors.primary, fontWeight: '700' },
-});

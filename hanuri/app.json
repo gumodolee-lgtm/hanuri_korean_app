@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "scheme": "hanuri",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -42,8 +42,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-apple-authentication",
-      "react-native-purchases",
       "expo-asset",
       "expo-font",
       "expo-web-browser",

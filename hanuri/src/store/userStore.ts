@@ -4,6 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProgress, Badge } from '../types';
 import { syncStats, syncProgress, fetchStats, fetchAllProgress } from '../services/dbService';
 
+// Use local date (not UTC) to avoid timezone boundary bugs for streak calculation
+const localDateString = (offsetDays = 0): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 interface UserState {
   xp: number;
   streak: number;
@@ -54,13 +61,13 @@ export const useUserStore = create<UserState>()(
       // 날짜 경계 리셋(todayMinutes, streak)은 checkNewDay가 담당하므로
       // 이 함수는 streak 갱신과 todayLearned 마킹만 수행
       markTodayLearned: (userId) => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = localDateString();
         const { lastStreakDate, streak, xp, todayMinutes } = get();
 
         // 이미 오늘 streak이 갱신되었으면 스킵
         if (lastStreakDate === today) return;
 
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const yesterday = localDateString(-1);
         const newStreak = lastStreakDate === yesterday ? streak + 1 : 1;
 
         set({ todayLearned: true, streak: newStreak, lastStreakDate: today });
@@ -106,8 +113,8 @@ export const useUserStore = create<UserState>()(
       // - 하루 지난 경우: todayMinutes, todayLearned 초기화
       // - 이틀 이상 건너뛴 경우: streak도 0으로 초기화 (연속 학습 끊김)
       checkNewDay: () => {
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        const today = localDateString();
+        const yesterday = localDateString(-1);
         const { lastStreakDate } = get();
         if (lastStreakDate === today) return;
         const streakBroken = lastStreakDate !== null && lastStreakDate !== yesterday;
@@ -125,11 +132,14 @@ export const useUserStore = create<UserState>()(
           fetchAllProgress(userId),
         ]);
         if (stats) {
+          const today = localDateString();
           set({
             xp: stats.xp,
             streak: stats.streak,
             lastStreakDate: stats.lastStreakDate,
             todayMinutes: stats.todayMinutes,
+            // Restore todayLearned if user already studied today on another device
+            todayLearned: stats.lastStreakDate === today,
           });
         }
         if (progress.length > 0) {

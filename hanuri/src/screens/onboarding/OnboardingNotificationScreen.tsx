@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
 import { useT } from '../../i18n';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   requestNotificationPermission,
   scheduleDailyReminder,
@@ -19,6 +20,7 @@ const TIME_TO_HOUR: Record<string, number> = {
 export default function OnboardingNotificationScreen() {
   const { completeOnboarding } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
   const [selected, setSelected] = React.useState('08:00');
 
   const timeSlots = [
@@ -26,6 +28,35 @@ export default function OnboardingNotificationScreen() {
     { icon: '🌆', label: t.onboarding.notifEvening, sub: '', value: '19:00' },
     { icon: '🌙', label: t.onboarding.notifNight, sub: '', value: '22:00' },
   ];
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1, padding: spacing.lg, gap: spacing.md },
+    progressRow: { flexDirection: 'row', gap: spacing.xs, justifyContent: 'center', marginTop: spacing.md },
+    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
+    dotActive: { backgroundColor: colors.primary, width: 24 },
+    emoji: { fontSize: 56, textAlign: 'center', marginTop: spacing.lg },
+    title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
+    options: { gap: spacing.sm },
+    option: {
+      flexDirection: 'row', alignItems: 'center', gap: spacing.md,
+      backgroundColor: colors.white, borderRadius: borderRadius.md,
+      padding: spacing.md, borderWidth: 2, borderColor: 'transparent',
+    },
+    optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
+    icon: { fontSize: 24 },
+    optionText: { ...typography.body, color: colors.dark, flex: 1 },
+    optionTextSelected: { color: colors.primary, fontWeight: '700' },
+    badge: {
+      backgroundColor: colors.secondary + '30', paddingHorizontal: spacing.sm,
+      paddingVertical: 2, borderRadius: borderRadius.full, fontSize: 12,
+      color: colors.dark, fontWeight: '600', overflow: 'hidden',
+    },
+    footer: { padding: spacing.lg, gap: spacing.sm },
+    nextBtn: { backgroundColor: colors.primary, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center' },
+    nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+    skipText: { ...typography.body, color: colors.gray, textAlign: 'center' },
+  }), [colors]);
 
   const handleComplete = async () => {
     const hour = TIME_TO_HOUR[selected] ?? 20;
@@ -78,31 +109,3 @@ export default function OnboardingNotificationScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1, padding: spacing.lg, gap: spacing.md },
-  progressRow: { flexDirection: 'row', gap: spacing.xs, justifyContent: 'center', marginTop: spacing.md },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
-  dotActive: { backgroundColor: colors.primary, width: 24 },
-  emoji: { fontSize: 56, textAlign: 'center', marginTop: spacing.lg },
-  title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
-  options: { gap: spacing.sm },
-  option: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
-    backgroundColor: colors.white, borderRadius: borderRadius.md,
-    padding: spacing.md, borderWidth: 2, borderColor: 'transparent',
-  },
-  optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
-  icon: { fontSize: 24 },
-  optionText: { ...typography.body, color: colors.dark, flex: 1 },
-  optionTextSelected: { color: colors.primary, fontWeight: '700' },
-  badge: {
-    backgroundColor: colors.secondary + '30', paddingHorizontal: spacing.sm,
-    paddingVertical: 2, borderRadius: borderRadius.full, fontSize: 12,
-    color: colors.dark, fontWeight: '600', overflow: 'hidden',
-  },
-  footer: { padding: spacing.lg, gap: spacing.sm },
-  nextBtn: { backgroundColor: colors.primary, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center' },
-  nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-  skipText: { ...typography.body, color: colors.gray, textAlign: 'center' },
-});

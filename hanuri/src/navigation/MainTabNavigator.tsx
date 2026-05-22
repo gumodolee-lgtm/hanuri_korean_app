@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from '../types/navigation';
-import { colors, typography } from '../theme';
+import { typography } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { useT } from '../i18n';
 import HomeScreen from '../screens/home/HomeScreen';
 import LessonsScreen from '../screens/lesson/LessonsScreen';
@@ -24,6 +25,7 @@ const tabIcons: Record<string, string> = {
 export default function MainTabNavigator() {
   const t = useT();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const tabLabels: Record<string, string> = {
     Home: t.tabs.home,
@@ -32,6 +34,32 @@ export default function MainTabNavigator() {
     Leaderboard: t.tabs.ranking,
     Profile: t.tabs.profile,
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    tabBar: {
+      backgroundColor: colors.white,
+      borderTopColor: colors.border,
+      borderTopWidth: 1,
+      height: 64,
+      paddingBottom: 8,
+    },
+    tabItem: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 2,
+    },
+    tabIcon: {
+      fontSize: 22,
+    },
+    tabLabel: {
+      ...typography.caption,
+      color: colors.gray,
+    },
+    tabLabelActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+  }), [colors]);
 
   return (
     <Tab.Navigator
@@ -58,28 +86,3 @@ export default function MainTabNavigator() {
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: colors.white,
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    height: 64,
-    paddingBottom: 8,
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
-  tabIcon: {
-    fontSize: 22,
-  },
-  tabLabel: {
-    ...typography.caption,
-    color: colors.gray,
-  },
-  tabLabelActive: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-});

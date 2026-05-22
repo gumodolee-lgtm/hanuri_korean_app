@@ -17,6 +17,13 @@ export interface FillBlankExercise {
   hint: string;     // English translation of the sentence
 }
 
+export interface DialogueLine {
+  speaker: string;
+  korean: string;
+  romanization: string;
+  translation: string;
+}
+
 export interface LessonData {
   id: string;
   level: number;
@@ -29,6 +36,10 @@ export interface LessonData {
   estimatedMinutes: number;
   vocabulary: VocabCard[];
   fillInBlanks?: FillBlankExercise[];
+  situation?: string;
+  lines?: DialogueLine[];
+  cultural_tip?: string;
+  key_expressions?: string[];
 }
 
 export interface UnitData {
@@ -1953,9 +1964,246 @@ const LEVEL_7: LevelData = {
   ],
 };
 
+// ─── Level 8: K-Culture Master ───────────────────────────────────────────────
+
+const LEVEL_8: LevelData = {
+  level: 8,
+  title: 'K-Life Master',
+  titleKo: 'K-생활 달인',
+  emoji: '🎤',
+  units: [
+    {
+      unit: 1,
+      title: 'Norebang & Chimaek',
+      titleKo: '노래방 & 치맥',
+      lessons: [
+        {
+          id: 'l8u1l1',
+          level: 8, unit: 1, order: 1,
+          title: 'Norebang Culture',
+          titleKo: '노래방 가자!',
+          emoji: '🎤',
+          xpReward: 60,
+          estimatedMinutes: 10,
+          situation: '친구들과 퇴근 후 코인노래방에 가는 상황. 방을 잡고 18번곡을 부르는 한국인의 스트레스 해소법!',
+          lines: [
+            { speaker: '지민', korean: '이따 코인노래방 갈래요?', romanization: 'ittA koin norebang gallaeyo?', translation: 'Want to go to coin karaoke later?' },
+            { speaker: 'You', korean: '완전 좋아요! 18번이 뭐예요?', romanization: 'wanjeon joayo! sippal beon-i mwoyeyo?', translation: 'Totally! What\'s your signature song?' },
+            { speaker: '지민', korean: '저는 BTS 다이너마이트요. 탬버린은 제가 흔들게요!', romanization: 'jeoneun BTS daineomaiteuyo. taembeolin-eun jega heundeulgeyo!', translation: 'Mine is BTS Dynamite. I\'ll shake the tambourine!' },
+            { speaker: 'You', korean: '저도 K-pop이요. 방 예약하고 가자!', romanization: 'jeodo K-pop-iyo. bang yeyakhago gaja!', translation: 'Me too, K-pop! Let\'s book a room and go!' },
+          ],
+          cultural_tip: '코인노래방은 동전 1개(500원)에 1~2곡을 부를 수 있어요. 한국인의 \'18번\'은 어디서든 자신 있게 부르는 장기 노래예요. 노래방은 한국인의 국민 스트레스 해소 문화! 친구 생일, 회식 후, 심심할 때도 "노래방 갈래?" 한마디면 충분해요.',
+          key_expressions: ['코인노래방 가자!', '18번이 뭐야?', '방 예약해', '탬버린 잡았다!', '한 곡 더!'],
+          vocabulary: [
+            { id: 'v235', korean: '노래방', romanization: 'norebang', emoji: '🎤',
+              translations: { en: 'Karaoke room (private singing room)', es: 'Sala de karaoke privada', zh: 'KTV包厢/卡拉OK', ja: 'カラオケ（個室）', vi: 'Phòng karaoke riêng' } },
+            { id: 'v236', korean: '코인노래방', romanization: 'koin norebang', emoji: '🪙',
+              translations: { en: 'Coin karaoke (pay per song)', es: 'Karaoke de monedas (por canción)', zh: '投币式KTV（按歌计费）', ja: 'コインカラオケ（1曲課金）', vi: 'Karaoke đồng xu (trả tiền theo bài)' } },
+            { id: 'v237', korean: '18번', romanization: 'sippal beon', emoji: '🌟',
+              translations: { en: 'Signature song / go-to karaoke song', es: 'Canción favorita / la más cantada', zh: '拿手歌曲/招牌曲', ja: '十八番（得意な持ち歌）', vi: 'Bài tủ / bài hát sở trường' } },
+            { id: 'v238', korean: '탬버린', romanization: 'taembeolin', emoji: '🥁',
+              translations: { en: 'Tambourine', es: 'Pandereta', zh: '铃鼓', ja: 'タンバリン', vi: 'Trống tambourine' } },
+            { id: 'v239', korean: '예약하다', romanization: 'yeyakada', emoji: '📲',
+              translations: { en: 'To make a reservation / book', es: 'Hacer una reserva', zh: '预约/预订', ja: '予約する', vi: 'Đặt chỗ / đặt trước' } },
+          ],
+          fillInBlanks: [
+            { id: 'fb112', before: '오늘 스트레스 받았어요. ', after: ' 가고 싶어요!', answer: '노래방',
+              choices: ['노래방', '코인노래방', '예약', '탬버린'],
+              hint: 'I was stressed today. I want to go to karaoke!' },
+            { id: 'fb113', before: '제 ', after: '은 아이유 노래예요.', answer: '18번',
+              choices: ['18번', '예약', '탬버린', '노래방'],
+              hint: 'My signature karaoke song is an IU song.' },
+            { id: 'fb114', before: '방을 먼저 ', after: '하고 가야 해요.', answer: '예약',
+              choices: ['예약', '노래방', '탬버린', '18번'],
+              hint: 'We need to make a reservation for the room first.' },
+          ],
+        },
+        {
+          id: 'l8u1l2',
+          level: 8, unit: 1, order: 2,
+          title: 'Chimaek & Delivery Culture',
+          titleKo: '치맥 & 배달 문화',
+          emoji: '🍗',
+          xpReward: 60,
+          estimatedMinutes: 10,
+          situation: '축구 경기를 보면서 치맥을 배달 앱으로 시키는 상황. 한국의 배달 문화는 세계 최고 수준!',
+          lines: [
+            { speaker: 'You', korean: '오늘 축구 보면서 치맥 어때요?', romanization: 'oneul chukgu bomyeonseo chimaek eottaeyo?', translation: 'How about chimaek while watching soccer today?' },
+            { speaker: '민준', korean: '완전 좋죠! 배달 앱으로 주문할게요.', romanization: 'wanjeon jotjyo! baedal aebeuro jumunhalgeyo.', translation: 'Totally! I\'ll order on the delivery app.' },
+            { speaker: 'You', korean: '배달비는 제가 낼게요.', romanization: 'baedalbineun jega naelgeyo.', translation: 'I\'ll pay the delivery fee.' },
+            { speaker: '민준', korean: '아니에요, 반반해요!', romanization: 'anieyo, banbanaeyo!', translation: 'No, let\'s split it 50/50!' },
+          ],
+          cultural_tip: '치맥(치킨+맥주)은 한국의 국민 야식이에요! 배달의민족, 쿠팡이츠 같은 배달 앱으로 30분 내 배달이 가능해요. 먹방(먹는 방송)도 치맥과 함께 시작된 한국 인터넷 문화예요. 치킨은 한국에서 후라이드, 양념, 반반(반은 후라이드 반은 양념)으로 주문해요!',
+          key_expressions: ['치맥 시키자', '배달 앱으로 주문해', '반반 치킨', '배달비 얼마야?', '먹방 찍자!'],
+          vocabulary: [
+            { id: 'v240', korean: '치맥', romanization: 'chimaek', emoji: '🍗',
+              translations: { en: 'Chicken + beer combo (iconic Korean snack)', es: 'Pollo frito + cerveza (combo coreano)', zh: '炸鸡+啤酒（韩国经典组合）', ja: 'チキン＋ビール（韓国の定番おつまみ）', vi: 'Gà rán + bia (combo kinh điển Hàn Quốc)' } },
+            { id: 'v241', korean: '배달', romanization: 'baedal', emoji: '🛵',
+              translations: { en: 'Delivery', es: 'Entrega a domicilio', zh: '外卖/快递', ja: '配達', vi: 'Giao hàng / Giao đồ ăn' } },
+            { id: 'v242', korean: '배달 앱', romanization: 'baedal aep', emoji: '📱',
+              translations: { en: 'Food delivery app (Baemin, Coupang Eats)', es: 'App de entrega de comida', zh: '外卖APP（韩国：배달의민족）', ja: 'フードデリバリーアプリ', vi: 'Ứng dụng giao đồ ăn' } },
+            { id: 'v243', korean: '먹방', romanization: 'meokbang', emoji: '📹',
+              translations: { en: 'Mukbang (eating broadcast/livestream)', es: 'Mukbang (transmisión de comida)', zh: '吃播/吃豆腐', ja: '食べ放送（ムクバン）', vi: 'Mukbang (livestream ăn uống)' } },
+            { id: 'v244', korean: '반반', romanization: 'banban', emoji: '⚖️',
+              translations: { en: '50/50 split (also: half-and-half chicken order)', es: 'Mitad y mitad / pagar a medias', zh: '一半一半/平摊', ja: '半々（折半する）', vi: 'Chia đôi / 50/50' } },
+          ],
+          fillInBlanks: [
+            { id: 'fb115', before: '오늘 야식으로 ', after: ' 어때요?', answer: '치맥',
+              choices: ['치맥', '배달', '먹방', '반반'],
+              hint: 'How about chimaek for a late-night snack tonight?' },
+            { id: 'fb116', before: '', after: ' 앱으로 치킨 시킬게요.', answer: '배달',
+              choices: ['배달', '치맥', '먹방', '반반'],
+              hint: 'I\'ll order chicken on the delivery app.' },
+            { id: 'fb117', before: '돈은 우리 ', after: '해요. 공평하게!', answer: '반반',
+              choices: ['반반', '치맥', '배달', '먹방'],
+              hint: 'Let\'s split the cost 50/50. Fair and square!' },
+          ],
+        },
+      ],
+    },
+    {
+      unit: 2,
+      title: 'Language of Relationships',
+      titleKo: '관계의 언어',
+      lessons: [
+        {
+          id: 'l8u2l1',
+          level: 8, unit: 2, order: 3,
+          title: 'Formal vs Casual Speech',
+          titleKo: '존댓말 vs 반말',
+          emoji: '🗣️',
+          xpReward: 65,
+          estimatedMinutes: 12,
+          situation: '처음 만난 한국 친구와 친해지면서 존댓말에서 반말로 전환하는 상황. 외국인이 가장 헷갈리는 한국어 문화 중 하나!',
+          lines: [
+            { speaker: '지호', korean: '우리 나이 같으면 반말해도 되지 않아요?', romanization: 'uri nai gateumyeon banmalhaedo doeji anha?', translation: 'If we\'re the same age, can\'t we speak casually?' },
+            { speaker: 'You', korean: '맞아요! 저도 편하게 하고 싶었어요. 말 놔도 될까요?', romanization: 'majayo! jeodo pyeonhage hago sipeotseoyo. mal nwado doelkkayo?', translation: 'Right! I wanted to be casual too. Can I drop the formality?' },
+            { speaker: '지호', korean: '당연하지! 앞으로 친구로 지내자.', romanization: 'dangyeonhaji! apeuro chinguro jinaeja.', translation: 'Of course! Let\'s be friends from now on.' },
+            { speaker: 'You', korean: '좋아! 앞으로 잘 부탁해~', romanization: 'joa! apeuro jal butakae~', translation: 'Great! Nice to meet you (casual)~' },
+          ],
+          cultural_tip: '한국에서는 처음 만나면 존댓말이 기본이에요. 같은 나이이거나 친해지면 "말 놔도 돼요?" 또는 "편하게 해요"라고 물어보고 반말로 전환해요. 나이를 물어보는 것은 한국에서 자연스러운 문화이니 당황하지 마세요! "나이가 어떻게 되세요?"는 반말 전환 가능 여부를 확인하려는 의도예요.',
+          key_expressions: ['말 놔도 돼요?', '나이가 어떻게 되세요?', '친구로 지내자', '편하게 해요~', '동갑이에요!'],
+          vocabulary: [
+            { id: 'v245', korean: '존댓말', romanization: 'jondaenmal', emoji: '🎩',
+              translations: { en: 'Polite/formal speech', es: 'Habla formal / respetuosa', zh: '敬语/礼貌用语', ja: '敬語（丁寧語）', vi: 'Ngôn ngữ trang trọng / kính ngữ' } },
+            { id: 'v246', korean: '반말', romanization: 'banmal', emoji: '😎',
+              translations: { en: 'Informal/casual speech', es: 'Habla informal / casual', zh: '敬语/礼貌用语', ja: 'タメ口（くだけた話し方）', vi: 'Ngôn ngữ thân mật / nói trống' } },
+            { id: 'v247', korean: '동갑', romanization: 'donggap', emoji: '🎂',
+              translations: { en: 'Same age (born same year)', es: 'Misma edad (mismo año)', zh: '同龄/同岁', ja: '同い年（同じ年生まれ）', vi: 'Cùng tuổi (cùng năm sinh)' } },
+            { id: 'v248', korean: '말을 놓다', romanization: 'mareul nota', emoji: '💬',
+              translations: { en: 'To drop formality / switch to casual speech', es: 'Cambiar al habla informal', zh: '改用非正式语气', ja: 'タメ口に切り替える', vi: 'Chuyển sang nói thân mật' } },
+            { id: 'v249', korean: '친구 먹다', romanization: 'chingu meokda', emoji: '🤝',
+              translations: { en: 'To become friends (drop age hierarchy)', es: 'Hacerse amigos (ignorar jerarquía de edad)', zh: '以朋友相称（不分年龄）', ja: '友達になる（年齢差なし）', vi: 'Kết bạn (bỏ qua thứ bậc tuổi tác)' } },
+          ],
+          fillInBlanks: [
+            { id: 'fb118', before: '처음 만날 때는 ', after: '이 기본이에요.', answer: '존댓말',
+              choices: ['존댓말', '반말', '동갑', '친구 먹자'],
+              hint: 'Polite speech is the default when first meeting someone.' },
+            { id: 'fb119', before: '친해지면 ', after: '써도 돼요.', answer: '반말',
+              choices: ['반말', '존댓말', '동갑', '말을 놓'],
+              hint: 'Once you become close, it\'s okay to use casual speech.' },
+            { id: 'fb120', before: '우리 ', after: '이에요? 몇 년생이에요?', answer: '동갑',
+              choices: ['동갑', '반말', '존댓말', '친구'],
+              hint: 'Are we the same age? What year were you born?' },
+          ],
+        },
+        {
+          id: 'l8u2l2',
+          level: 8, unit: 2, order: 4,
+          title: 'Korean Dating Culture',
+          titleKo: '한국 데이트 문화',
+          emoji: '💕',
+          xpReward: 65,
+          estimatedMinutes: 12,
+          situation: '한국식 고백 → 100일 기념 → 커플링으로 이어지는 한국 연인 문화. K-드라마에서 자주 나오는 그 장면들!',
+          lines: [
+            { speaker: 'You', korean: '저 솔직히 말할게요. 좋아해요. 사귀어 줄래요?', romanization: 'jeo soljikhI malhalgeyo. joahaeyo. sagwio jullaeyo?', translation: 'I\'ll be honest. I like you. Will you go out with me?' },
+            { speaker: '수연', korean: '저도 좋아했어요! 우리 사귀어요.', romanization: 'jeodo joahaeseoyo! uri sagwioyo.', translation: 'I liked you too! Let\'s date.' },
+            { speaker: 'You', korean: '다음 달이 100일인데 커플링 맞추러 가요.', romanization: 'daeum dari baek ilin-de keobeuling macchureo gayo.', translation: 'Next month is our 100-day anniversary — let\'s get couple rings.' },
+            { speaker: '수연', korean: '너무 설레요!', romanization: 'neomu seollaeyo!', translation: 'I\'m so excited/fluttery!' },
+          ],
+          cultural_tip: '한국 연인들은 100일, 200일, 1주년 등 기념일을 꼭 챙겨요! 커플링(couple ring)은 연인이 똑같은 반지를 끼는 한국만의 문화예요. 고백할 때는 "사귀어 줄래요?"가 공식 표현. 포토부스(인생네컷)에서 커플 사진 찍기, 카페 데이트, 한강 피크닉도 한국 연인들의 인기 데이트 코스예요!',
+          key_expressions: ['사귀어 줄래요?', '100일 기념이에요', '커플링 맞추자', '설렌다~', '인생네컷 찍자!'],
+          vocabulary: [
+            { id: 'v250', korean: '고백', romanization: 'gobeak', emoji: '💌',
+              translations: { en: 'Confession of love', es: 'Declaración de amor', zh: '表白/告白', ja: '告白', vi: 'Tỏ tình / Thú nhận tình cảm' } },
+            { id: 'v251', korean: '사귀다', romanization: 'sagwida', emoji: '👫',
+              translations: { en: 'To date / be in a relationship', es: 'Salir con alguien / tener una relación', zh: '谈恋爱/交往', ja: '付き合う', vi: 'Hẹn hò / Qua lại' } },
+            { id: 'v252', korean: '커플링', romanization: 'keobeuling', emoji: '💍',
+              translations: { en: 'Couple ring (matching rings for couples)', es: 'Anillo de pareja (anillos iguales)', zh: '情侣戒指（情侣对戒）', ja: 'カップルリング（お揃いの指輪）', vi: 'Nhẫn đôi (nhẫn đôi cho cặp đôi)' } },
+            { id: 'v253', korean: '100일 기념일', romanization: 'baek il ginyeomil', emoji: '🎉',
+              translations: { en: '100-day anniversary (popular Korean milestone)', es: 'Aniversario de 100 días', zh: '百天纪念日（韩国情侣传统）', ja: '100日記念日（韓国カップルの節目）', vi: 'Kỷ niệm 100 ngày yêu (truyền thống Hàn Quốc)' } },
+            { id: 'v254', korean: '설레다', romanization: 'seolleda', emoji: '🦋',
+              translations: { en: 'To feel excited/fluttery (romantic excitement)', es: 'Sentir mariposas en el estómago', zh: '怦然心动/忐忑', ja: 'ドキドキする（胸が躍る）', vi: 'Hồi hộp / Bồi hồi (cảm xúc lãng mạn)' } },
+          ],
+          fillInBlanks: [
+            { id: 'fb121', before: '저 좋아해요. 저랑 ', after: '요?', answer: '사귀어 줄래',
+              choices: ['사귀어 줄래', '고백할게', '커플링 살', '설레'],
+              hint: 'I like you. Will you go out with me?' },
+            { id: 'fb122', before: '다음 주가 우리 ', after: '이에요!', answer: '100일 기념일',
+              choices: ['100일 기념일', '고백', '커플링', '설레는 날'],
+              hint: 'Next week is our 100-day anniversary!' },
+            { id: 'fb123', before: '처음 손 잡았을 때 너무 ', after: '어요.', answer: '설렜',
+              choices: ['설렜', '사귀었', '고백했', '기념했'],
+              hint: 'When we held hands for the first time I was so fluttery/excited.' },
+          ],
+        },
+      ],
+    },
+    {
+      unit: 3,
+      title: 'Korean Work Culture',
+      titleKo: '한국 직장 문화',
+      lessons: [
+        {
+          id: 'l8u3l1',
+          level: 8, unit: 3, order: 5,
+          title: 'Hoesik Culture',
+          titleKo: '회식 문화',
+          emoji: '🥂',
+          xpReward: 70,
+          estimatedMinutes: 12,
+          situation: '한국 회사에서 퇴근 후 회식하는 상황. 1차, 2차, 3차로 이어지는 한국식 단체 회식 문화!',
+          lines: [
+            { speaker: '팀장', korean: '오늘 회식 있는 거 알죠? 6시에 강남역 근처 고기집이에요.', romanization: 'oneul hoesik inneun geo aljyo? yeoseot sie gangnam-yeok geuncheo gogijib-ieyo.', translation: 'You know there\'s a team dinner tonight, right? At 6pm at a Korean BBQ near Gangnam station.' },
+            { speaker: 'You', korean: '네! 혹시 2차도 있어요?', romanization: 'ne! hoksi ichaado isseoyo?', translation: 'Yes! Will there be a 2nd round?' },
+            { speaker: '팀장', korean: '아마 노래방 갈 것 같아요. 팀원들이 결정하겠죠.', romanization: 'ama norebang gal geot gatayo. timweondeuli gyeoljeong-hageotjyo.', translation: 'Probably karaoke. The team will decide.' },
+            { speaker: 'You', korean: '알겠어요! 상사님 앞에서 두 손으로 잔 받는 거 잊지 말아야겠어요.', romanization: 'algeseoyo! sangsanim apeseo du sono jan banne geo itji maraya gesseoyo.', translation: 'Got it! I shouldn\'t forget to receive the drink with both hands in front of my boss.' },
+          ],
+          cultural_tip: '한국 회식은 보통 1차(고기집/식당), 2차(술집/포차), 3차(노래방) 순서로 이어져요. 상사 앞에서는 두 손으로 잔을 받고, 상대방의 빈 잔을 먼저 채워주는 게 예의예요. 건배 구호는 "위하여~!", "건배!" 또는 "짠!"을 자주 써요. 요즘은 "회식 문화 개선" 바람으로 1차만 하고 일찍 끝내는 경우도 많아졌어요!',
+          key_expressions: ['회식 있어요?', '2차 가요!', '두 손으로 받아요', '건배! / 위하여~!', '짠!'],
+          vocabulary: [
+            { id: 'v255', korean: '회식', romanization: 'hoesik', emoji: '🍖',
+              translations: { en: 'Company/team dinner (after work gathering)', es: 'Cena de equipo / salida de trabajo', zh: '聚餐/会餐（同事聚会）', ja: '会食（職場の飲み会）', vi: 'Tiệc nhóm / Ăn nhậu cùng đồng nghiệp' } },
+            { id: 'v256', korean: '1차 / 2차 / 3차', romanization: 'ilcha / icha / samcha', emoji: '🔄',
+              translations: { en: '1st round / 2nd round / 3rd round (of a night out)', es: '1ª ronda / 2ª ronda / 3ª ronda (de la noche)', zh: '第一摊/第二摊/第三摊', ja: '1次会 / 2次会 / 3次会', vi: 'Vòng 1 / Vòng 2 / Vòng 3 (của một đêm liên hoan)' } },
+            { id: 'v257', korean: '두 손으로', romanization: 'du sono', emoji: '🤲',
+              translations: { en: 'With both hands (receiving/pouring — shows respect)', es: 'Con ambas manos (muestra respeto)', zh: '用双手（接杯敬酒表示尊重）', ja: '両手で（受け取る・注ぐ — 敬意を示す）', vi: 'Bằng hai tay (nhận hoặc rót — thể hiện tôn trọng)' } },
+            { id: 'v258', korean: '빈 잔 채우다', romanization: 'bin jan chaeuda', emoji: '🍺',
+              translations: { en: 'To refill an empty glass (etiquette: do this for others)', es: 'Rellenar un vaso vacío (etiqueta)', zh: '帮别人添满空杯（礼仪）', ja: '空のグラスを補充する（マナー）', vi: 'Rót đầy ly trống (phép lịch sự)' } },
+            { id: 'v259', korean: '건배', romanization: 'geonbae', emoji: '🥂',
+              translations: { en: 'Cheers! / Toast', es: '¡Salud! / Brindis', zh: '干杯！', ja: '乾杯！', vi: 'Cạn ly! / Chúc mừng!' } },
+          ],
+          fillInBlanks: [
+            { id: 'fb124', before: '오늘 팀 ', after: ' 있어요. 같이 가요!', answer: '회식',
+              choices: ['회식', '건배', '1차', '반반'],
+              hint: 'There\'s a team dinner today. Let\'s go together!' },
+            { id: 'fb125', before: '상사님한테 잔 받을 때는 ', after: ' 받아요.', answer: '두 손으로',
+              choices: ['두 손으로', '건배', '빈 잔', '1차'],
+              hint: 'When receiving a drink from your boss, use both hands.' },
+            { id: 'fb126', before: '상대방의 ', after: ' 을 먼저 채워주세요.', answer: '빈 잔',
+              choices: ['빈 잔', '두 손으로', '회식', '건배'],
+              hint: 'Please refill the other person\'s empty glass first.' },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 // ─── All Levels ──────────────────────────────────────────────────────────────
 
-export const ALL_LEVELS: LevelData[] = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7];
+export const ALL_LEVELS: LevelData[] = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8];
 
 export function getLessonsForLevel(level: number): LessonData[] {
   const lvl = ALL_LEVELS.find((l) => l.level === level);

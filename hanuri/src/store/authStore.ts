@@ -13,10 +13,13 @@ interface OnboardingData {
   currentLevel: number;
 }
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 interface AuthState {
   user: User | null;
   hasCompletedOnboarding: boolean;
   onboardingData: Partial<OnboardingData>;
+  themeMode: ThemeMode;
   setUser: (user: User | null) => void;
   setOnboardingData: (data: Partial<OnboardingData>) => void;
   completeOnboarding: () => void;
@@ -24,6 +27,7 @@ interface AuthState {
   updateProfile: (partial: Partial<Pick<User, 'native_lang' | 'daily_goal_minutes' | 'learning_goal'>>) => void;
   upgradeToPro: () => void;
   levelUp: () => void;
+  setThemeMode: (mode: ThemeMode) => void;
   signOut: () => void;
 }
 
@@ -33,8 +37,11 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       hasCompletedOnboarding: false,
       onboardingData: {},
+      themeMode: 'system' as ThemeMode,
 
       setUser: (user) => set({ user }),
+
+      setThemeMode: (mode) => set({ themeMode: mode }),
 
       setOnboardingData: (data) =>
         set((state) => ({
@@ -138,6 +145,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         onboardingData: state.onboardingData,
+        themeMode: state.themeMode,
       }),
     }
   )

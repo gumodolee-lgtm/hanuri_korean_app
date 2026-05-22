@@ -50,6 +50,8 @@ export interface Translations {
     tapMic: string; recording: string; listenFirst: string;
     scoreUnit: string; recognized: string; nextWord: string; lessonComplete: string;
     lessonNotFound: string; pronError: string;
+    culture: string; situation: string; cultureTip: string;
+    keyExpressions: string; dialogue: string; startLesson: string;
   };
   aiChat: {
     convUnit: string; end: string; inputPlaceholder: string;
@@ -73,6 +75,7 @@ export interface Translations {
     signOutConfirmTitle: string; signOutConfirmMsg: string; cancel: string;
     editDailyGoal: string; editNativeLang: string; save: string;
     min5: string; min15: string; min30: string;
+    themeLabel: string; themeLight: string; themeDark: string; themeSystem: string;
     badgeNames: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
     badgeDescs: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
   };
@@ -159,15 +162,17 @@ const en: Translations = {
   lessons: { title: '📚 Lessons', comingSoon: 'Coming soon', minUnit: 'min' },
   lesson: {
     flashcard: 'Flashcard', quiz: 'Quiz', fillBlank: 'Fill in Blank', pronunciation: 'Pronunciation',
-    tapToSee: 'Tap to see meaning', listen: '🔊 Listen', listenAgain: '🔊 Listen again',
-    nextCard: 'Next Card →', startQuiz: 'Start Quiz →',
-    chooseAnswer: 'Choose the meaning', correct: '🎉 Correct!', wrongPrefix: '😅 Answer:',
+    tapToSee: 'Tap to flip! 👀', listen: '🔊 Listen', listenAgain: '🔊 Listen again',
+    nextCard: 'Next! 💨', startQuiz: "Let's Quiz! 🎮",
+    chooseAnswer: 'What does it mean? 🎯', correct: '맞아! 🔥 Got it!', wrongPrefix: '아이고~ Answer:',
     next: 'Next →', toFillBlank: 'Fill in Blank →', toPronunciation: 'Pronunciation →',
-    fillBlankInstruction: 'Choose the correct word',
-    tapMic: 'Tap mic to repeat after', recording: '🔴 Recording... (tap to finish)',
+    fillBlankInstruction: 'Fill the blank! 📝',
+    tapMic: 'Tap mic & sing along! 🎤', recording: '🔴 Recording... (tap to finish)',
     listenFirst: '🔊 Listen first', scoreUnit: 'pts', recognized: 'Recognized:',
-    nextWord: 'Next Word →', lessonComplete: 'Complete 🎊',
+    nextWord: 'Next Word →', lessonComplete: 'Cleared! 🏆',
     lessonNotFound: 'Lesson not found.', pronError: 'Error. Please try again.',
+    culture: 'Culture', situation: 'Situation', cultureTip: '🇰🇷 Culture Tip',
+    keyExpressions: 'Key Expressions', dialogue: 'Dialogue', startLesson: 'Start Lesson →',
   },
   aiChat: {
     convUnit: 'conversations', end: 'End', inputPlaceholder: 'Type in Korean...',
@@ -195,6 +200,7 @@ const en: Translations = {
     signOutConfirmTitle: 'Sign Out', signOutConfirmMsg: 'Are you sure you want to sign out?', cancel: 'Cancel',
     editDailyGoal: 'Daily Goal', editNativeLang: 'Change Language', save: 'Save',
     min5: '5 min / Casual', min15: '15 min / Recommended', min30: '30 min / Intensive',
+    themeLabel: '🌙 Dark Mode', themeLight: 'Light', themeDark: 'Dark', themeSystem: 'System',
     badgeNames: { firstLesson: 'First Lesson', weekStreak: '7-Day Streak', vocab100: 'Vocab Master', aiChat5: 'AI Champ', perfectQuiz: 'Quiz Master', levelUp: 'Level Up' },
     badgeDescs: { firstLesson: 'Complete first lesson', weekStreak: '7 days in a row', vocab100: 'Reach 500 XP', aiChat5: 'Start AI chat', perfectQuiz: 'Get 100% on quiz', levelUp: 'Reach next level' },
   },
@@ -295,15 +301,17 @@ const ko: Translations = {
   lessons: { title: '📚 레슨', comingSoon: '준비 중', minUnit: '분' },
   lesson: {
     flashcard: '단어 카드', quiz: '퀴즈', fillBlank: '빈칸 채우기', pronunciation: '발음 연습',
-    tapToSee: '탭하여 뜻 확인', listen: '🔊 듣기', listenAgain: '🔊 다시 듣기',
-    nextCard: '다음 카드 →', startQuiz: '퀴즈 시작 →',
-    chooseAnswer: '뜻을 선택하세요', correct: '🎉 정답!', wrongPrefix: '😅 정답:',
+    tapToSee: '탭해서 확인! 👀', listen: '🔊 듣기', listenAgain: '🔊 다시 듣기',
+    nextCard: '다음! 💨', startQuiz: '퀴즈 고고! 🎮',
+    chooseAnswer: '무슨 뜻이게? 🎯', correct: '맞아맞아! 🔥', wrongPrefix: '아이고~ 정답:',
     next: '다음 →', toFillBlank: '빈칸 채우기 →', toPronunciation: '발음 연습 →',
-    fillBlankInstruction: '빈칸에 알맞은 말을 고르세요',
-    tapMic: '마이크를 탭하여 따라 읽기', recording: '🔴 녹음 중... (탭하여 완료)',
+    fillBlankInstruction: '빈칸을 채워봐! 📝',
+    tapMic: '마이크 탭해서 따라 해봐! 🎤', recording: '🔴 녹음 중... (탭하여 완료)',
     listenFirst: '🔊 먼저 듣기', scoreUnit: '점', recognized: '인식된 발음:',
-    nextWord: '다음 단어 →', lessonComplete: '레슨 완료 🎊',
+    nextWord: '다음 단어 →', lessonComplete: '클리어! 🏆',
     lessonNotFound: '레슨을 찾을 수 없습니다.', pronError: '오류가 발생했어요. 다시 시도해주세요.',
+    culture: '문화 소개', situation: '상황', cultureTip: '🇰🇷 문화 팁',
+    keyExpressions: '핵심 표현', dialogue: '대화', startLesson: '레슨 시작 →',
   },
   aiChat: {
     convUnit: '개 대화', end: '종료', inputPlaceholder: '한국어로 입력하세요...',
@@ -331,6 +339,7 @@ const ko: Translations = {
     signOutConfirmTitle: '로그아웃', signOutConfirmMsg: '정말 로그아웃하시겠어요?', cancel: '취소',
     editDailyGoal: '학습 목표 시간', editNativeLang: '언어 변경', save: '저장',
     min5: '5분 / 가볍게', min15: '15분 / 추천', min30: '30분 / 집중',
+    themeLabel: '🌙 다크 모드', themeLight: '라이트', themeDark: '다크', themeSystem: '시스템',
     badgeNames: { firstLesson: '첫 레슨', weekStreak: '7일 연속', vocab100: '단어 달인', aiChat5: 'AI 대화왕', perfectQuiz: '퀴즈 마스터', levelUp: '레벨업' },
     badgeDescs: { firstLesson: '첫 레슨 완료', weekStreak: '7일 연속 학습', vocab100: 'XP 500 달성', aiChat5: 'AI 대화 시작', perfectQuiz: '퀴즈 100% 달성', levelUp: '다음 레벨 도달' },
   },
@@ -431,15 +440,17 @@ const es: Translations = {
   lessons: { title: '📚 Lecciones', comingSoon: 'Próximamente', minUnit: 'min' },
   lesson: {
     flashcard: 'Tarjetas', quiz: 'Quiz', fillBlank: 'Completar', pronunciation: 'Pronunciación',
-    tapToSee: 'Toca para ver el significado', listen: '🔊 Escuchar', listenAgain: '🔊 Escuchar de nuevo',
-    nextCard: 'Siguiente →', startQuiz: 'Empezar Quiz →',
-    chooseAnswer: 'Elige el significado', correct: '🎉 ¡Correcto!', wrongPrefix: '😅 Respuesta:',
+    tapToSee: '¡Toca para ver! 👀', listen: '🔊 Escuchar', listenAgain: '🔊 Escuchar de nuevo',
+    nextCard: '¡Siguiente! 💨', startQuiz: '¡Al Quiz! 🎮',
+    chooseAnswer: '¿Qué significa? 🎯', correct: '¡Exacto! 🔥', wrongPrefix: '¡Ay no~ Respuesta:',
     next: 'Siguiente →', toFillBlank: 'Completar →', toPronunciation: 'Pronunciación →',
-    fillBlankInstruction: 'Elige la palabra correcta',
-    tapMic: 'Toca el micrófono para repetir', recording: '🔴 Grabando... (toca para terminar)',
+    fillBlankInstruction: '¡Rellena el espacio! 📝',
+    tapMic: '¡Toca el mic y canta! 🎤', recording: '🔴 Grabando... (toca para terminar)',
     listenFirst: '🔊 Escuchar primero', scoreUnit: 'pts', recognized: 'Reconocido:',
-    nextWord: 'Siguiente palabra →', lessonComplete: 'Completado 🎊',
+    nextWord: 'Siguiente palabra →', lessonComplete: '¡Superado! 🏆',
     lessonNotFound: 'Lección no encontrada.', pronError: 'Error. Por favor intenta de nuevo.',
+    culture: 'Cultura', situation: 'Situación', cultureTip: '🇰🇷 Dato Cultural',
+    keyExpressions: 'Expresiones Clave', dialogue: 'Diálogo', startLesson: 'Iniciar Lección →',
   },
   aiChat: {
     convUnit: 'conversaciones', end: 'Terminar', inputPlaceholder: 'Escribe en coreano...',
@@ -467,6 +478,7 @@ const es: Translations = {
     signOutConfirmTitle: 'Cerrar sesión', signOutConfirmMsg: '¿Seguro que quieres cerrar sesión?', cancel: 'Cancelar',
     editDailyGoal: 'Meta diaria', editNativeLang: 'Cambiar idioma', save: 'Guardar',
     min5: '5 min / Casual', min15: '15 min / Recomendado', min30: '30 min / Intensivo',
+    themeLabel: '🌙 Modo Oscuro', themeLight: 'Claro', themeDark: 'Oscuro', themeSystem: 'Sistema',
     badgeNames: { firstLesson: 'Primera lección', weekStreak: 'Racha 7 días', vocab100: 'Maestro vocab', aiChat5: 'Campeón IA', perfectQuiz: 'Maestro quiz', levelUp: 'Subir nivel' },
     badgeDescs: { firstLesson: 'Completa primera lección', weekStreak: '7 días seguidos', vocab100: 'Alcanza 500 XP', aiChat5: 'Inicia chat IA', perfectQuiz: '100% en quiz', levelUp: 'Alcanza siguiente nivel' },
   },
@@ -570,15 +582,17 @@ const zh: Translations = {
   lessons: { title: '📚 课程', comingSoon: '即将推出', minUnit: '分钟' },
   lesson: {
     flashcard: '单词卡', quiz: '测验', fillBlank: '填空', pronunciation: '发音练习',
-    tapToSee: '点击查看含义', listen: '🔊 听', listenAgain: '🔊 再听一次',
-    nextCard: '下一张 →', startQuiz: '开始测验 →',
-    chooseAnswer: '选择含义', correct: '🎉 正确！', wrongPrefix: '😅 答案:',
+    tapToSee: '点击翻牌！👀', listen: '🔊 听', listenAgain: '🔊 再听一次',
+    nextCard: '下一张！💨', startQuiz: '开始答题！🎮',
+    chooseAnswer: '猜猜是什么意思？🎯', correct: '答对啦！🔥', wrongPrefix: '哎呀~ 答案:',
     next: '下一个 →', toFillBlank: '填空练习 →', toPronunciation: '发音练习 →',
-    fillBlankInstruction: '选择正确的单词',
-    tapMic: '点击麦克风跟读', recording: '🔴 录音中... (点击完成)',
+    fillBlankInstruction: '填空挑战！📝',
+    tapMic: '点麦跟唱！🎤', recording: '🔴 录音中... (点击完成)',
     listenFirst: '🔊 先听', scoreUnit: '分', recognized: '识别结果:',
-    nextWord: '下一个单词 →', lessonComplete: '课程完成 🎊',
+    nextWord: '下一个单词 →', lessonComplete: '通关！🏆',
     lessonNotFound: '找不到课程。', pronError: '发生错误，请重试。',
+    culture: '文化介绍', situation: '情境', cultureTip: '🇰🇷 文化小贴士',
+    keyExpressions: '核心表达', dialogue: '对话', startLesson: '开始课程 →',
   },
   aiChat: {
     convUnit: '条对话', end: '结束', inputPlaceholder: '用韩语输入...',
@@ -606,6 +620,7 @@ const zh: Translations = {
     signOutConfirmTitle: '退出登录', signOutConfirmMsg: '确定要退出登录吗？', cancel: '取消',
     editDailyGoal: '每日目标', editNativeLang: '更改语言', save: '保存',
     min5: '5分钟 / 轻松', min15: '15分钟 / 推荐', min30: '30分钟 / 专注',
+    themeLabel: '🌙 深色模式', themeLight: '浅色', themeDark: '深色', themeSystem: '跟随系统',
     badgeNames: { firstLesson: '第一课', weekStreak: '7天连续', vocab100: '单词达人', aiChat5: 'AI高手', perfectQuiz: '测验大师', levelUp: '升级' },
     badgeDescs: { firstLesson: '完成第一课', weekStreak: '连续7天', vocab100: '达到500XP', aiChat5: '开始AI对话', perfectQuiz: '测验100%', levelUp: '到达下一级' },
   },
@@ -709,15 +724,17 @@ const ja: Translations = {
   lessons: { title: '📚 レッスン', comingSoon: '準備中', minUnit: '分' },
   lesson: {
     flashcard: '単語カード', quiz: 'クイズ', fillBlank: '穴埋め', pronunciation: '発音練習',
-    tapToSee: 'タップして意味を確認', listen: '🔊 聞く', listenAgain: '🔊 もう一度聞く',
-    nextCard: '次のカード →', startQuiz: 'クイズ開始 →',
-    chooseAnswer: '意味を選んでください', correct: '🎉 正解！', wrongPrefix: '😅 正解:',
+    tapToSee: 'タップでめくる！👀', listen: '🔊 聞く', listenAgain: '🔊 もう一度聞く',
+    nextCard: '次へ！💨', startQuiz: 'クイズ行くよ！🎮',
+    chooseAnswer: 'どういう意味？🎯', correct: '正解！🔥', wrongPrefix: 'あいや~ 正解:',
     next: '次へ →', toFillBlank: '穴埋め →', toPronunciation: '発音練習 →',
-    fillBlankInstruction: '正しい言葉を選んでください',
-    tapMic: 'マイクをタップして繰り返す', recording: '🔴 録音中... (タップして完了)',
+    fillBlankInstruction: '穴埋めチャレンジ！📝',
+    tapMic: 'マイクタップして歌って！🎤', recording: '🔴 録音中... (タップして完了)',
     listenFirst: '🔊 まず聞く', scoreUnit: '点', recognized: '認識結果:',
-    nextWord: '次の単語 →', lessonComplete: 'レッスン完了 🎊',
+    nextWord: '次の単語 →', lessonComplete: 'クリア！🏆',
     lessonNotFound: 'レッスンが見つかりません。', pronError: 'エラーが発生しました。再試行してください。',
+    culture: '文化紹介', situation: '状況', cultureTip: '🇰🇷 文化ポイント',
+    keyExpressions: 'キーフレーズ', dialogue: '会話', startLesson: 'レッスン開始 →',
   },
   aiChat: {
     convUnit: '件の会話', end: '終了', inputPlaceholder: '韓国語で入力してください...',
@@ -745,6 +762,7 @@ const ja: Translations = {
     signOutConfirmTitle: 'サインアウト', signOutConfirmMsg: 'サインアウトしますか？', cancel: 'キャンセル',
     editDailyGoal: '学習目標時間', editNativeLang: '言語を変更', save: '保存',
     min5: '5分 / 軽め', min15: '15分 / おすすめ', min30: '30分 / 集中',
+    themeLabel: '🌙 ダークモード', themeLight: 'ライト', themeDark: 'ダーク', themeSystem: 'システム',
     badgeNames: { firstLesson: '最初のレッスン', weekStreak: '7日連続', vocab100: '単語の達人', aiChat5: 'AIチャンプ', perfectQuiz: 'クイズマスター', levelUp: 'レベルアップ' },
     badgeDescs: { firstLesson: '最初のレッスン完了', weekStreak: '7日連続学習', vocab100: '500XP達成', aiChat5: 'AIチャット開始', perfectQuiz: 'クイズ100%', levelUp: '次のレベルへ' },
   },
@@ -848,15 +866,17 @@ const vi: Translations = {
   lessons: { title: '📚 Bài học', comingSoon: 'Sắp ra mắt', minUnit: 'phút' },
   lesson: {
     flashcard: 'Thẻ từ vựng', quiz: 'Bài kiểm tra', fillBlank: 'Điền vào chỗ trống', pronunciation: 'Luyện phát âm',
-    tapToSee: 'Nhấn để xem nghĩa', listen: '🔊 Nghe', listenAgain: '🔊 Nghe lại',
-    nextCard: 'Thẻ tiếp theo →', startQuiz: 'Bắt đầu kiểm tra →',
-    chooseAnswer: 'Chọn nghĩa', correct: '🎉 Đúng rồi!', wrongPrefix: '😅 Đáp án:',
+    tapToSee: 'Lật thẻ nào! 👀', listen: '🔊 Nghe', listenAgain: '🔊 Nghe lại',
+    nextCard: 'Tiếp! 💨', startQuiz: 'Vào Quiz! 🎮',
+    chooseAnswer: 'Nghĩa là gì nhỉ? 🎯', correct: 'Chính xác! 🔥', wrongPrefix: 'Ôi trời~ Đáp án:',
     next: 'Tiếp theo →', toFillBlank: 'Điền chỗ trống →', toPronunciation: 'Luyện phát âm →',
-    fillBlankInstruction: 'Chọn từ đúng',
-    tapMic: 'Nhấn mic để lặp lại', recording: '🔴 Đang ghi... (nhấn để kết thúc)',
+    fillBlankInstruction: 'Điền vào chỗ trống! 📝',
+    tapMic: 'Nhấn mic và hát theo! 🎤', recording: '🔴 Đang ghi... (nhấn để kết thúc)',
     listenFirst: '🔊 Nghe trước', scoreUnit: 'điểm', recognized: 'Nhận diện:',
-    nextWord: 'Từ tiếp theo →', lessonComplete: 'Hoàn thành 🎊',
+    nextWord: 'Từ tiếp theo →', lessonComplete: 'Vượt ải! 🏆',
     lessonNotFound: 'Không tìm thấy bài học.', pronError: 'Lỗi xảy ra. Vui lòng thử lại.',
+    culture: 'Văn Hóa', situation: 'Tình Huống', cultureTip: '🇰🇷 Mẹo Văn Hóa',
+    keyExpressions: 'Cụm Từ Chính', dialogue: 'Hội Thoại', startLesson: 'Bắt Đầu Bài →',
   },
   aiChat: {
     convUnit: 'cuộc trò chuyện', end: 'Kết thúc', inputPlaceholder: 'Nhập bằng tiếng Hàn...',
@@ -884,6 +904,7 @@ const vi: Translations = {
     signOutConfirmTitle: 'Đăng xuất', signOutConfirmMsg: 'Bạn có chắc muốn đăng xuất không?', cancel: 'Hủy',
     editDailyGoal: 'Mục tiêu hàng ngày', editNativeLang: 'Đổi ngôn ngữ', save: 'Lưu',
     min5: '5 phút / Nhẹ nhàng', min15: '15 phút / Khuyến nghị', min30: '30 phút / Tập trung',
+    themeLabel: '🌙 Chế Độ Tối', themeLight: 'Sáng', themeDark: 'Tối', themeSystem: 'Hệ Thống',
     badgeNames: { firstLesson: 'Bài học đầu', weekStreak: '7 ngày liên tục', vocab100: 'Bậc thầy từ vựng', aiChat5: 'Vô địch AI', perfectQuiz: 'Thạc sĩ quiz', levelUp: 'Lên cấp' },
     badgeDescs: { firstLesson: 'Hoàn thành bài học đầu', weekStreak: '7 ngày liên tiếp', vocab100: 'Đạt 500 XP', aiChat5: 'Bắt đầu chat AI', perfectQuiz: '100% quiz', levelUp: 'Đạt cấp tiếp theo' },
   },

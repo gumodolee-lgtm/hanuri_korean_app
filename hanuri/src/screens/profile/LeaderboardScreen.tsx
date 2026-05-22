@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../../store/userStore';
 import { useAuthStore } from '../../store/authStore';
 import { fetchLeaderboard, LeaderEntry } from '../../services/dbService';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 const LANG_TO_FLAG: Record<string, string> = {
@@ -49,21 +50,45 @@ function LeaderRow({
   rank: number; name: string; flag: string; xp: number; streak: number; level: number; isMe?: boolean;
 }) {
   const t = useT();
+  const { colors } = useTheme();
+  const rowStyles = useMemo(() => StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    rowMe: { borderWidth: 2, borderColor: colors.primary, backgroundColor: '#FFF5F5' },
+    rankCell: { width: 32, alignItems: 'center' },
+    rankNum: { ...typography.body, color: colors.gray, fontWeight: '700' },
+    medal: { fontSize: 20 },
+    flag: { fontSize: 22 },
+    nameCell: { flex: 1 },
+    name: { ...typography.body, color: colors.dark, fontWeight: '600' },
+    nameMe: { color: colors.primary },
+    levelLabel: { ...typography.caption, color: colors.gray },
+    xpCell: { alignItems: 'flex-end' },
+    xp: { ...typography.body, color: colors.dark, fontWeight: '800' },
+    xpMe: { color: colors.primary },
+    xpLabel: { fontSize: 10, color: colors.gray },
+  }), [colors]);
   return (
-    <View style={[styles.row, isMe && styles.rowMe]}>
-      <View style={styles.rankCell}>
+    <View style={[rowStyles.row, isMe && rowStyles.rowMe]}>
+      <View style={rowStyles.rankCell}>
         {rank <= 3
-          ? <Text style={styles.medal}>{MEDAL[rank]}</Text>
-          : <Text style={styles.rankNum}>{rank}</Text>}
+          ? <Text style={rowStyles.medal}>{MEDAL[rank]}</Text>
+          : <Text style={rowStyles.rankNum}>{rank}</Text>}
       </View>
-      <Text style={styles.flag}>{flag}</Text>
-      <View style={styles.nameCell}>
-        <Text style={[styles.name, isMe && styles.nameMe]}>{name}{isMe ? ` ${t.leaderboard.meSuffix}` : ''}</Text>
-        <Text style={styles.levelLabel}>Lv.{level} · 🔥{streak}</Text>
+      <Text style={rowStyles.flag}>{flag}</Text>
+      <View style={rowStyles.nameCell}>
+        <Text style={[rowStyles.name, isMe && rowStyles.nameMe]}>{name}{isMe ? ` ${t.leaderboard.meSuffix}` : ''}</Text>
+        <Text style={rowStyles.levelLabel}>Lv.{level} · 🔥{streak}</Text>
       </View>
-      <View style={styles.xpCell}>
-        <Text style={[styles.xp, isMe && styles.xpMe]}>{xp.toLocaleString()}</Text>
-        <Text style={styles.xpLabel}>XP</Text>
+      <View style={rowStyles.xpCell}>
+        <Text style={[rowStyles.xp, isMe && rowStyles.xpMe]}>{xp.toLocaleString()}</Text>
+        <Text style={rowStyles.xpLabel}>XP</Text>
       </View>
     </View>
   );
@@ -73,6 +98,7 @@ export default function LeaderboardScreen() {
   const { xp, streak } = useUserStore();
   const { user } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
 
   // Derive isGuest before useState so we can use it as the initial loading value
   const isGuest = !user || user.id.startsWith('guest_');
@@ -123,6 +149,53 @@ export default function LeaderboardScreen() {
   const showMyRow = !meInTop;
 
   const top3 = entries.slice(0, 3);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+
+    header: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.sm },
+    headerTitle: { ...typography.h2, color: colors.dark },
+    headerSub: { ...typography.caption, color: colors.gray },
+
+    podium: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'flex-end',
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      backgroundColor: colors.white,
+      marginHorizontal: spacing.md,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.md,
+      gap: spacing.lg,
+    },
+    podiumCol: { alignItems: 'center', gap: 4 },
+    podiumFlag: { fontSize: 28 },
+    podiumMedal: { fontSize: 24 },
+    podiumName: { ...typography.caption, color: colors.dark, fontWeight: '700' },
+    podiumXp: { fontSize: 10, color: colors.gray },
+
+    list: { paddingHorizontal: spacing.md, gap: spacing.xs },
+
+    separator: { alignItems: 'center', paddingVertical: spacing.xs },
+    separatorText: { color: colors.gray },
+
+    notice: {
+      backgroundColor: colors.secondary + '18',
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      marginTop: spacing.md,
+    },
+    noticeText: { ...typography.caption, color: colors.dark, textAlign: 'center', lineHeight: 20 },
+
+    guestPlaceholder: {
+      flex: 1, alignItems: 'center', justifyContent: 'center',
+      padding: spacing.xl, gap: spacing.md,
+    },
+    guestEmoji: { fontSize: 56 },
+    guestTitle: { ...typography.h3, color: colors.dark, textAlign: 'center' },
+    guestSub: { ...typography.caption, color: colors.gray, textAlign: 'center', lineHeight: 20 },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -204,71 +277,3 @@ export default function LeaderboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-
-  header: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: spacing.sm },
-  headerTitle: { ...typography.h2, color: colors.dark },
-  headerSub: { ...typography.caption, color: colors.gray },
-
-  podium: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.white,
-    marginHorizontal: spacing.md,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.md,
-    gap: spacing.lg,
-  },
-  podiumCol: { alignItems: 'center', gap: 4 },
-  podiumFlag: { fontSize: 28 },
-  podiumMedal: { fontSize: 24 },
-  podiumName: { ...typography.caption, color: colors.dark, fontWeight: '700' },
-  podiumXp: { fontSize: 10, color: colors.gray },
-
-  list: { paddingHorizontal: spacing.md, gap: spacing.xs },
-
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  rowMe: { borderWidth: 2, borderColor: colors.primary, backgroundColor: '#FFF5F5' },
-  rankCell: { width: 32, alignItems: 'center' },
-  rankNum: { ...typography.body, color: colors.gray, fontWeight: '700' },
-  medal: { fontSize: 20 },
-  flag: { fontSize: 22 },
-  nameCell: { flex: 1 },
-  name: { ...typography.body, color: colors.dark, fontWeight: '600' },
-  nameMe: { color: colors.primary },
-  levelLabel: { ...typography.caption, color: colors.gray },
-  xpCell: { alignItems: 'flex-end' },
-  xp: { ...typography.body, color: colors.dark, fontWeight: '800' },
-  xpMe: { color: colors.primary },
-  xpLabel: { fontSize: 10, color: colors.gray },
-
-  separator: { alignItems: 'center', paddingVertical: spacing.xs },
-  separatorText: { color: colors.gray },
-
-  notice: {
-    backgroundColor: colors.secondary + '18',
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginTop: spacing.md,
-  },
-  noticeText: { ...typography.caption, color: colors.dark, textAlign: 'center', lineHeight: 20 },
-
-  guestPlaceholder: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: spacing.xl, gap: spacing.md,
-  },
-  guestEmoji: { fontSize: 56 },
-  guestTitle: { ...typography.h3, color: colors.dark, textAlign: 'center' },
-  guestSub: { ...typography.caption, color: colors.gray, textAlign: 'center', lineHeight: 20 },
-});

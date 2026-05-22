@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore, ThemeMode } from '../../store/authStore';
 import { NativeLanguage } from '../../types';
 import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS } from '../../data/lessons';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
 import { useT } from '../../i18n';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   requestNotificationPermission,
   getNotificationPermissionStatus,
@@ -50,7 +51,8 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavProp>();
-  const { user, signOut, updateProfile } = useAuthStore();
+  const { user, signOut, updateProfile, themeMode, setThemeMode } = useAuthStore();
+  const { colors } = useTheme();
   const { xp, streak, progress, aiChatCount } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
@@ -59,6 +61,122 @@ export default function ProfileScreen() {
   const [pendingLang, setPendingLang] = useState<NativeLanguage>(user?.native_lang ?? 'en');
   const isPro = user?.isPro ?? false;
   const t = useT();
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.md, gap: spacing.md },
+
+    profileCard: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    avatarCircle: {
+      width: 80, height: 80, borderRadius: 40,
+      backgroundColor: 'rgba(255,255,255,0.25)',
+      alignItems: 'center', justifyContent: 'center',
+    },
+    avatarEmoji: { fontSize: 40 },
+    levelTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    levelTitle: { ...typography.h2, color: colors.white, fontWeight: '800' },
+    proBadge: { backgroundColor: '#FFD93D', borderRadius: borderRadius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
+    proBadgeText: { fontSize: 12, fontWeight: '900', color: colors.dark },
+    goalLabel: { ...typography.body, color: 'rgba(255,255,255,0.85)' },
+    langLabel: { ...typography.caption, color: 'rgba(255,255,255,0.7)' },
+
+    upgradeBanner: {
+      backgroundColor: colors.accent + '22',
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      borderWidth: 1.5,
+      borderColor: colors.accent,
+    },
+    upgradeBannerEmoji: { fontSize: 28 },
+    upgradeBannerText: { flex: 1 },
+    upgradeBannerTitle: { ...typography.body, color: colors.dark, fontWeight: '700' },
+    upgradeBannerSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    upgradeBannerArrow: { fontSize: 24, color: colors.gray },
+
+    statsRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      overflow: 'hidden',
+    },
+    statBox: { flex: 1, padding: spacing.md, alignItems: 'center', gap: 4 },
+    statBoxMiddle: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+    statValue: { fontSize: 24, fontWeight: '800', color: colors.dark },
+    statLabel: { ...typography.caption, color: colors.gray },
+
+    card: { backgroundColor: colors.white, borderRadius: borderRadius.md, padding: spacing.md, gap: spacing.sm },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    cardTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
+    cardSub: { ...typography.caption, color: colors.gray },
+    progressBar: { height: 10, backgroundColor: colors.border, borderRadius: borderRadius.full, overflow: 'hidden' },
+    progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: borderRadius.full },
+    progressHint: { ...typography.caption, color: colors.gray, textAlign: 'center' },
+
+    sectionTitle: { ...typography.h3, color: colors.dark },
+
+    badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    badgeCard: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      gap: 4,
+      minWidth: '30%',
+      flexGrow: 1,
+    },
+    badgeLocked: { opacity: 0.4 },
+    badgeEmoji: { fontSize: 28 },
+    badgeName: { ...typography.caption, color: colors.dark, fontWeight: '700', textAlign: 'center' },
+    badgeNameLocked: { color: colors.gray },
+    badgeDesc: { fontSize: 10, color: colors.gray, textAlign: 'center' },
+
+    settingsCard: { backgroundColor: colors.white, borderRadius: borderRadius.md, overflow: 'hidden' },
+    settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md },
+    settingLabel: { ...typography.body, color: colors.dark },
+    settingHint: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    settingValue: { ...typography.body, color: colors.gray },
+    divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.md },
+    settingEditRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    editChevron: { fontSize: 20, color: colors.gray, fontWeight: '600' },
+
+    themeSegment: {
+      flexDirection: 'row',
+      backgroundColor: colors.border,
+      borderRadius: borderRadius.full,
+      padding: 2,
+      gap: 2,
+    },
+    themeSegBtn: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: borderRadius.full },
+    themeSegBtnActive: { backgroundColor: colors.primary },
+    themeSegText: { fontSize: 12, color: colors.gray, fontWeight: '600' },
+    themeSegTextActive: { color: colors.white, fontWeight: '700' },
+
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: spacing.lg },
+    modalBox: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, width: '100%', maxWidth: 340, gap: spacing.sm },
+    modalTitle: { ...typography.h3, color: colors.dark, marginBottom: spacing.xs },
+    modalOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderRadius: borderRadius.md, backgroundColor: colors.background },
+    modalOptionSelected: { backgroundColor: colors.primary + '18' },
+    modalOptionText: { ...typography.body, color: colors.dark },
+    modalOptionTextSelected: { color: colors.primary, fontWeight: '700' },
+    modalCheck: { fontSize: 16, color: colors.primary, fontWeight: '700' },
+    modalButtons: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+    modalCancelBtn: { flex: 1, padding: spacing.md, borderRadius: borderRadius.md, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+    modalCancelText: { ...typography.body, color: colors.gray },
+    modalSaveBtn: { flex: 1, padding: spacing.md, borderRadius: borderRadius.md, alignItems: 'center', backgroundColor: colors.primary },
+    modalSaveText: { ...typography.body, color: colors.white, fontWeight: '700' },
+
+    signOutBtn: { backgroundColor: colors.white, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+    signOutText: { ...typography.body, color: colors.gray },
+  }), [colors]);
 
   useEffect(() => {
     getNotificationPermissionStatus().then((status) => {
@@ -88,9 +206,10 @@ export default function ProfileScreen() {
   };
 
   const currentLevel = user?.current_level ?? 1;
+  const isMaxLevel = currentLevel >= ALL_LEVELS.length;
   const levelInfo = ALL_LEVELS.find((l) => l.level === currentLevel);
   const xpForNext = Math.max(currentLevel * 100, 1); // guard against level 0 → NaN
-  const xpProgress = Math.min((xp % xpForNext) / xpForNext, 1);
+  const xpProgress = isMaxLevel ? 1 : Math.min((xp % xpForNext) / xpForNext, 1);
   const completedLessons = progress.filter((p) => p.status === 'completed').length;
 
   const handleSignOut = () => {
@@ -168,13 +287,19 @@ export default function ProfileScreen() {
         {/* Level Progress */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Lv.{currentLevel} → Lv.{currentLevel + 1}</Text>
-            <Text style={styles.cardSub}>{xp % xpForNext} / {xpForNext} XP</Text>
+            <Text style={styles.cardTitle}>
+              {isMaxLevel ? '🏆 최고 레벨 달성!' : `Lv.${currentLevel} → Lv.${currentLevel + 1}`}
+            </Text>
+            <Text style={styles.cardSub}>
+              {isMaxLevel ? 'MAX' : `${xp % xpForNext} / ${xpForNext} XP`}
+            </Text>
           </View>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${xpProgress * 100}%` }]} />
           </View>
-          <Text style={styles.progressHint}>{xpForNext - (xp % xpForNext)} XP {t.profile.xpUntilNext}</Text>
+          {!isMaxLevel && (
+            <Text style={styles.progressHint}>{xpForNext - (xp % xpForNext)} XP {t.profile.xpUntilNext}</Text>
+          )}
         </View>
 
         {/* Badges */}
@@ -231,6 +356,25 @@ export default function ProfileScreen() {
               <Text style={styles.editChevron}>›</Text>
             </View>
           </TouchableOpacity>
+          <View style={styles.divider} />
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>{t.profile.themeLabel}</Text>
+            <View style={styles.themeSegment}>
+              {(['light', 'system', 'dark'] as ThemeMode[]).map((mode) => {
+                const label = mode === 'light' ? t.profile.themeLight : mode === 'dark' ? t.profile.themeDark : t.profile.themeSystem;
+                const active = themeMode === mode;
+                return (
+                  <TouchableOpacity
+                    key={mode}
+                    style={[styles.themeSegBtn, active && styles.themeSegBtnActive]}
+                    onPress={() => setThemeMode(mode)}
+                  >
+                    <Text style={[styles.themeSegText, active && styles.themeSegTextActive]}>{label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
@@ -310,173 +454,3 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, gap: spacing.md },
-
-  profileCard: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  avatarCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarEmoji: { fontSize: 40 },
-  levelTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  levelTitle: { ...typography.h2, color: colors.white, fontWeight: '800' },
-  proBadge: {
-    backgroundColor: '#FFD93D',
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  proBadgeText: { fontSize: 12, fontWeight: '900', color: colors.dark },
-  goalLabel: { ...typography.body, color: 'rgba(255,255,255,0.85)' },
-  langLabel: { ...typography.caption, color: 'rgba(255,255,255,0.7)' },
-
-  upgradeBanner: {
-    backgroundColor: '#FFF9E6',
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    borderWidth: 1.5,
-    borderColor: '#FFD93D',
-  },
-  upgradeBannerEmoji: { fontSize: 28 },
-  upgradeBannerText: { flex: 1 },
-  upgradeBannerTitle: { ...typography.body, color: colors.dark, fontWeight: '700' },
-  upgradeBannerSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  upgradeBannerArrow: { fontSize: 24, color: colors.gray },
-
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    overflow: 'hidden',
-  },
-  statBox: { flex: 1, padding: spacing.md, alignItems: 'center', gap: 4 },
-  statBoxMiddle: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
-  statValue: { fontSize: 24, fontWeight: '800', color: colors.dark },
-  statLabel: { ...typography.caption, color: colors.gray },
-
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
-  cardSub: { ...typography.caption, color: colors.gray },
-  progressBar: {
-    height: 10,
-    backgroundColor: colors.border,
-    borderRadius: borderRadius.full,
-    overflow: 'hidden',
-  },
-  progressFill: { height: '100%', backgroundColor: colors.primary, borderRadius: borderRadius.full },
-  progressHint: { ...typography.caption, color: colors.gray, textAlign: 'center' },
-
-  sectionTitle: { ...typography.h3, color: colors.dark },
-
-  badgeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  badgeCard: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: 4,
-    minWidth: '30%',
-    flexGrow: 1,
-  },
-  badgeLocked: { opacity: 0.4 },
-  badgeEmoji: { fontSize: 28 },
-  badgeName: { ...typography.caption, color: colors.dark, fontWeight: '700', textAlign: 'center' },
-  badgeNameLocked: { color: colors.gray },
-  badgeDesc: { fontSize: 10, color: colors.gray, textAlign: 'center' },
-
-  settingsCard: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    overflow: 'hidden',
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-  },
-  settingLabel: { ...typography.body, color: colors.dark },
-  settingHint: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  settingValue: { ...typography.body, color: colors.gray },
-  divider: { height: 1, backgroundColor: colors.border, marginHorizontal: spacing.md },
-  settingEditRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  editChevron: { fontSize: 20, color: colors.gray, fontWeight: '600' },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  modalBox: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    width: '100%',
-    maxWidth: 340,
-    gap: spacing.sm,
-  },
-  modalTitle: { ...typography.h3, color: colors.dark, marginBottom: spacing.xs },
-  modalOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background,
-  },
-  modalOptionSelected: { backgroundColor: colors.primary + '18' },
-  modalOptionText: { ...typography.body, color: colors.dark },
-  modalOptionTextSelected: { color: colors.primary, fontWeight: '700' },
-  modalCheck: { fontSize: 16, color: colors.primary, fontWeight: '700' },
-  modalButtons: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
-  modalCancelBtn: {
-    flex: 1,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  modalCancelText: { ...typography.body, color: colors.gray },
-  modalSaveBtn: {
-    flex: 1,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-  },
-  modalSaveText: { ...typography.body, color: colors.white, fontWeight: '700' },
-
-  signOutBtn: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  signOutText: { ...typography.body, color: colors.gray },
-});

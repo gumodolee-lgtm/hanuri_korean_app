@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { supabase, isSupabaseConfigured } from '../../services/supabase';
 import { syncStats, syncProgress } from '../../services/dbService';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { NativeLanguage, LearningGoal, DailyGoalMinutes } from '../../types';
 import { useT } from '../../i18n';
 
@@ -36,6 +37,7 @@ export default function SplashScreen() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
   const t = useT();
+  const { colors } = useTheme();
 
   const handleGoogleLogin = async () => {
     if (!supabase || !isSupabaseConfigured) {
@@ -226,6 +228,83 @@ export default function SplashScreen() {
     }
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1 },
+    gradient: {
+      flex: 1,
+      justifyContent: 'space-between',
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.xxl,
+    },
+    logoSection: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    logo: {
+      fontSize: 48,
+      fontWeight: '900',
+      color: colors.white,
+      letterSpacing: 4,
+    },
+    logoKo: {
+      fontSize: 20,
+      color: colors.white,
+      opacity: 0.9,
+      marginTop: spacing.xs,
+    },
+    slogan: {
+      fontSize: 16,
+      color: colors.white,
+      opacity: 0.8,
+      marginTop: spacing.md,
+      textAlign: 'center',
+    },
+    buttonSection: { gap: spacing.sm },
+    primaryButton: {
+      backgroundColor: colors.white,
+      height: 52,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    primaryButtonText: {
+      ...typography.body,
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    secondaryButton: {
+      height: 52,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderColor: 'rgba(255,255,255,0.6)',
+    },
+    secondaryButtonText: { ...typography.body, color: colors.white },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: spacing.xs,
+      gap: spacing.sm,
+    },
+    dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.4)' },
+    dividerText: { color: 'rgba(255,255,255,0.7)', fontSize: 14 },
+    socialButton: {
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      height: 52,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.3)',
+    },
+    socialButtonDisabled: {
+      opacity: 0.65,
+    },
+    socialButtonText: { ...typography.body, color: colors.white },
+  }), [colors]);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -297,79 +376,3 @@ export default function SplashScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  gradient: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xxl,
-  },
-  logoSection: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    fontSize: 48,
-    fontWeight: '900',
-    color: colors.white,
-    letterSpacing: 4,
-  },
-  logoKo: {
-    fontSize: 20,
-    color: colors.white,
-    opacity: 0.9,
-    marginTop: spacing.xs,
-  },
-  slogan: {
-    fontSize: 16,
-    color: colors.white,
-    opacity: 0.8,
-    marginTop: spacing.md,
-    textAlign: 'center',
-  },
-  buttonSection: { gap: spacing.sm },
-  primaryButton: {
-    backgroundColor: colors.white,
-    height: 52,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    ...typography.body,
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    height: 52,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.6)',
-  },
-  secondaryButtonText: { ...typography.body, color: colors.white },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.xs,
-    gap: spacing.sm,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.4)' },
-  dividerText: { color: 'rgba(255,255,255,0.7)', fontSize: 14 },
-  socialButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    height: 52,
-    borderRadius: borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  socialButtonDisabled: {
-    opacity: 0.65,
-  },
-  socialButtonText: { ...typography.body, color: colors.white },
-});

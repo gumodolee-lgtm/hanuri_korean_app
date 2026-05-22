@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,8 @@ import { useNavigation, useRoute, RouteProp, CompositeNavigationProp } from '@re
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, MainTabParamList } from '../../types/navigation';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 type NavProp = CompositeNavigationProp<
@@ -25,6 +26,7 @@ export default function LessonCompleteScreen() {
   const route = useRoute<RouteType>();
   const { xp, score, expressions } = route.params;
   const t = useT();
+  const { colors } = useTheme();
 
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -43,6 +45,78 @@ export default function LessonCompleteScreen() {
   };
 
   const rating = getRating();
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: {
+      flex: 1,
+      padding: spacing.lg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.lg,
+    },
+
+    trophyWrapper: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: colors.white,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      elevation: 8,
+    },
+    trophyEmoji: { fontSize: 64 },
+
+    title: { ...typography.h1, color: colors.dark, textAlign: 'center' },
+    ratingLabel: { ...typography.h3, textAlign: 'center' },
+
+    scoreRow: { flexDirection: 'row', gap: spacing.md, width: '100%' },
+    scoreCard: {
+      flex: 1,
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      gap: spacing.xs,
+    },
+    scoreCardXP: { backgroundColor: colors.primary },
+    scoreValue: { fontSize: 28, fontWeight: '800', color: colors.dark },
+    scoreLabel: { ...typography.caption, color: colors.gray },
+
+    expressionBox: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      width: '100%',
+      gap: spacing.xs,
+    },
+    expressionTitle: { ...typography.body, color: colors.dark, fontWeight: '700', marginBottom: spacing.xs },
+    expressionRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+    expressionBullet: { color: colors.primary, fontWeight: '700', fontSize: 16 },
+    expressionText: { ...typography.body, color: colors.dark },
+
+    actions: { width: '100%', gap: spacing.sm },
+    primaryBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+    },
+    primaryBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+    secondaryBtn: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderColor: colors.border,
+    },
+    secondaryBtnText: { ...typography.body, color: colors.dark },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -105,74 +179,3 @@ export default function LessonCompleteScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: {
-    flex: 1,
-    padding: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.lg,
-  },
-
-  trophyWrapper: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  trophyEmoji: { fontSize: 64 },
-
-  title: { ...typography.h1, color: colors.dark, textAlign: 'center' },
-  ratingLabel: { ...typography.h3, textAlign: 'center' },
-
-  scoreRow: { flexDirection: 'row', gap: spacing.md, width: '100%' },
-  scoreCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  scoreCardXP: { backgroundColor: colors.primary },
-  scoreValue: { fontSize: 28, fontWeight: '800', color: colors.dark },
-  scoreLabel: { ...typography.caption, color: colors.gray },
-
-  expressionBox: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    width: '100%',
-    gap: spacing.xs,
-  },
-  expressionTitle: { ...typography.body, color: colors.dark, fontWeight: '700', marginBottom: spacing.xs },
-  expressionRow: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  expressionBullet: { color: colors.primary, fontWeight: '700', fontSize: 16 },
-  expressionText: { ...typography.body, color: colors.dark },
-
-  actions: { width: '100%', gap: spacing.sm },
-  primaryBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  primaryBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-  secondaryBtn: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.border,
-  },
-  secondaryBtnText: { ...typography.body, color: colors.dark },
-});

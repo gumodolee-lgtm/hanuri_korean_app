@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { PurchasesPackage, PACKAGE_TYPE } from 'react-native-purchases';
 import { useAuthStore } from '../../store/authStore';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 import {
   getOfferings,
@@ -42,6 +43,7 @@ export default function ProUpgradeScreen() {
   const navigation = useNavigation();
   const { upgradeToPro } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanId>('yearly');
   const [isLoading, setIsLoading] = useState(false);
@@ -141,6 +143,121 @@ export default function ProUpgradeScreen() {
   };
 
   const hasPackages = Object.keys(packages).length > 0;
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { gap: spacing.md, paddingBottom: spacing.xl },
+
+    hero: {
+      padding: spacing.xl,
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xl,
+    },
+    closeBtn: {
+      position: 'absolute',
+      top: spacing.md,
+      right: spacing.md,
+      width: 32,
+      height: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      borderRadius: 16,
+    },
+    closeBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
+    heroEmoji: { fontSize: 56 },
+    heroTitle: { fontSize: 28, fontWeight: '900', color: colors.white, letterSpacing: 2 },
+    heroSub: { ...typography.body, color: 'rgba(255,255,255,0.85)', textAlign: 'center' },
+
+    section: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+      marginHorizontal: spacing.md,
+    },
+    sectionTitle: { ...typography.h3, color: colors.dark, marginBottom: spacing.xs },
+
+    benefitRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    benefitEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
+    benefitText: { flex: 1 },
+    benefitTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
+    benefitDesc: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    checkMark: { color: colors.secondary, fontWeight: '800', fontSize: 18 },
+
+    loadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center', paddingVertical: spacing.md },
+    loadingText: { ...typography.caption, color: colors.gray },
+    errorText: { ...typography.caption, color: colors.primary, textAlign: 'center', paddingVertical: spacing.sm },
+
+    planRow: { flexDirection: 'row', gap: spacing.sm },
+    planCard: {
+      flex: 1,
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: colors.border,
+      gap: 4,
+      position: 'relative',
+      minHeight: 90,
+      justifyContent: 'center',
+    },
+    planCardSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
+    planBadge: {
+      position: 'absolute',
+      top: -10,
+      backgroundColor: colors.secondary,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 2,
+    },
+    planBadgeText: { fontSize: 9, fontWeight: '800', color: colors.white },
+    planLabel: { ...typography.caption, color: colors.gray, fontWeight: '600', fontSize: 11 },
+    planLabelSelected: { color: colors.primary },
+    planPrice: { fontSize: 18, fontWeight: '900', color: colors.dark },
+    planPriceSelected: { color: colors.primary },
+    planPeriod: { ...typography.caption, color: colors.gray, fontSize: 10 },
+    planPeriodSelected: { color: colors.primary },
+    planCheck: {
+      position: 'absolute',
+      bottom: spacing.xs,
+      right: spacing.xs,
+    },
+    planCheckText: { color: colors.primary, fontWeight: '800' },
+
+    subscribeBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      marginHorizontal: spacing.md,
+      height: 52,
+      justifyContent: 'center',
+    },
+    subscribeBtnDisabled: { opacity: 0.6 },
+    subscribeBtnText: { ...typography.body, color: colors.white, fontWeight: '800', fontSize: 16 },
+
+    restoreBtn: {
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      marginHorizontal: spacing.md,
+    },
+    restoreBtnText: { ...typography.caption, color: colors.gray, textDecorationLine: 'underline' },
+
+    disclaimer: {
+      ...typography.caption,
+      color: colors.gray,
+      textAlign: 'center',
+      marginHorizontal: spacing.lg,
+    },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -264,117 +381,3 @@ export default function ProUpgradeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { gap: spacing.md, paddingBottom: spacing.xl },
-
-  hero: {
-    padding: spacing.xl,
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  closeBtn: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 16,
-  },
-  closeBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
-  heroEmoji: { fontSize: 56 },
-  heroTitle: { fontSize: 28, fontWeight: '900', color: colors.white, letterSpacing: 2 },
-  heroSub: { ...typography.body, color: 'rgba(255,255,255,0.85)', textAlign: 'center' },
-
-  section: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-    marginHorizontal: spacing.md,
-  },
-  sectionTitle: { ...typography.h3, color: colors.dark, marginBottom: spacing.xs },
-
-  benefitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  benefitEmoji: { fontSize: 24, width: 32, textAlign: 'center' },
-  benefitText: { flex: 1 },
-  benefitTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
-  benefitDesc: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  checkMark: { color: colors.secondary, fontWeight: '800', fontSize: 18 },
-
-  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center', paddingVertical: spacing.md },
-  loadingText: { ...typography.caption, color: colors.gray },
-  errorText: { ...typography.caption, color: colors.primary, textAlign: 'center', paddingVertical: spacing.sm },
-
-  planRow: { flexDirection: 'row', gap: spacing.sm },
-  planCard: {
-    flex: 1,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
-    gap: 4,
-    position: 'relative',
-    minHeight: 90,
-    justifyContent: 'center',
-  },
-  planCardSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
-  planBadge: {
-    position: 'absolute',
-    top: -10,
-    backgroundColor: colors.secondary,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  planBadgeText: { fontSize: 9, fontWeight: '800', color: colors.white },
-  planLabel: { ...typography.caption, color: colors.gray, fontWeight: '600', fontSize: 11 },
-  planLabelSelected: { color: colors.primary },
-  planPrice: { fontSize: 18, fontWeight: '900', color: colors.dark },
-  planPriceSelected: { color: colors.primary },
-  planPeriod: { ...typography.caption, color: colors.gray, fontSize: 10 },
-  planPeriodSelected: { color: colors.primary },
-  planCheck: {
-    position: 'absolute',
-    bottom: spacing.xs,
-    right: spacing.xs,
-  },
-  planCheckText: { color: colors.primary, fontWeight: '800' },
-
-  subscribeBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    marginHorizontal: spacing.md,
-    height: 52,
-    justifyContent: 'center',
-  },
-  subscribeBtnDisabled: { opacity: 0.6 },
-  subscribeBtnText: { ...typography.body, color: colors.white, fontWeight: '800', fontSize: 16 },
-
-  restoreBtn: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    marginHorizontal: spacing.md,
-  },
-  restoreBtnText: { ...typography.caption, color: colors.gray, textDecorationLine: 'underline' },
-
-  disclaimer: {
-    ...typography.caption,
-    color: colors.gray,
-    textAlign: 'center',
-    marginHorizontal: spacing.lg,
-  },
-});

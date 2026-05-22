@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,8 +14,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { MainTabParamList, RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { getFirstLesson, ALL_LEVELS } from '../../data/lessons';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { getFirstLesson, getLessonsForLevel, ALL_LEVELS } from '../../data/lessons';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const { user } = useAuthStore();
   const { xp, streak, todayMinutes, progress } = useUserStore();
   const t = useT();
+  const { colors } = useTheme();
 
   const goalContextMap: Record<string, string> = {
     kpop: t.home.goalContextKpop,
@@ -41,12 +43,21 @@ export default function HomeScreen() {
   const currentLevel = user?.current_level ?? 1;
   const dailyGoal = user?.daily_goal_minutes ?? 15;
   const learningGoal = user?.learning_goal ?? 'travel';
-  const firstLesson = getFirstLesson(currentLevel);
   const levelInfo = ALL_LEVELS.find((l) => l.level === currentLevel);
 
+  // 현재 레벨에서 미완료 레슨 중 첫 번째, 없으면 다음 레벨 첫 레슨
+  const firstLesson = useMemo(() => {
+    const levelLessons = getLessonsForLevel(currentLevel);
+    const nextIncomplete = levelLessons.find(
+      (l) => !progress.some((p) => p.lesson_id === l.id && p.status === 'completed')
+    );
+    return nextIncomplete ?? getFirstLesson(currentLevel + 1) ?? getFirstLesson(currentLevel);
+  }, [currentLevel, progress]);
+
   // XP needed per level (simple formula: level * 100)
-  const xpForNextLevel = currentLevel * 100;
-  const xpProgress = Math.min((xp % xpForNextLevel) / xpForNextLevel, 1);
+  const isMaxLevel = currentLevel >= ALL_LEVELS.length;
+  const xpForNextLevel = Math.max(currentLevel * 100, 1);
+  const xpProgress = isMaxLevel ? 1 : Math.min((xp % xpForNextLevel) / xpForNextLevel, 1);
 
   const handleStartLesson = () => {
     if (firstLesson) {
@@ -57,6 +68,95 @@ export default function HomeScreen() {
   const handleAIChat = () => {
     navigation.navigate('AIHub');
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xl },
+
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    greeting: { ...typography.h2, color: colors.dark },
+    goalLabel: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    levelBadge: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    levelEmoji: { fontSize: 20 },
+    levelText: { ...typography.caption, color: colors.primary, fontWeight: '700' },
+
+    statRow: { flexDirection: 'row', gap: spacing.sm },
+    statCard: {
+      flex: 1,
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      alignItems: 'center',
+      gap: 2,
+    },
+    statIcon: { fontSize: 20 },
+    statValue: { fontSize: 20, fontWeight: '800', color: colors.white },
+    statLabel: { ...typography.caption, color: colors.white, opacity: 0.9, textAlign: 'center' },
+
+    card: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      gap: spacing.sm,
+    },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    cardTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
+    cardSub: { ...typography.caption, color: colors.gray },
+    cardLabel: { ...typography.caption, color: colors.gray },
+
+    progressBar: {
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: borderRadius.full,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.full,
+    },
+    progressHint: { ...typography.caption, color: colors.gray, textAlign: 'center' },
+
+    lessonInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    lessonEmoji: { fontSize: 36 },
+    lessonMeta: { flex: 1 },
+    lessonTitle: { ...typography.h3, color: colors.dark },
+    lessonSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    continueBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+    },
+    continueBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+
+    sectionTitle: { ...typography.h3, color: colors.dark },
+    quickRow: { flexDirection: 'row', gap: spacing.sm },
+    quickCard: {
+      flex: 1,
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      gap: 4,
+    },
+    quickCardDisabled: { opacity: 0.45 },
+    quickIcon: { fontSize: 28 },
+    quickLabel: { ...typography.caption, color: colors.dark, fontWeight: '600', textAlign: 'center' },
+    quickSub: { fontSize: 10, color: colors.gray, textAlign: 'center' },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,7 +211,9 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>{t.home.levelProgress}</Text>
-            <Text style={styles.cardSub}>{xp % xpForNextLevel} / {xpForNextLevel} XP</Text>
+            <Text style={styles.cardSub}>
+              {isMaxLevel ? '🏆 MAX' : `${xp % xpForNextLevel} / ${xpForNextLevel} XP`}
+            </Text>
           </View>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${xpProgress * 100}%`, backgroundColor: colors.secondary }]} />
@@ -119,7 +221,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Continue Learning */}
-        {firstLesson && (
+        {firstLesson ? (
           <View style={styles.card}>
             <Text style={styles.cardLabel}>{goalContextMap[learningGoal] ?? t.home.startNow}</Text>
             <View style={styles.lessonInfo}>
@@ -133,6 +235,14 @@ export default function HomeScreen() {
             </View>
             <TouchableOpacity style={styles.continueBtn} onPress={handleStartLesson}>
               <Text style={styles.continueBtnText}>{t.home.startLessonBtn}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.card}>
+            <Text style={[styles.lessonTitle, { textAlign: 'center' }]}>🎉 모든 레슨 완료!</Text>
+            <Text style={[styles.cardSub, { textAlign: 'center' }]}>AI 대화로 실력을 유지해보세요</Text>
+            <TouchableOpacity style={styles.continueBtn} onPress={handleAIChat}>
+              <Text style={styles.continueBtnText}>AI 대화 시작하기</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -162,91 +272,3 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xl },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  greeting: { ...typography.h2, color: colors.dark },
-  goalLabel: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  levelBadge: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  levelEmoji: { fontSize: 20 },
-  levelText: { ...typography.caption, color: colors.primary, fontWeight: '700' },
-
-  statRow: { flexDirection: 'row', gap: spacing.sm },
-  statCard: {
-    flex: 1,
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    alignItems: 'center',
-    gap: 2,
-  },
-  statIcon: { fontSize: 20 },
-  statValue: { fontSize: 20, fontWeight: '800', color: colors.white },
-  statLabel: { ...typography.caption, color: colors.white, opacity: 0.9, textAlign: 'center' },
-
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
-  cardSub: { ...typography.caption, color: colors.gray },
-  cardLabel: { ...typography.caption, color: colors.gray },
-
-  progressBar: {
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: borderRadius.full,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.full,
-  },
-  progressHint: { ...typography.caption, color: colors.gray, textAlign: 'center' },
-
-  lessonInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  lessonEmoji: { fontSize: 36 },
-  lessonMeta: { flex: 1 },
-  lessonTitle: { ...typography.h3, color: colors.dark },
-  lessonSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  continueBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  continueBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-
-  sectionTitle: { ...typography.h3, color: colors.dark },
-  quickRow: { flexDirection: 'row', gap: spacing.sm },
-  quickCard: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: 4,
-  },
-  quickCardDisabled: { opacity: 0.45 },
-  quickIcon: { fontSize: 28 },
-  quickLabel: { ...typography.caption, color: colors.dark, fontWeight: '600', textAlign: 'center' },
-  quickSub: { fontSize: 10, color: colors.gray, textAlign: 'center' },
-});

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,8 @@ import { sendMessage, parseCorrection } from '../../services/aiService';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
 import { speakKorean } from '../../utils/tts';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<RootStackParamList>;
@@ -29,26 +30,73 @@ type RouteType = RouteProp<RootStackParamList, 'AIChat'>;
 function MessageBubble({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
   const { message: text, correction } = parseCorrection(message.content);
+  const { colors } = useTheme();
+  const bubbleStyles = useMemo(() => StyleSheet.create({
+    bubbleRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: spacing.sm,
+      maxWidth: '85%',
+    },
+    bubbleRowUser: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
+    aiAvatar: { fontSize: 24, marginBottom: 4 },
+    bubbleWrapper: { gap: 4 },
+    bubble: {
+      borderRadius: borderRadius.lg,
+      padding: spacing.sm,
+      paddingHorizontal: spacing.md,
+      maxWidth: 280,
+    },
+    bubbleAI: {
+      backgroundColor: colors.white,
+      borderBottomLeftRadius: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    bubbleUser: {
+      backgroundColor: colors.primary,
+      borderBottomRightRadius: 4,
+    },
+    bubbleText: { ...typography.body, color: colors.dark, lineHeight: 22 },
+    ttsBtn: { alignSelf: 'flex-start' },
+    ttsBtnText: { fontSize: 16 },
+    bubbleTextUser: { color: colors.white },
+    correctionBox: {
+      backgroundColor: '#FFF9E6',
+      borderRadius: borderRadius.sm,
+      padding: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderLeftWidth: 3,
+      borderLeftColor: '#FFD93D',
+      flexDirection: 'row',
+      gap: spacing.xs,
+      alignItems: 'flex-start',
+      maxWidth: 280,
+    },
+    correctionIcon: { fontSize: 12 },
+    correctionText: { fontSize: 12, color: colors.dark, flex: 1, lineHeight: 18 },
+    timestamp: { fontSize: 10, color: colors.gray },
+  }), [colors]);
 
   return (
-    <View style={[styles.bubbleRow, isUser && styles.bubbleRowUser]}>
-      {!isUser && <Text style={styles.aiAvatar}>🤖</Text>}
-      <View style={styles.bubbleWrapper}>
-        <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAI]}>
-          <Text style={[styles.bubbleText, isUser && styles.bubbleTextUser]}>{text}</Text>
+    <View style={[bubbleStyles.bubbleRow, isUser && bubbleStyles.bubbleRowUser]}>
+      {!isUser && <Text style={bubbleStyles.aiAvatar}>🤖</Text>}
+      <View style={bubbleStyles.bubbleWrapper}>
+        <View style={[bubbleStyles.bubble, isUser ? bubbleStyles.bubbleUser : bubbleStyles.bubbleAI]}>
+          <Text style={[bubbleStyles.bubbleText, isUser && bubbleStyles.bubbleTextUser]}>{text}</Text>
         </View>
         {!isUser && (
-          <TouchableOpacity onPress={() => speakKorean(text)} style={styles.ttsBtn}>
-            <Text style={styles.ttsBtnText}>🔊</Text>
+          <TouchableOpacity onPress={() => speakKorean(text)} style={bubbleStyles.ttsBtn}>
+            <Text style={bubbleStyles.ttsBtnText}>🔊</Text>
           </TouchableOpacity>
         )}
         {correction && (
-          <View style={styles.correctionBox}>
-            <Text style={styles.correctionIcon}>✏️</Text>
-            <Text style={styles.correctionText}>{correction}</Text>
+          <View style={bubbleStyles.correctionBox}>
+            <Text style={bubbleStyles.correctionIcon}>✏️</Text>
+            <Text style={bubbleStyles.correctionText}>{correction}</Text>
           </View>
         )}
-        <Text style={styles.timestamp}>
+        <Text style={bubbleStyles.timestamp}>
           {message.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
@@ -58,12 +106,36 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 function TypingIndicator() {
   const t = useT();
+  const { colors } = useTheme();
+  const typingStyles = useMemo(() => StyleSheet.create({
+    bubbleRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: spacing.sm,
+      maxWidth: '85%',
+    },
+    aiAvatar: { fontSize: 24, marginBottom: 4 },
+    bubble: {
+      borderRadius: borderRadius.lg,
+      padding: spacing.sm,
+      paddingHorizontal: spacing.md,
+      maxWidth: 280,
+    },
+    bubbleAI: {
+      backgroundColor: colors.white,
+      borderBottomLeftRadius: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    typingBubble: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    typingText: { ...typography.caption, color: colors.gray },
+  }), [colors]);
   return (
-    <View style={styles.bubbleRow}>
-      <Text style={styles.aiAvatar}>🤖</Text>
-      <View style={[styles.bubble, styles.bubbleAI, styles.typingBubble]}>
+    <View style={typingStyles.bubbleRow}>
+      <Text style={typingStyles.aiAvatar}>🤖</Text>
+      <View style={[typingStyles.bubble, typingStyles.bubbleAI, typingStyles.typingBubble]}>
         <ActivityIndicator size="small" color={colors.gray} />
-        <Text style={styles.typingText}>{t.aiChat.typing}</Text>
+        <Text style={typingStyles.typingText}>{t.aiChat.typing}</Text>
       </View>
     </View>
   );
@@ -72,9 +144,10 @@ function TypingIndicator() {
 export default function AIChatScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
-  const { addXP, markTodayLearned, incrementAIChatCount } = useUserStore();
+  const { addXP, markTodayLearned, incrementAIChatCount, aiChatCount } = useUserStore();
   const { user } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
 
   const scenarioId = route.params?.scenarioId ?? 'cafe';
   const scenario = getScenarioById(scenarioId);
@@ -101,6 +174,11 @@ export default function AIChatScreen() {
   const handleSend = useCallback(async () => {
     const text = input.trim();
     if (!text || isLoading || !scenario) return;
+    const isPro = user?.isPro ?? false;
+    if (!isPro && aiChatCount >= 3) {
+      navigation.navigate('ProUpgrade');
+      return;
+    }
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -147,6 +225,97 @@ export default function AIChatScreen() {
       setIsLoading(false);
     }
   }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, markTodayLearned, incrementAIChatCount]);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    flex: { flex: 1 },
+
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.white,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      gap: spacing.sm,
+    },
+    backBtn: { padding: spacing.xs },
+    backBtnText: { fontSize: 28, color: colors.dark, lineHeight: 32 },
+    headerCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    headerEmoji: { fontSize: 28 },
+    headerTitle: { ...typography.body, color: colors.dark, fontWeight: '700' },
+    headerSub: { ...typography.caption, color: colors.gray },
+    endBtn: {
+      backgroundColor: colors.background,
+      borderRadius: borderRadius.sm,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    endBtnText: { ...typography.caption, color: colors.gray },
+
+    messageList: {
+      padding: spacing.md,
+      gap: spacing.md,
+    },
+
+    contextBanner: {
+      backgroundColor: colors.secondary + '20',
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+      marginBottom: spacing.sm,
+    },
+    contextText: { ...typography.caption, color: colors.dark, textAlign: 'center' },
+
+    suggestions: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      gap: spacing.sm,
+    },
+    suggestionChip: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.full,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    suggestionText: { ...typography.caption, color: colors.primary, fontWeight: '600' },
+
+    inputBar: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      padding: spacing.md,
+      gap: spacing.sm,
+      backgroundColor: colors.white,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: colors.background,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      ...typography.body,
+      color: colors.dark,
+      maxHeight: 100,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    sendBtn: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sendBtnDisabled: { backgroundColor: colors.border },
+    sendBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
+  }), [colors]);
 
   if (!scenario) {
     return (
@@ -248,143 +417,3 @@ export default function AIChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: spacing.sm,
-  },
-  backBtn: { padding: spacing.xs },
-  backBtnText: { fontSize: 28, color: colors.dark, lineHeight: 32 },
-  headerCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  headerEmoji: { fontSize: 28 },
-  headerTitle: { ...typography.body, color: colors.dark, fontWeight: '700' },
-  headerSub: { ...typography.caption, color: colors.gray },
-  endBtn: {
-    backgroundColor: colors.background,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  endBtnText: { ...typography.caption, color: colors.gray },
-
-  messageList: {
-    padding: spacing.md,
-    gap: spacing.md,
-  },
-
-  contextBanner: {
-    backgroundColor: colors.secondary + '20',
-    borderRadius: borderRadius.md,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  contextText: { ...typography.caption, color: colors.dark, textAlign: 'center' },
-
-  bubbleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: spacing.sm,
-    maxWidth: '85%',
-  },
-  bubbleRowUser: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
-  aiAvatar: { fontSize: 24, marginBottom: 4 },
-  bubbleWrapper: { gap: 4 },
-  bubble: {
-    borderRadius: borderRadius.lg,
-    padding: spacing.sm,
-    paddingHorizontal: spacing.md,
-    maxWidth: 280,
-  },
-  bubbleAI: {
-    backgroundColor: colors.white,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  bubbleUser: {
-    backgroundColor: colors.primary,
-    borderBottomRightRadius: 4,
-  },
-  bubbleText: { ...typography.body, color: colors.dark, lineHeight: 22 },
-  ttsBtn: { alignSelf: 'flex-start' },
-  ttsBtnText: { fontSize: 16 },
-  bubbleTextUser: { color: colors.white },
-
-  correctionBox: {
-    backgroundColor: '#FFF9E6',
-    borderRadius: borderRadius.sm,
-    padding: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: '#FFD93D',
-    flexDirection: 'row',
-    gap: spacing.xs,
-    alignItems: 'flex-start',
-    maxWidth: 280,
-  },
-  correctionIcon: { fontSize: 12 },
-  correctionText: { fontSize: 12, color: colors.dark, flex: 1, lineHeight: 18 },
-
-  timestamp: { fontSize: 10, color: colors.gray },
-
-  typingBubble: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  typingText: { ...typography.caption, color: colors.gray },
-
-  suggestions: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  suggestionChip: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  suggestionText: { ...typography.caption, color: colors.primary, fontWeight: '600' },
-
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    padding: spacing.md,
-    gap: spacing.sm,
-    backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: colors.background,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    ...typography.body,
-    color: colors.dark,
-    maxHeight: 100,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  sendBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendBtnDisabled: { backgroundColor: colors.border },
-  sendBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
-});

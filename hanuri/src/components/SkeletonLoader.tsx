@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { View, StyleSheet, Animated, ViewStyle } from 'react-native';
-import { colors, borderRadius, spacing } from '../theme';
+import { borderRadius, spacing } from '../theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SkeletonBoxProps {
   width?: number | string;
@@ -11,6 +12,7 @@ interface SkeletonBoxProps {
 
 export function SkeletonBox({ width = '100%', height = 16, borderRadius: br = 8, style }: SkeletonBoxProps) {
   const shimmer = useRef(new Animated.Value(0.3)).current;
+  const { colors } = useTheme();
 
   useEffect(() => {
     Animated.loop(
@@ -33,10 +35,22 @@ export function SkeletonBox({ width = '100%', height = 16, borderRadius: br = 8,
 
 // ─── Lesson Card Skeleton ─────────────────────────────────────
 export function LessonCardSkeleton() {
+  const { colors } = useTheme();
+  const cardStyles = useMemo(() => StyleSheet.create({
+    card: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    cardBody: { flex: 1 },
+  }), [colors]);
   return (
-    <View style={styles.card}>
+    <View style={cardStyles.card}>
       <SkeletonBox width={48} height={48} borderRadius={borderRadius.md} />
-      <View style={styles.cardBody}>
+      <View style={cardStyles.cardBody}>
         <SkeletonBox width="70%" height={16} />
         <SkeletonBox width="50%" height={12} style={{ marginTop: 8 }} />
       </View>
@@ -46,10 +60,22 @@ export function LessonCardSkeleton() {
 
 // ─── Stat Row Skeleton ────────────────────────────────────────
 export function StatRowSkeleton() {
+  const { colors } = useTheme();
+  const statStyles = useMemo(() => StyleSheet.create({
+    statRow: { flexDirection: 'row', gap: spacing.sm },
+    statBox: {
+      flex: 1,
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      gap: 4,
+    },
+  }), [colors]);
   return (
-    <View style={styles.statRow}>
+    <View style={statStyles.statRow}>
       {[0, 1, 2].map((i) => (
-        <View key={i} style={styles.statBox}>
+        <View key={i} style={statStyles.statBox}>
           <SkeletonBox width={40} height={24} />
           <SkeletonBox width={48} height={12} style={{ marginTop: 6 }} />
         </View>
@@ -60,10 +86,22 @@ export function StatRowSkeleton() {
 
 // ─── Full Home Skeleton ───────────────────────────────────────
 export function HomeScreenSkeleton() {
+  const { colors } = useTheme();
+  const pageStyles = useMemo(() => StyleSheet.create({
+    page: { padding: spacing.md, gap: spacing.md },
+    card: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+  }), [colors]);
   return (
-    <View style={styles.page}>
+    <View style={pageStyles.page}>
       <StatRowSkeleton />
-      <View style={styles.card}>
+      <View style={pageStyles.card}>
         <SkeletonBox width="40%" height={16} />
         <SkeletonBox width="100%" height={8} style={{ marginTop: 12 }} borderRadius={borderRadius.full} />
       </View>
@@ -72,25 +110,3 @@ export function HomeScreenSkeleton() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  page: { padding: spacing.md, gap: spacing.md },
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  cardBody: { flex: 1 },
-  statRow: { flexDirection: 'row', gap: spacing.sm },
-  statBox: {
-    flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: 4,
-  },
-});

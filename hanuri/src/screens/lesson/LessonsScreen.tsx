@@ -17,7 +17,8 @@ import { useUserStore } from '../../store/userStore';
 import { ALL_LEVELS, LessonData } from '../../data/lessons';
 
 const MAX_LEVELS = 12;
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 type NavProp = CompositeNavigationProp<
@@ -31,6 +32,7 @@ export default function LessonsScreen() {
   const { progress } = useUserStore();
   const currentLevel = user?.current_level ?? 1;
   const t = useT();
+  const { colors } = useTheme();
 
   const [selectedLevel, setSelectedLevel] = useState(currentLevel);
 
@@ -57,6 +59,87 @@ export default function LessonsScreen() {
     () => selectedLevelData?.units.flatMap((u) => u.lessons) ?? [],
     [selectedLevelData]
   );
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+
+    header: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.sm,
+    },
+    headerTitle: { ...typography.h2, color: colors.dark },
+
+    levelSelector: {
+      paddingHorizontal: spacing.md,
+      gap: spacing.sm,
+      paddingBottom: spacing.sm,
+    },
+    levelTab: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      minWidth: 72,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    levelTabActive: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
+    levelTabLocked: { opacity: 0.45 },
+    levelTabEmoji: { fontSize: 20 },
+    levelTabText: { ...typography.caption, color: colors.dark, fontWeight: '700', marginTop: 2 },
+    levelTabTextActive: { color: colors.primary },
+    levelTabSub: { fontSize: 10, color: colors.gray },
+    levelTabSubActive: { color: colors.primary },
+
+    content: { paddingHorizontal: spacing.md, gap: spacing.md },
+
+    unitSection: { gap: spacing.sm },
+    unitHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: spacing.xs,
+    },
+    unitLabel: { ...typography.caption, color: colors.primary, fontWeight: '700' },
+    unitTitleKo: { ...typography.caption, color: colors.gray },
+
+    lessonCard: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderWidth: 1.5,
+      borderColor: 'transparent',
+    },
+    lessonCardCompleted: { borderColor: colors.secondary, backgroundColor: '#F0FFFE' },
+    lessonCardLocked: { opacity: 0.5 },
+    lessonLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+    lessonEmoji: { fontSize: 32 },
+    lessonMeta: { flex: 1 },
+    lessonTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
+    lockedText: { color: colors.gray },
+    lessonSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
+    lessonRight: { alignItems: 'center', justifyContent: 'center', width: 32 },
+
+    completedBadge: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.secondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    completedBadgeText: { color: colors.white, fontWeight: '700', fontSize: 14 },
+    startArrow: { color: colors.primary, fontSize: 18, fontWeight: '700' },
+    lockIcon: { fontSize: 16 },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -157,83 +240,3 @@ export default function LessonsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-
-  header: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-  },
-  headerTitle: { ...typography.h2, color: colors.dark },
-
-  levelSelector: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-    paddingBottom: spacing.sm,
-  },
-  levelTab: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    minWidth: 72,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  levelTabActive: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
-  levelTabLocked: { opacity: 0.45 },
-  levelTabEmoji: { fontSize: 20 },
-  levelTabText: { ...typography.caption, color: colors.dark, fontWeight: '700', marginTop: 2 },
-  levelTabTextActive: { color: colors.primary },
-  levelTabSub: { fontSize: 10, color: colors.gray },
-  levelTabSubActive: { color: colors.primary },
-
-  content: { paddingHorizontal: spacing.md, gap: spacing.md },
-
-  unitSection: { gap: spacing.sm },
-  unitHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: spacing.xs,
-  },
-  unitLabel: { ...typography.caption, color: colors.primary, fontWeight: '700' },
-  unitTitleKo: { ...typography.caption, color: colors.gray },
-
-  lessonCard: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  lessonCardCompleted: { borderColor: colors.secondary, backgroundColor: '#F0FFFE' },
-  lessonCardLocked: { opacity: 0.5 },
-  lessonLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
-  lessonEmoji: { fontSize: 32 },
-  lessonMeta: { flex: 1 },
-  lessonTitle: { ...typography.body, color: colors.dark, fontWeight: '600' },
-  lockedText: { color: colors.gray },
-  lessonSub: { ...typography.caption, color: colors.gray, marginTop: 2 },
-  lessonRight: { alignItems: 'center', justifyContent: 'center', width: 32 },
-
-  completedBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  completedBadgeText: { color: colors.white, fontWeight: '700', fontSize: 14 },
-  startArrow: { color: colors.primary, fontSize: 18, fontWeight: '700' },
-  lockIcon: { fontSize: 16 },
-});

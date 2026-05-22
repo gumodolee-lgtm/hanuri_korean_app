@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,8 @@ import { OnboardingStackParamList } from '../../types/navigation';
 import { DailyGoalMinutes } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useT } from '../../i18n';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingTime'>;
 
@@ -15,6 +16,7 @@ export default function OnboardingTimeScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
   const [selected, setSelected] = React.useState<DailyGoalMinutes>(15);
 
   const timeOptions: { minutes: DailyGoalMinutes; label: string; sub: string; recommended?: boolean }[] = [
@@ -27,6 +29,34 @@ export default function OnboardingTimeScreen() {
     setOnboardingData({ dailyGoalMinutes: selected });
     navigation.navigate('OnboardingNotification');
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { flex: 1, padding: spacing.lg, gap: spacing.lg },
+    progressRow: { flexDirection: 'row', gap: spacing.xs, justifyContent: 'center', marginTop: spacing.md },
+    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
+    dotActive: { backgroundColor: colors.primary, width: 24 },
+    emoji: { fontSize: 56, textAlign: 'center', marginTop: spacing.lg },
+    title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
+    optionRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
+    option: {
+      flex: 1, backgroundColor: colors.white, borderRadius: borderRadius.md,
+      padding: spacing.md, alignItems: 'center', gap: spacing.xs,
+      borderWidth: 2, borderColor: 'transparent', minHeight: 90, justifyContent: 'center',
+    },
+    optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
+    badge: { fontSize: 16 },
+    optionLabel: { ...typography.h3, color: colors.dark },
+    optionLabelSelected: { color: colors.primary },
+    optionSub: { ...typography.caption, color: colors.gray },
+    tip: { backgroundColor: colors.secondary + '20', borderRadius: borderRadius.md, padding: spacing.md },
+    tipText: { ...typography.body, color: colors.dark, textAlign: 'center' },
+    nextBtn: {
+      backgroundColor: colors.primary, margin: spacing.lg,
+      borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center',
+    },
+    nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+  }), [colors]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,30 +98,3 @@ export default function OnboardingTimeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { flex: 1, padding: spacing.lg, gap: spacing.lg },
-  progressRow: { flexDirection: 'row', gap: spacing.xs, justifyContent: 'center', marginTop: spacing.md },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
-  dotActive: { backgroundColor: colors.primary, width: 24 },
-  emoji: { fontSize: 56, textAlign: 'center', marginTop: spacing.lg },
-  title: { ...typography.h2, color: colors.dark, textAlign: 'center' },
-  optionRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
-  option: {
-    flex: 1, backgroundColor: colors.white, borderRadius: borderRadius.md,
-    padding: spacing.md, alignItems: 'center', gap: spacing.xs,
-    borderWidth: 2, borderColor: 'transparent', minHeight: 90, justifyContent: 'center',
-  },
-  optionSelected: { borderColor: colors.primary, backgroundColor: '#FFF5F5' },
-  badge: { fontSize: 16 },
-  optionLabel: { ...typography.h3, color: colors.dark },
-  optionLabelSelected: { color: colors.primary },
-  optionSub: { ...typography.caption, color: colors.gray },
-  tip: { backgroundColor: colors.secondary + '20', borderRadius: borderRadius.md, padding: spacing.md },
-  tipText: { ...typography.body, color: colors.dark, textAlign: 'center' },
-  nextBtn: {
-    backgroundColor: colors.primary, margin: spacing.lg,
-    borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center',
-  },
-  nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-});

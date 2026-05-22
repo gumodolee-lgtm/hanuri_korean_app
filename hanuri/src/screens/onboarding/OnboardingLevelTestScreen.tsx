@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { OnboardingStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
-import { colors, typography, spacing, borderRadius } from '../../theme';
+import { typography, spacing, borderRadius } from '../../theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
 
 type NavProp = StackNavigationProp<OnboardingStackParamList, 'OnboardingLevelTest'>;
@@ -59,11 +60,88 @@ export default function OnboardingLevelTestScreen() {
   const navigation = useNavigation<NavProp>();
   const { setOnboardingData } = useAuthStore();
   const t = useT();
+  const { colors } = useTheme();
   const [currentQ, setCurrentQ] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [answered, setAnswered] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [finalCorrect, setFinalCorrect] = useState(0);
+
+  // Must be before any conditional return (Rules of Hooks)
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.md,
+    },
+    backBtn: { ...typography.body, color: colors.primary },
+    progressText: { ...typography.caption, color: colors.gray },
+    progressBarWrap: {
+      height: 4,
+      backgroundColor: colors.border,
+      marginHorizontal: spacing.md,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    progressFill: { height: '100%', backgroundColor: colors.primary },
+    content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xl },
+    subtitle: { ...typography.caption, color: colors.gray, textAlign: 'center', marginTop: spacing.md },
+    questionBox: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+    },
+    question: { ...typography.h2, color: colors.dark, textAlign: 'center' },
+    choices: { gap: spacing.sm },
+    choice: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    choiceCorrect: { borderColor: '#4ECDC4', backgroundColor: '#F0FFFE' },
+    choiceWrong: { borderColor: colors.primary, backgroundColor: '#FFF5F5', opacity: 0.7 },
+    choiceText: { ...typography.body, color: colors.dark, textAlign: 'center' },
+    choiceTextCorrect: { color: '#4ECDC4', fontWeight: '700' },
+
+    resultContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.xl,
+      gap: spacing.md,
+    },
+    resultEmoji: { fontSize: 64 },
+    resultTitle: { ...typography.h2, color: colors.dark },
+    resultScore: { ...typography.body, color: colors.gray },
+    resultLevelBox: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.lg,
+      padding: spacing.lg,
+      alignItems: 'center',
+      width: '100%',
+      marginTop: spacing.sm,
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+    resultLevelLabel: { ...typography.caption, color: colors.gray },
+    resultLevel: { ...typography.h2, color: colors.primary, fontWeight: '800', marginTop: 4 },
+    nextBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      alignItems: 'center',
+      width: '100%',
+      marginTop: spacing.sm,
+    },
+    nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
+    retryLink: { marginTop: spacing.xs },
+    retryText: { ...typography.caption, color: colors.gray, textDecorationLine: 'underline' },
+  }), [colors]);
 
   const q = QUESTIONS[currentQ];
 
@@ -169,77 +247,3 @@ export default function OnboardingLevelTestScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-  },
-  backBtn: { ...typography.body, color: colors.primary },
-  progressText: { ...typography.caption, color: colors.gray },
-  progressBarWrap: {
-    height: 4,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.md,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressFill: { height: '100%', backgroundColor: colors.primary },
-  content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xl },
-  subtitle: { ...typography.caption, color: colors.gray, textAlign: 'center', marginTop: spacing.md },
-  questionBox: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  question: { ...typography.h2, color: colors.dark, textAlign: 'center' },
-  choices: { gap: spacing.sm },
-  choice: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  choiceCorrect: { borderColor: '#4ECDC4', backgroundColor: '#F0FFFE' },
-  choiceWrong: { borderColor: colors.primary, backgroundColor: '#FFF5F5', opacity: 0.7 },
-  choiceText: { ...typography.body, color: colors.dark, textAlign: 'center' },
-  choiceTextCorrect: { color: '#4ECDC4', fontWeight: '700' },
-
-  resultContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  resultEmoji: { fontSize: 64 },
-  resultTitle: { ...typography.h2, color: colors.dark },
-  resultScore: { ...typography.body, color: colors.gray },
-  resultLevelBox: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    alignItems: 'center',
-    width: '100%',
-    marginTop: spacing.sm,
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  resultLevelLabel: { ...typography.caption, color: colors.gray },
-  resultLevel: { ...typography.h2, color: colors.primary, fontWeight: '800', marginTop: 4 },
-  nextBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    alignItems: 'center',
-    width: '100%',
-    marginTop: spacing.sm,
-  },
-  nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
-  retryLink: { marginTop: spacing.xs },
-  retryText: { ...typography.caption, color: colors.gray, textDecorationLine: 'underline' },
-});
