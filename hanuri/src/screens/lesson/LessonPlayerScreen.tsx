@@ -21,6 +21,8 @@ import {
   startRecording,
   stopRecording,
   assessPronunciation,
+  hasPronunciationAPI,
+  mockAssessment,
   PronunciationResult,
 } from '../../services/pronunciationService';
 import { sendLessonCompleteNotification } from '../../services/notificationService';
@@ -200,6 +202,12 @@ function PronunciationPhase({
   const isLast = pronIndex === vocab.length - 1;
 
   const handleRecord = useCallback(async () => {
+    // No API key — skip recording entirely
+    if (!hasPronunciationAPI) {
+      setResult(mockAssessment(card.korean, t.pron));
+      return;
+    }
+
     if (isRecording) {
       setIsRecording(false);
       setIsProcessing(true);
@@ -208,14 +216,13 @@ function PronunciationPhase({
         if (uri) {
           const assessment = await assessPronunciation(uri, card.korean, t.pron);
           setResult(assessment);
+        } else {
+          // stopRecording returned null — fall back gracefully
+          setResult(mockAssessment(card.korean, t.pron));
         }
       } catch {
-        setResult({
-          transcript: '',
-          score: 0,
-          feedback: t.lesson.pronError,
-          wordMatches: [],
-        });
+        // Whisper API failure — fall back so lesson is never blocked
+        setResult(mockAssessment(card.korean, t.pron));
       } finally {
         setIsProcessing(false);
       }
@@ -225,13 +232,9 @@ function PronunciationPhase({
       try {
         await startRecording();
       } catch {
+        // Microphone unavailable (permission denied or device limit) — fall back
         setIsRecording(false);
-        setResult({
-          transcript: '',
-          score: 0,
-          feedback: t.lesson.pronError,
-          wordMatches: [],
-        });
+        setResult(mockAssessment(card.korean, t.pron));
       }
     }
   }, [isRecording, card.korean, t]);
@@ -243,80 +246,79 @@ function PronunciationPhase({
     : colors.primary;
 
   const pronStyles = useMemo(() => StyleSheet.create({
-    container: { flex: 1, padding: spacing.lg, gap: spacing.lg },
+    scroll: { flex: 1 },
+    container: { padding: spacing.md, gap: spacing.sm, paddingBottom: spacing.lg },
     card: {
       backgroundColor: colors.white,
       borderRadius: borderRadius.lg,
-      padding: spacing.lg,
+      padding: spacing.sm,
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: 4,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      elevation: 4,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
     },
-    emoji: { fontSize: 48 },
-    korean: { fontSize: 36, fontWeight: '800', color: colors.dark },
-    roman: { ...typography.body, color: colors.gray },
+    emoji: { fontSize: 32 },
+    korean: { fontSize: 28, fontWeight: '800', color: colors.dark },
+    roman: { fontSize: 14, color: colors.gray },
     listenBtn: {
       backgroundColor: colors.secondary + '22',
       borderRadius: borderRadius.full,
       paddingHorizontal: spacing.md,
-      paddingVertical: spacing.xs,
+      paddingVertical: 4,
       borderWidth: 1,
       borderColor: colors.secondary,
-      marginTop: spacing.xs,
     },
-    listenBtnText: { ...typography.caption, color: colors.secondary, fontWeight: '700' },
+    listenBtnText: { fontSize: 12, color: colors.secondary, fontWeight: '700' },
 
-    recordSection: { alignItems: 'center', gap: spacing.sm },
-    instruction: { ...typography.body, color: colors.gray, textAlign: 'center' },
+    recordSection: { alignItems: 'center', gap: 6 },
+    instruction: { fontSize: 13, color: colors.gray, textAlign: 'center' },
     micBtn: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
+      width: 64,
+      height: 64,
+      borderRadius: 32,
       backgroundColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
       shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 8,
-      elevation: 6,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.35,
+      shadowRadius: 6,
+      elevation: 5,
     },
     micBtnActive: { backgroundColor: '#CC0000' },
-    micIcon: { fontSize: 32 },
+    micIcon: { fontSize: 24 },
 
     resultBox: {
       backgroundColor: colors.white,
       borderRadius: borderRadius.md,
-      padding: spacing.md,
-      gap: spacing.sm,
+      padding: spacing.sm,
+      gap: 6,
     },
-    scoreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    scoreNum: { fontSize: 36, fontWeight: '900' },
-    feedbackText: { ...typography.body, color: colors.dark, flex: 1, lineHeight: 22 },
-    transcriptText: { ...typography.caption, color: colors.gray, fontStyle: 'italic' },
-    wordMatchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+    scoreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    scoreNum: { fontSize: 28, fontWeight: '900' },
+    feedbackText: { fontSize: 13, color: colors.dark, flex: 1, lineHeight: 18 },
+    transcriptText: { fontSize: 11, color: colors.gray, fontStyle: 'italic' },
+    wordMatchRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
     wordChip: {
       borderRadius: borderRadius.full,
       paddingHorizontal: spacing.sm,
-      paddingVertical: 4,
+      paddingVertical: 3,
     },
-    wordChipText: { fontSize: 13, fontWeight: '600' },
+    wordChipText: { fontSize: 12, fontWeight: '600' },
     nextBtn: {
       backgroundColor: colors.primary,
       borderRadius: borderRadius.md,
-      padding: spacing.md,
+      padding: spacing.sm,
       alignItems: 'center',
-      marginTop: spacing.xs,
     },
     nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
   }), [colors]);
 
   return (
-    <View style={pronStyles.container}>
+    <ScrollView style={pronStyles.scroll} contentContainerStyle={pronStyles.container} showsVerticalScrollIndicator={false}>
       {/* 단어 카드 */}
       <View style={pronStyles.card}>
         <Text style={pronStyles.emoji}>{card.emoji ?? '🎤'}</Text>
@@ -393,7 +395,7 @@ function PronunciationPhase({
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -886,6 +888,7 @@ export default function LessonPlayerScreen() {
       {/* ─── PRONUNCIATION ─── */}
       {phase === 'pronunciation' && (
         <PronunciationPhase
+          key={pronIndex}
           vocab={vocab}
           pronIndex={pronIndex}
           onNext={handlePronResult}

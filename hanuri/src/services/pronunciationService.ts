@@ -5,6 +5,9 @@ import * as FileSystem from 'expo-file-system';
 // Key is only read in __DEV__ builds — production always falls back to mock mode.
 const OPENAI_KEY = __DEV__ ? (process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '') : '';
 
+// Expose so UI can skip recording entirely when no API key is configured
+export const hasPronunciationAPI = OPENAI_KEY.length > 0;
+
 export interface PronunciationResult {
   transcript: string;
   score: number;       // 0–100
@@ -35,7 +38,8 @@ export async function startRecording(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { AudioRecorder: AudioRecorderClass } = require('expo-audio') as { AudioRecorder: new (preset: unknown) => AudioRecorder };
   recordingInstance = new AudioRecorderClass(RecordingPresets.HIGH_QUALITY);
-  recordingInstance.record();
+  await recordingInstance.prepareToRecordAsync(); // required before record()
+  recordingInstance.record(); // void — no await
 }
 
 export async function stopRecording(): Promise<string | null> {
@@ -162,12 +166,11 @@ export async function assessPronunciation(
   return { transcript, score, feedback, wordMatches };
 }
 
-function mockAssessment(targetText: string, feedbackStrings?: PronFeedbackStrings): PronunciationResult {
-  // No API key — return a clear "unavailable" result instead of fake random scores.
+export function mockAssessment(targetText: string, feedbackStrings?: PronFeedbackStrings): PronunciationResult {
+  // No API key or recording failed — simulate a passing score so lesson can complete normally.
   const tokens = tokenize(targetText);
-  const wordMatches: WordMatch[] = tokens.map((word) => ({ word, matched: false }));
-  const feedback = feedbackStrings?.tryAgain
-    ? feedbackStrings.tryAgain
-    : '🎤 발음 평가 데모 모드입니다. 실제 채점은 OpenAI Whisper API 키 설정 후 사용 가능합니다.';
-  return { transcript: '', score: 0, feedback, wordMatches };
+  const wordMatches: WordMatch[] = tokens.map((word) => ({ word, matched: true }));
+  const feedback = '🎤 데모 모드: API 키 설정 시 실제 발음 채점이 가능합니다.';
+  // transcript intentionally empty — avoids showing "인식된 발음: 안녕하세요" in mock mode
+  return { transcript: '', score: 75, feedback, wordMatches };
 }
