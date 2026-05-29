@@ -23,15 +23,21 @@ export default function App() {
     const timer = setTimeout(() => setIsReady(true), 300);
 
     (async () => {
-      const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
-      if (rcKey) {
-        await initRevenueCat(rcKey).catch(() => {});
-      }
+      try {
+        const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+        if (rcKey) {
+          await initRevenueCat(rcKey).catch((err) => {
+            console.warn('[App] RevenueCat initialization failed:', err);
+          });
+        }
 
-      const granted = await requestNotificationPermission();
-      if (granted) {
-        await scheduleDailyReminder({ hour: 20, minute: 0 });
-        await scheduleStreakWarning();
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          await scheduleDailyReminder({ hour: 20, minute: 0 });
+          await scheduleStreakWarning();
+        }
+      } catch (err) {
+        console.warn('[App] Notification initialization failed:', err);
       }
     })();
 

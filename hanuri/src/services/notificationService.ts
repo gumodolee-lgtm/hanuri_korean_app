@@ -9,6 +9,8 @@ const STREAK_REMINDER_ID = 'hanuri-streak-reminder';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -17,6 +19,8 @@ Notifications.setNotificationHandler({
 // ─── PERMISSIONS ─────────────────────────────────────────────
 
 export async function requestNotificationPermission(): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: '하누리 학습 알림',
@@ -48,6 +52,8 @@ export interface DailyReminderOptions {
 }
 
 export async function scheduleDailyReminder(options: DailyReminderOptions): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   // Cancel existing before rescheduling
   await cancelDailyReminder();
 
@@ -68,6 +74,8 @@ export async function scheduleDailyReminder(options: DailyReminderOptions): Prom
 }
 
 export async function cancelDailyReminder(): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   await Notifications.cancelScheduledNotificationAsync(DAILY_REMINDER_ID);
 }
 
@@ -79,6 +87,8 @@ export interface StreakWarningOptions {
 }
 
 export async function scheduleStreakWarning(options: StreakWarningOptions = {}): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   await Notifications.cancelScheduledNotificationAsync(STREAK_REMINDER_ID);
 
   await Notifications.scheduleNotificationAsync({
@@ -98,6 +108,8 @@ export async function scheduleStreakWarning(options: StreakWarningOptions = {}):
 }
 
 export async function cancelStreakWarning(): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   await Notifications.cancelScheduledNotificationAsync(STREAK_REMINDER_ID);
 }
 
@@ -109,6 +121,8 @@ export interface LessonCompleteOptions {
 }
 
 export async function sendLessonCompleteNotification(xp: number, options: LessonCompleteOptions = {}): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   await Notifications.scheduleNotificationAsync({
     content: {
       title: options.title ?? '레슨 완료! 🎉',
@@ -123,11 +137,15 @@ export async function sendLessonCompleteNotification(xp: number, options: Lesson
 // ─── CANCEL ALL ───────────────────────────────────────────────
 
 export async function cancelAllNotifications(): Promise<void> {
+  if (Platform.OS === 'web') return;
+
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
 // ─── GET SCHEDULED LIST ───────────────────────────────────────
 
 export async function getScheduledNotifications() {
+  if (Platform.OS === 'web') return [];
+
   return Notifications.getAllScheduledNotificationsAsync();
 }

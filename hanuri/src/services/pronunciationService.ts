@@ -2,8 +2,7 @@ import { AudioModule, RecordingPresets } from 'expo-audio';
 import type { AudioRecorder } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
-// Key is only read in __DEV__ builds — production always falls back to mock mode.
-const OPENAI_KEY = __DEV__ ? (process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '') : '';
+const OPENAI_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim() ?? '';
 
 // Expose so UI can skip recording entirely when no API key is configured
 export const hasPronunciationAPI = OPENAI_KEY.length > 0;
@@ -29,7 +28,11 @@ export async function startRecording(): Promise<void> {
   if (recordingInstance) {
     await stopRecording();
   }
-  await AudioModule.requestRecordingPermissionsAsync();
+  const permission = await AudioModule.requestRecordingPermissionsAsync();
+  if (!permission.granted) {
+    throw new Error('Microphone permission denied');
+  }
+
   await AudioModule.setAudioModeAsync({
     allowsRecording: true,
     playsInSilentMode: true,
@@ -76,7 +79,8 @@ async function transcribeWithWhisper(audioUri: string): Promise<string> {
   });
 
   if (!res.ok) {
-    throw new Error(`Whisper API error ${res.status}`);
+    const errorBody = await res.text();
+    throw new Error(`Whisper API error ${res.status}: ${errorBody}`);
   }
 
   const data = await res.json();

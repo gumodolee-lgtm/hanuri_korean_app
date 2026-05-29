@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProgress, Badge } from '../types';
 import { syncStats, syncProgress, fetchStats, fetchAllProgress } from '../services/dbService';
+
+const { persist, createJSONStorage } = require('zustand/middleware') as typeof import('zustand/middleware');
 
 // Use local date (not UTC) to avoid timezone boundary bugs for streak calculation
 const localDateString = (offsetDays = 0): string => {

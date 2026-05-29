@@ -1,10 +1,11 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, NativeLanguage, LearningGoal, DailyGoalMinutes } from '../types';
 import { syncProfile, loadUserDataFromSupabase } from '../services/dbService';
 import { loginUser, logoutUser } from '../services/revenuecatService';
 import { useUserStore } from './userStore';
+
+const { persist, createJSONStorage } = require('zustand/middleware') as typeof import('zustand/middleware');
 
 interface OnboardingData {
   nativeLanguage: NativeLanguage;

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
 import { useT } from '../../i18n';
@@ -22,6 +22,7 @@ export default function OnboardingNotificationScreen() {
   const t = useT();
   const { colors } = useTheme();
   const [selected, setSelected] = React.useState('08:00');
+  const [isCompleting, setIsCompleting] = React.useState(false);
 
   const timeSlots = [
     { icon: '🌅', label: t.onboarding.notifMorning, sub: t.onboarding.recommended, value: '08:00' },
@@ -54,18 +55,30 @@ export default function OnboardingNotificationScreen() {
     },
     footer: { padding: spacing.lg, gap: spacing.sm },
     nextBtn: { backgroundColor: colors.primary, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center' },
+    nextBtnDisabled: { opacity: 0.7 },
     nextBtnText: { ...typography.body, color: colors.white, fontWeight: '700' },
     skipText: { ...typography.body, color: colors.gray, textAlign: 'center' },
   }), [colors]);
 
   const handleComplete = async () => {
+    if (isCompleting) return;
+    setIsCompleting(true);
     const hour = TIME_TO_HOUR[selected] ?? 20;
-    const granted = await requestNotificationPermission();
-    if (granted) {
-      await scheduleDailyReminder({ hour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
-      await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
+    try {
+      if (Platform.OS !== 'web') {
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          await scheduleDailyReminder({ hour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+          await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
+        }
+      }
+    } catch (err) {
+      console.warn('[OnboardingNotificationScreen] Notification setup failed:', err);
+      Alert.alert(t.profile.notifPermTitle, t.profile.notifPermMsg);
+    } finally {
+      setIsCompleting(false);
+      completeOnboarding();
     }
-    completeOnboarding();
   };
 
   return (
@@ -98,7 +111,11 @@ export default function OnboardingNotificationScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.nextBtn} onPress={handleComplete}>
+        <TouchableOpacity
+          style={[styles.nextBtn, isCompleting && styles.nextBtnDisabled]}
+          onPress={handleComplete}
+          disabled={isCompleting}
+        >
           <Text style={styles.nextBtnText}>{t.onboarding.startApp}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={completeOnboarding}>

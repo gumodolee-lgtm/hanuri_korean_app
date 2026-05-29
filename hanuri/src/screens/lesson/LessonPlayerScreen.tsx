@@ -22,7 +22,6 @@ import {
   stopRecording,
   assessPronunciation,
   hasPronunciationAPI,
-  mockAssessment,
   PronunciationResult,
 } from '../../services/pronunciationService';
 import { sendLessonCompleteNotification } from '../../services/notificationService';
@@ -199,42 +198,43 @@ function PronunciationPhase({
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<PronunciationResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isLast = pronIndex === vocab.length - 1;
 
   const handleRecord = useCallback(async () => {
-    // No API key — skip recording entirely
     if (!hasPronunciationAPI) {
-      setResult(mockAssessment(card.korean, t.pron));
+      setErrorMessage(t.pron.error);
       return;
     }
 
     if (isRecording) {
       setIsRecording(false);
       setIsProcessing(true);
+      setErrorMessage(null);
       try {
         const uri = await stopRecording();
         if (uri) {
           const assessment = await assessPronunciation(uri, card.korean, t.pron);
           setResult(assessment);
         } else {
-          // stopRecording returned null — fall back gracefully
-          setResult(mockAssessment(card.korean, t.pron));
+          setErrorMessage(t.pron.error);
         }
-      } catch {
-        // Whisper API failure — fall back so lesson is never blocked
-        setResult(mockAssessment(card.korean, t.pron));
+      } catch (err) {
+        console.warn('[PronunciationPhase] Pronunciation assessment failed:', err);
+        setErrorMessage(t.pron.error);
       } finally {
         setIsProcessing(false);
       }
     } else {
       setResult(null);
+      setErrorMessage(null);
       setIsRecording(true);
       try {
         await startRecording();
-      } catch {
-        // Microphone unavailable (permission denied or device limit) — fall back
+      } catch (err) {
+        console.warn('[PronunciationPhase] Recording failed:', err);
         setIsRecording(false);
-        setResult(mockAssessment(card.korean, t.pron));
+        setErrorMessage(t.pron.error);
       }
     }
   }, [isRecording, card.korean, t]);
@@ -297,6 +297,12 @@ function PronunciationPhase({
       padding: spacing.sm,
       gap: 6,
     },
+    errorBox: {
+      backgroundColor: colors.primary + '18',
+      borderRadius: borderRadius.md,
+      padding: spacing.sm,
+    },
+    errorText: { fontSize: 13, color: colors.primary, lineHeight: 18, textAlign: 'center' },
     scoreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     scoreNum: { fontSize: 28, fontWeight: '900' },
     feedbackText: { fontSize: 13, color: colors.dark, flex: 1, lineHeight: 18 },
@@ -348,6 +354,12 @@ function PronunciationPhase({
           }
         </TouchableOpacity>
       </View>
+
+      {errorMessage && (
+        <View style={pronStyles.errorBox}>
+          <Text style={pronStyles.errorText}>{errorMessage}</Text>
+        </View>
+      )}
 
       {/* 결과 */}
       {result && (
