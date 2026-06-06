@@ -1,11 +1,7 @@
 import { ChatMessage } from '../types';
+import { supabase } from './supabase';
 
-// Keys are only read in __DEV__ builds — production always uses mock mode.
-// In production, replace this service with a backend proxy that holds keys server-side.
-const ANTHROPIC_KEY = __DEV__ ? (process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '') : '';
-const OPENAI_KEY = __DEV__ ? (process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '') : '';
-
-// ─── Mock responses for offline/dev mode ─────────────────────────────────────
+// ─── Mock responses (Supabase 미설정 환경용) ──────────────────────────────────
 
 const MOCK_RESPONSES: Record<string, string[]> = {
   cafe: [
@@ -69,72 +65,6 @@ function getMockResponse(scenarioId: string, messageCount: number): string {
   return pool[messageCount % pool.length];
 }
 
-// ─── Claude API ───────────────────────────────────────────────────────────────
-
-async function callClaude(
-  systemPrompt: string,
-  messages: ChatMessage[]
-): Promise<string> {
-  const body = {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 300,
-    system: systemPrompt,
-    messages: messages.map((m) => ({
-      role: m.role,
-      content: m.content,
-    })),
-  };
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Claude API error ${res.status}`);
-  }
-
-  const data = await res.json();
-  return data.content?.[0]?.text ?? '';
-}
-
-// ─── OpenAI API ───────────────────────────────────────────────────────────────
-
-async function callOpenAI(
-  systemPrompt: string,
-  messages: ChatMessage[]
-): Promise<string> {
-  const body = {
-    model: 'gpt-4o-mini',
-    max_tokens: 300,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...messages.map((m) => ({ role: m.role, content: m.content })),
-    ],
-  };
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENAI_KEY}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    throw new Error(`OpenAI API error ${res.status}`);
-  }
-
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? '';
-}
-
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function sendMessage(
@@ -142,15 +72,15 @@ export async function sendMessage(
   messages: ChatMessage[],
   scenarioId: string
 ): Promise<string> {
-  // Try Claude first
-  if (ANTHROPIC_KEY) {
-    return callClaude(systemPrompt, messages);
+  if (supabase) {
+    const { data, error } = await supabase.functions.invoke('ai-chat', {
+      body: { systemPrompt, messages, scenarioId },
+    });
+    if (error) throw error;
+    return (data as { reply: string }).reply ?? '';
   }
-  // Try OpenAI second
-  if (OPENAI_KEY) {
-    return callOpenAI(systemPrompt, messages);
-  }
-  // Demo mode: return mock response
+
+  // Supabase 미설정 시 로컬 mock
   const userMessageCount = messages.filter((m) => m.role === 'user').length;
   return new Promise((resolve) =>
     setTimeout(() => resolve(getMockResponse(scenarioId, userMessageCount - 1)), 800)

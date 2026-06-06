@@ -18,12 +18,15 @@ import { useAuthStore } from '../../store/authStore';
 import { NativeLanguage } from '../../types';
 import { speakKorean } from '../../utils/tts';
 import {
-  startRecording,
-  stopRecording,
   assessPronunciation,
-  hasPronunciationAPI,
   PronunciationResult,
 } from '../../services/pronunciationService';
+import {
+  useAudioRecorder,
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+} from 'expo-audio';
 import { sendLessonCompleteNotification } from '../../services/notificationService';
 import { typography, spacing, borderRadius } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -195,6 +198,7 @@ function PronunciationPhase({
   const card = vocab[pronIndex];
   const t = useT();
   const { colors } = useTheme();
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<PronunciationResult | null>(null);
@@ -202,17 +206,14 @@ function PronunciationPhase({
   const isLast = pronIndex === vocab.length - 1;
 
   const handleRecord = useCallback(async () => {
-    if (!hasPronunciationAPI) {
-      setErrorMessage(t.pron.error);
-      return;
-    }
-
     if (isRecording) {
+      // 녹음 중지 → 채점
       setIsRecording(false);
       setIsProcessing(true);
       setErrorMessage(null);
       try {
-        const uri = await stopRecording();
+        await audioRecorder.stop();
+        const uri = audioRecorder.uri;
         if (uri) {
           const assessment = await assessPronunciation(uri, card.korean, t.pron);
           setResult(assessment);
@@ -220,24 +221,28 @@ function PronunciationPhase({
           setErrorMessage(t.pron.error);
         }
       } catch (err) {
-        console.warn('[PronunciationPhase] Pronunciation assessment failed:', err);
-        setErrorMessage(t.pron.error);
+        const msg = err instanceof Error ? err.message : String(err);
+        setErrorMessage(`[채점 오류] ${msg}`);
       } finally {
         setIsProcessing(false);
       }
     } else {
+      // 녹음 시작
       setResult(null);
       setErrorMessage(null);
-      setIsRecording(true);
       try {
-        await startRecording();
+        const permission = await requestRecordingPermissionsAsync();
+        if (!permission.granted) throw new Error('Microphone permission denied');
+        await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+        await audioRecorder.prepareToRecordAsync();
+        audioRecorder.record();
+        setIsRecording(true);
       } catch (err) {
-        console.warn('[PronunciationPhase] Recording failed:', err);
-        setIsRecording(false);
-        setErrorMessage(t.pron.error);
+        const msg = err instanceof Error ? err.message : String(err);
+        setErrorMessage(`[녹음 오류] ${msg}`);
       }
     }
-  }, [isRecording, card.korean, t]);
+  }, [isRecording, audioRecorder, card.korean, t]);
 
   const scoreColor =
     !result ? colors.gray

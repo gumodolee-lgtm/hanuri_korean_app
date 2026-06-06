@@ -1,15 +1,12 @@
-import { AudioModule, RecordingPresets } from 'expo-audio';
-import type { AudioRecorder } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
+import { supabase } from './supabase';
 
-const OPENAI_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim() ?? '';
-
-// Expose so UI can skip recording entirely when no API key is configured
-export const hasPronunciationAPI = OPENAI_KEY.length > 0;
+// 녹음은 LessonPlayerScreen의 useAudioRecorder hook이 담당
+// 이 파일은 채점(assessPronunciation)만 처리
 
 export interface PronunciationResult {
   transcript: string;
-  score: number;       // 0–100
+  score: number;
   feedback: string;
   wordMatches: WordMatch[];
 }
@@ -19,162 +16,46 @@ export interface WordMatch {
   matched: boolean;
 }
 
-// ─── 녹음 ────────────────────────────────────────────────────
-
-let recordingInstance: AudioRecorder | null = null;
-
-export async function startRecording(): Promise<void> {
-  // 이전 녹음이 남아있으면 정리 후 시작 (리소스 릭 방지)
-  if (recordingInstance) {
-    await stopRecording();
-  }
-  const permission = await AudioModule.requestRecordingPermissionsAsync();
-  if (!permission.granted) {
-    throw new Error('Microphone permission denied');
-  }
-
-  await AudioModule.setAudioModeAsync({
-    allowsRecording: true,
-    playsInSilentMode: true,
-  });
-  // AudioRecorder is exported as 'export type' in expo-audio typedefs but is a runtime class
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { AudioRecorder: AudioRecorderClass } = require('expo-audio') as { AudioRecorder: new (preset: unknown) => AudioRecorder };
-  recordingInstance = new AudioRecorderClass(RecordingPresets.HIGH_QUALITY);
-  await recordingInstance.prepareToRecordAsync(); // required before record()
-  recordingInstance.record(); // void — no await
-}
-
-export async function stopRecording(): Promise<string | null> {
-  if (!recordingInstance) return null;
-  await recordingInstance.stop();
-  const uri = recordingInstance.uri;
-  recordingInstance = null;
-  await AudioModule.setAudioModeAsync({ allowsRecording: false });
-  return uri ?? null;
-}
-
-// ─── Whisper STT ──────────────────────────────────────────────
-
-async function transcribeWithWhisper(audioUri: string): Promise<string> {
-  const fileInfo = await FileSystem.getInfoAsync(audioUri);
-  if (!fileInfo.exists) throw new Error('Audio file not found');
-
-  const formData = new FormData();
-  formData.append('file', {
-    uri: audioUri,
-    name: 'recording.m4a',
-    type: 'audio/m4a',
-  } as unknown as Blob);
-  formData.append('model', 'whisper-1');
-  formData.append('language', 'ko');
-  formData.append('response_format', 'json');
-
-  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_KEY}`,
-    },
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const errorBody = await res.text();
-    throw new Error(`Whisper API error ${res.status}: ${errorBody}`);
-  }
-
-  const data = await res.json();
-  return (data.text ?? '').trim();
-}
-
-// ─── 채점 로직 ────────────────────────────────────────────────
-
-function normalizeKorean(text: string): string {
-  return text.replace(/[.,!?~]/g, '').trim().toLowerCase();
-}
-
-function tokenize(text: string): string[] {
-  return normalizeKorean(text).split(/\s+/).filter(Boolean);
-}
-
-function scoreTranscript(transcript: string, target: string): {
-  score: number;
-  wordMatches: WordMatch[];
-} {
-  const targetTokens = tokenize(target);
-  const transcriptTokens = tokenize(transcript);
-
-  let matched = 0;
-  const wordMatches: WordMatch[] = targetTokens.map((word) => {
-    const found = transcriptTokens.some(
-      (t) => t === word || t.includes(word) || word.includes(t)
-    );
-    if (found) matched++;
-    return { word, matched: found };
-  });
-
-  const score = targetTokens.length > 0
-    ? Math.round((matched / targetTokens.length) * 100)
-    : 0;
-
-  return { score, wordMatches };
-}
-
 export interface PronFeedbackStrings {
   perfect: string;
-  good: string;    // template: {words}
-  practice: string; // template: {words}
+  good: string;
+  practice: string;
   tryAgain: string;
+  error: string;
 }
 
-const DEFAULT_FEEDBACK: PronFeedbackStrings = {
-  perfect: '완벽해요! 발음이 정확합니다. 🎉',
-  good: '잘했어요! "{words}" 부분을 더 연습해보세요. ⭐',
-  practice: '조금 더 연습해봐요. "{words}"에 집중하세요. 💪',
-  tryAgain: '다시 한번 천천히 따라 읽어보세요. 화이팅! 🔄',
-};
-
-function fillWords(template: string, words: string): string {
-  return template.replace('{words}', words);
-}
-
-function buildFeedback(score: number, wordMatches: WordMatch[], strings: PronFeedbackStrings = DEFAULT_FEEDBACK): string {
-  if (score >= 90) return strings.perfect;
-  if (score >= 70) {
-    const wrong = wordMatches.filter((w) => !w.matched).map((w) => w.word);
-    return fillWords(strings.good, wrong.slice(0, 2).join(', '));
-  }
-  if (score >= 40) {
-    const wrong = wordMatches.filter((w) => !w.matched).map((w) => w.word);
-    return fillWords(strings.practice, wrong.slice(0, 3).join(', '));
-  }
-  return strings.tryAgain;
-}
-
-// ─── 공개 API ─────────────────────────────────────────────────
+// ─── 발음 평가 (Edge Function 호출) ──────────────────────────────────────────
 
 export async function assessPronunciation(
   audioUri: string,
   targetText: string,
   feedbackStrings?: PronFeedbackStrings,
 ): Promise<PronunciationResult> {
-  // API 키가 없으면 모의 결과 반환
-  if (!OPENAI_KEY) {
+  if (!supabase) {
     return mockAssessment(targetText, feedbackStrings);
   }
 
-  const transcript = await transcribeWithWhisper(audioUri);
-  const { score, wordMatches } = scoreTranscript(transcript, targetText);
-  const feedback = buildFeedback(score, wordMatches, feedbackStrings);
+  const audioBase64 = await FileSystem.readAsStringAsync(audioUri, {
+    encoding: 'base64',
+  });
 
-  return { transcript, score, feedback, wordMatches };
+  const { data, error } = await supabase.functions.invoke('whisper-transcribe', {
+    body: { audioBase64, targetText, feedbackStrings },
+  });
+
+  if (error) throw error;
+  return data as PronunciationResult;
 }
 
-export function mockAssessment(targetText: string, feedbackStrings?: PronFeedbackStrings): PronunciationResult {
-  // No API key or recording failed — simulate a passing score so lesson can complete normally.
-  const tokens = tokenize(targetText);
+// ─── Mock (Supabase 미설정 환경) ──────────────────────────────────────────────
+
+export function mockAssessment(targetText: string, _feedbackStrings?: PronFeedbackStrings): PronunciationResult {
+  const tokens = targetText.replace(/[.,!?~]/g, '').trim().toLowerCase().split(/\s+/).filter(Boolean);
   const wordMatches: WordMatch[] = tokens.map((word) => ({ word, matched: true }));
-  const feedback = '🎤 데모 모드: API 키 설정 시 실제 발음 채점이 가능합니다.';
-  // transcript intentionally empty — avoids showing "인식된 발음: 안녕하세요" in mock mode
-  return { transcript: '', score: 75, feedback, wordMatches };
+  return {
+    transcript: '',
+    score: 75,
+    feedback: '🎤 데모 모드: Supabase 설정 시 실제 발음 채점이 가능합니다.',
+    wordMatches,
+  };
 }
