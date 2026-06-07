@@ -77,6 +77,7 @@ export default function OnboardingGoalScreen() {
           {goals.map((goal) => (
             <TouchableOpacity
               key={goal.code}
+              testID={`goal-${goal.code}`}
               style={[styles.option, selected === goal.code && styles.optionSelected]}
               onPress={() => setSelected(goal.code)}
             >
@@ -89,7 +90,7 @@ export default function OnboardingGoalScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+      <TouchableOpacity testID="btn-next-goal" style={styles.nextBtn} onPress={handleNext}>
         <Text style={styles.nextBtnText}>{t.onboarding.next}</Text>
       </TouchableOpacity>
     </SafeAreaView>

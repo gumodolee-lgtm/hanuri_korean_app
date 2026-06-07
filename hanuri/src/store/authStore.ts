@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, NativeLanguage, LearningGoal, DailyGoalMinutes } from '../types';
 import { syncProfile, loadUserDataFromSupabase } from '../services/dbService';
-import { loginUser, logoutUser } from '../services/revenuecatService';
+import { loginUser, logoutUser, getCustomerInfo, isPro as checkIsPro } from '../services/revenuecatService';
 import { useUserStore } from './userStore';
 
 const { persist, createJSONStorage } = require('zustand/middleware') as typeof import('zustand/middleware');
@@ -27,6 +27,7 @@ interface AuthState {
   loginWithSupabase: (user: User) => Promise<void>;
   updateProfile: (partial: Partial<Pick<User, 'native_lang' | 'daily_goal_minutes' | 'learning_goal'>>) => void;
   upgradeToPro: () => void;
+  syncProStatus: () => Promise<void>;
   levelUp: () => void;
   setThemeMode: (mode: ThemeMode) => void;
   signOut: () => void;
@@ -117,6 +118,22 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, isPro: true } : state.user,
         })),
+
+      // Syncs Pro status from RevenueCat — call on app start and after login
+      syncProStatus: async () => {
+        const { user } = get();
+        if (!user || user.id.startsWith('guest_')) return;
+        try {
+          const customerInfo = await getCustomerInfo();
+          if (checkIsPro(customerInfo)) {
+            set((state) => ({
+              user: state.user ? { ...state.user, isPro: true } : state.user,
+            }));
+          }
+        } catch {
+          // Non-fatal: preserve existing isPro state
+        }
+      },
 
       // Advances the user to the next level
       levelUp: () =>

@@ -393,6 +393,7 @@ export default function AIChatScreen() {
         {/* Input Bar */}
         <View style={styles.inputBar}>
           <TextInput
+            testID="input-chat"
             style={styles.input}
             value={input}
             onChangeText={setInput}
@@ -405,6 +406,7 @@ export default function AIChatScreen() {
             onSubmitEditing={Platform.OS === 'ios' ? handleSend : undefined}
           />
           <TouchableOpacity
+            testID="btn-send"
             style={[styles.sendBtn, (!input.trim() || isLoading) && styles.sendBtnDisabled]}
             onPress={handleSend}
             disabled={!input.trim() || isLoading}

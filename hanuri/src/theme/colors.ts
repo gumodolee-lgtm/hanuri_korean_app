@@ -29,31 +29,31 @@ export const lightColors = {
 } as const;
 
 export const darkColors = {
-  // Brand — unchanged
+  // Brand — keep vivid for contrast on dark
   primary: '#FF6B6B',
   secondary: '#4ECDC4',
   accent: '#FFD93D',
 
-  // Neutrals — inverted
-  dark: '#F0F0F0',
-  gray: '#A0A8B0',
-  background: '#0F0F1A',
+  // Neutrals — Netflix/TikTok pure dark
+  dark: '#F5F5F5',
+  gray: '#8E8E93',
+  background: '#101010',
 
   // Semantic
-  success: '#4ECDC4',
-  warning: '#FFD93D',
-  error: '#FF6B6B',
-  white: '#1E1E30',
+  success: '#30D158',
+  warning: '#FFD60A',
+  error: '#FF453A',
+  white: '#1C1C1E',
   black: '#000000',
 
   // UI States
-  cardBg: '#1E1E30',
-  inputBg: '#1A1A2C',
-  border: '#2A2A40',
-  disabled: '#4A4A60',
+  cardBg: '#1C1C1E',
+  inputBg: '#2C2C2E',
+  border: '#38383A',
+  disabled: '#48484A',
 
   // Gamification
-  xpGold: '#FFD93D',
+  xpGold: '#FFD60A',
   streak: '#FF6B6B',
   levelBadge: '#4ECDC4',
 } as const;

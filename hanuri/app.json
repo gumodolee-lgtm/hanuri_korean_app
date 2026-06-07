@@ -7,6 +7,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "hanuri",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a31c6f44-af34-4a61-9a96-8e04d20a2d60"
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -46,6 +52,8 @@
       "expo-asset",
       "expo-font",
       "expo-web-browser",
+      "expo-updates",
+      "react-native-purchases",
       [
         "expo-notifications",
         {

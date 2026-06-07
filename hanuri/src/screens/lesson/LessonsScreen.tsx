@@ -198,6 +198,7 @@ export default function LessonsScreen() {
               return (
                 <TouchableOpacity
                   key={lesson.id}
+                  testID={`lesson-card-${lesson.id}`}
                   style={[
                     styles.lessonCard,
                     completed && styles.lessonCardCompleted,

@@ -1,0 +1,39 @@
+appId: com.hanuri.app
+name: "03 - AI Chat Flow"
+tags:
+  - ai-chat
+  - golden-path
+
+---
+
+- launchApp
+
+# Navigate to AI Chat tab
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab-ai-chat"
+
+# AIHubScreen — tap the Cafe scenario (first free scenario)
+- waitForAnimationToEnd
+- tapOn:
+    id: "scenario-cafe"
+
+# AIChatScreen — type a message and send
+- waitForAnimationToEnd
+- tapOn:
+    id: "input-chat"
+- inputText: "안녕하세요"
+- tapOn:
+    id: "btn-send"
+
+# Wait for AI response to appear
+- waitForAnimationToEnd
+
+# Send a follow-up message
+- tapOn:
+    id: "input-chat"
+- inputText: "커피 한 잔 주세요"
+- tapOn:
+    id: "btn-send"
+
+- waitForAnimationToEnd

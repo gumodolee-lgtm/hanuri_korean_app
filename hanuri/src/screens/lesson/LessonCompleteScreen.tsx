@@ -119,7 +119,7 @@ export default function LessonCompleteScreen() {
   }), [colors]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView testID="screen-lesson-complete" style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
 
         {/* Trophy */}

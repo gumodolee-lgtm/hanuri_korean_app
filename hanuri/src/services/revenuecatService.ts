@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import Purchases, {
   CustomerInfo,
   PurchasesPackage,
@@ -7,11 +8,16 @@ import Purchases, {
 
 export const RC_ENTITLEMENT_ID = 'hanuri Pro';
 
-export async function initRevenueCat(apiKey: string): Promise<void> {
+export async function initRevenueCat(androidKey: string, iosKey?: string): Promise<void> {
   if (__DEV__) {
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
   }
+  const apiKey = Platform.OS === 'ios' ? (iosKey ?? androidKey) : androidKey;
   Purchases.configure({ apiKey });
+}
+
+export async function getCustomerInfo(): Promise<CustomerInfo> {
+  return await Purchases.getCustomerInfo();
 }
 
 export async function loginUser(userId: string): Promise<void> {

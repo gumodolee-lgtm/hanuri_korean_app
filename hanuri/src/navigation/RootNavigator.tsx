@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
 import { supabase } from '../services/supabase';
+import { useTheme } from '../contexts/ThemeContext';
 import MainTabNavigator from './MainTabNavigator';
 import SplashScreen from '../screens/auth/SplashScreen';
 import OnboardingNavigator from './OnboardingNavigator';
@@ -18,6 +20,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function RootNavigator() {
   const { user } = useAuthStore();
   const { checkNewDay } = useUserStore();
+  const { isDark } = useTheme();
 
   // 앱 시작 시 날짜 경계 처리: todayMinutes/todayLearned 초기화, 연속 학습 만료 시 streak 리셋
   useEffect(() => {
@@ -35,8 +38,13 @@ export default function RootNavigator() {
     return () => subscription?.unsubscribe();
   }, []);
 
+  const navTheme = isDark
+    ? { ...DarkTheme, colors: { ...DarkTheme.colors, background: '#101010', card: '#1C1C1E' } }
+    : { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: '#F7F9FA', card: '#FFFFFF' } };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#101010' : '#F7F9FA'} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>

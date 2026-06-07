@@ -81,6 +81,7 @@ export default function OnboardingLanguageScreen() {
           {languages.map((lang) => (
             <TouchableOpacity
               key={lang.code}
+              testID={`lang-${lang.code}`}
               style={[styles.option, selected === lang.code && styles.optionSelected]}
               onPress={() => setSelected(lang.code)}
             >
@@ -93,7 +94,7 @@ export default function OnboardingLanguageScreen() {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+      <TouchableOpacity testID="btn-next-lang" style={styles.nextBtn} onPress={handleNext}>
         <Text style={styles.nextBtnText}>{NEXT_LABELS[selected]}</Text>
       </TouchableOpacity>
     </SafeAreaView>

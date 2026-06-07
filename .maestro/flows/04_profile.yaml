@@ -1,0 +1,30 @@
+appId: com.hanuri.app
+name: "04 - Profile Screen"
+tags:
+  - profile
+
+---
+
+- launchApp
+
+# Navigate to Profile tab
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab-profile"
+
+# Assert profile tab rendered
+- waitForAnimationToEnd
+- assertVisible:
+    id: "tab-profile"
+
+# Verify key profile elements are visible
+- assertVisible: "XP"
+- assertVisible: "streak"
+    optional: true
+
+# Navigate to Leaderboard from profile area
+- tapOn:
+    id: "tab-ranking"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "tab-ranking"

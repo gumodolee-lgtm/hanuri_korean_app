@@ -112,13 +112,14 @@ export default function OnboardingNotificationScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity
+          testID="btn-start-app"
           style={[styles.nextBtn, isCompleting && styles.nextBtnDisabled]}
           onPress={handleComplete}
           disabled={isCompleting}
         >
           <Text style={styles.nextBtnText}>{t.onboarding.startApp}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={completeOnboarding}>
+        <TouchableOpacity testID="btn-skip-notif" onPress={completeOnboarding}>
           <Text style={styles.skipText}>{t.onboarding.skip}</Text>
         </TouchableOpacity>
       </View>

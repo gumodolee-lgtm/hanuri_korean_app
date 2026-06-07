@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -73,6 +73,20 @@ function CulturePhase({
 }) {
   const t = useT();
   const { colors } = useTheme();
+
+  // One Animated.Value per dialogue line — staggered fade-in on mount
+  const fadeAnims = useRef((lines ?? []).map(() => new Animated.Value(0))).current;
+
+  useEffect(() => {
+    if (!fadeAnims.length) return;
+    Animated.stagger(
+      280,
+      fadeAnims.map((anim) =>
+        Animated.timing(anim, { toValue: 1, duration: 380, useNativeDriver: true })
+      )
+    ).start();
+  }, []);
+
   const cultureStyles = useMemo(() => StyleSheet.create({
     container: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xl },
     section: { gap: spacing.sm },
@@ -87,14 +101,15 @@ function CulturePhase({
     bubble: {
       borderRadius: borderRadius.md,
       padding: spacing.md,
-      gap: 2,
       maxWidth: '85%',
     },
     bubbleA: { backgroundColor: colors.primary + '15', alignSelf: 'flex-start' },
     bubbleB: { backgroundColor: colors.secondary + '15', alignSelf: 'flex-end' },
-    bubbleSpeaker: { fontSize: 11, fontWeight: '700', color: colors.gray, marginBottom: 2 },
-    bubbleKorean: { fontSize: 18, fontWeight: '800', color: colors.dark },
-    bubbleRoman: { ...typography.caption, color: colors.gray, fontStyle: 'italic' },
+    bubbleHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+    bubbleSpeaker: { fontSize: 11, fontWeight: '700', color: colors.gray },
+    bubbleTtsIcon: { fontSize: 13, opacity: 0.55 },
+    bubbleKorean: { fontSize: 18, fontWeight: '800', color: colors.dark, marginBottom: 2 },
+    bubbleRoman: { ...typography.caption, color: colors.gray, fontStyle: 'italic', marginBottom: 2 },
     bubbleTranslation: { ...typography.caption, color: colors.primary },
     tipBox: {
       backgroundColor: colors.accent + '20',
@@ -141,12 +156,21 @@ function CulturePhase({
           {lines.map((line, i) => {
             const isA = i % 2 === 0;
             return (
-              <View key={i} style={[cultureStyles.bubble, isA ? cultureStyles.bubbleA : cultureStyles.bubbleB]}>
-                <Text style={cultureStyles.bubbleSpeaker}>{line.speaker}</Text>
-                <Text style={cultureStyles.bubbleKorean}>{line.korean}</Text>
-                <Text style={cultureStyles.bubbleRoman}>{line.romanization}</Text>
-                <Text style={cultureStyles.bubbleTranslation}>{line.translation}</Text>
-              </View>
+              <Animated.View key={i} style={{ opacity: fadeAnims[i] ?? 1 }}>
+                <TouchableOpacity
+                  style={[cultureStyles.bubble, isA ? cultureStyles.bubbleA : cultureStyles.bubbleB]}
+                  onPress={() => speakKorean(line.korean)}
+                  activeOpacity={0.7}
+                >
+                  <View style={cultureStyles.bubbleHeader}>
+                    <Text style={cultureStyles.bubbleSpeaker}>{line.speaker}</Text>
+                    <Text style={cultureStyles.bubbleTtsIcon}>🔊</Text>
+                  </View>
+                  <Text style={cultureStyles.bubbleKorean}>{line.korean}</Text>
+                  {line.romanization ? <Text style={cultureStyles.bubbleRoman}>{line.romanization}</Text> : null}
+                  <Text style={cultureStyles.bubbleTranslation}>{line.translation}</Text>
+                </TouchableOpacity>
+              </Animated.View>
             );
           })}
         </View>
@@ -172,7 +196,7 @@ function CulturePhase({
         </View>
       )}
 
-      <TouchableOpacity style={cultureStyles.startBtn} onPress={onStart}>
+      <TouchableOpacity testID="btn-start-lesson" style={cultureStyles.startBtn} onPress={onStart}>
         <Text style={cultureStyles.startBtnText}>{t.lesson.startLesson}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -511,7 +535,7 @@ export default function LessonPlayerScreen() {
       backfaceVisibility: 'hidden',
     },
     cardFront: { backgroundColor: colors.white },
-    cardBack: { backgroundColor: '#FFF5F5' },
+    cardBack: { backgroundColor: colors.primary + '18' },
     cardEmoji: { fontSize: 56 },
     cardKorean: { fontSize: 36, fontWeight: '800', color: colors.dark, textAlign: 'center' },
     cardRoman: { ...typography.body, color: colors.gray, textAlign: 'center' },
@@ -787,7 +811,7 @@ export default function LessonPlayerScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.nextBtn} onPress={handleNextCard}>
+          <TouchableOpacity testID="btn-next-card" style={styles.nextBtn} onPress={handleNextCard}>
             <Text style={styles.nextBtnText}>
               {cardIndex < vocab.length - 1 ? t.lesson.nextCard : t.lesson.startQuiz}
             </Text>
@@ -834,7 +858,7 @@ export default function LessonPlayerScreen() {
               <Text style={styles.feedbackText}>
                 {selectedAnswer === currentQ.correctIndex ? t.lesson.correct : `${t.lesson.wrongPrefix} ${getMeaning(currentQ.card, nativeLang)}`}
               </Text>
-              <TouchableOpacity style={styles.nextBtn} onPress={handleNextQuiz}>
+              <TouchableOpacity testID="btn-next-quiz" style={styles.nextBtn} onPress={handleNextQuiz}>
                 <Text style={styles.nextBtnText}>
                   {quizIndex < quizQuestions.length - 1 ? t.lesson.next : fillBlanks.length > 0 ? t.lesson.toFillBlank : t.lesson.toPronunciation}
                 </Text>

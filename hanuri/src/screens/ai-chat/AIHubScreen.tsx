@@ -102,6 +102,7 @@ function ScenarioCard({
   }), [colors]);
   return (
     <TouchableOpacity
+      testID={`scenario-${scenario.id}`}
       style={[cardStyles.card, scenario.isPro && cardStyles.cardPro, locked && cardStyles.cardLocked]}
       onPress={onPress}
       activeOpacity={0.75}

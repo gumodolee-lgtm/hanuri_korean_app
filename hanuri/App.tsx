@@ -12,6 +12,7 @@ import {
   scheduleStreakWarning,
 } from './src/services/notificationService';
 import { initRevenueCat } from './src/services/revenuecatService';
+import { useAuthStore } from './src/store/authStore';
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -25,10 +26,13 @@ export default function App() {
     (async () => {
       try {
         const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
+        const rcIosKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
         if (rcKey) {
-          await initRevenueCat(rcKey).catch((err) => {
+          await initRevenueCat(rcKey, rcIosKey || undefined).catch((err) => {
             console.warn('[App] RevenueCat initialization failed:', err);
           });
+          // Sync Pro status for users who were already logged in (app restart)
+          useAuthStore.getState().syncProStatus().catch(() => {});
         }
 
         const granted = await requestNotificationPermission();

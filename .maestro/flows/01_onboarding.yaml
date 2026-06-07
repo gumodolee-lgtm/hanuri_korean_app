@@ -1,0 +1,47 @@
+appId: com.hanuri.app
+name: "01 - Guest Onboarding Golden Path"
+tags:
+  - onboarding
+  - golden-path
+
+---
+
+# Launch fresh
+- launchApp:
+    clearState: true
+
+# SplashScreen — tap Start for Free (guest mode)
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-start-free"
+
+# OnboardingLanguage — select English, tap Next
+- waitForAnimationToEnd
+- tapOn:
+    id: "lang-en"
+- tapOn:
+    id: "btn-next-lang"
+
+# OnboardingGoal — select first goal, tap Next
+- waitForAnimationToEnd
+- tapOn:
+    id: "goal-travel"
+- tapOn:
+    id: "btn-next-goal"
+
+# OnboardingLevel — select Absolute Beginner, tap Next
+- waitForAnimationToEnd
+- tapOn:
+    id: "level-1"
+- tapOn:
+    id: "btn-next-level"
+
+# OnboardingNotification — skip notifications to reach main app
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-skip-notif"
+
+# Assert we reached Home tab
+- waitForAnimationToEnd
+- assertVisible:
+    id: "tab-home"

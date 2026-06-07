@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from '../types/navigation';
 import { typography } from '../theme';
@@ -77,11 +77,11 @@ export default function MainTabNavigator() {
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Lessons" component={LessonsScreen} />
-      <Tab.Screen name="AIHub" component={AIHubScreen} />
-      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarButton: (props) => <TouchableOpacity {...(props as any)} testID="tab-home" /> }} />
+      <Tab.Screen name="Lessons" component={LessonsScreen} options={{ tabBarButton: (props) => <TouchableOpacity {...(props as any)} testID="tab-lessons" /> }} />
+      <Tab.Screen name="AIHub" component={AIHubScreen} options={{ tabBarButton: (props) => <TouchableOpacity {...(props as any)} testID="tab-ai-chat" /> }} />
+      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} options={{ tabBarButton: (props) => <TouchableOpacity {...(props as any)} testID="tab-ranking" /> }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarButton: (props) => <TouchableOpacity {...(props as any)} testID="tab-profile" /> }} />
     </Tab.Navigator>
   );
 }

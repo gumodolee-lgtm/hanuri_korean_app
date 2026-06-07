@@ -78,6 +78,7 @@ export default function OnboardingLevelScreen() {
           {levels.map((level) => (
             <TouchableOpacity
               key={level.value}
+              testID={`level-${level.value}`}
               style={[styles.option, selected === level.value && styles.optionSelected]}
               onPress={() => setSelected(level.value)}
             >
@@ -94,7 +95,7 @@ export default function OnboardingLevelScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={() => { setOnboardingData({ currentLevel: selected }); navigation.navigate('OnboardingTime'); }}>
+      <TouchableOpacity testID="btn-next-level" style={styles.nextBtn} onPress={() => { setOnboardingData({ currentLevel: selected }); navigation.navigate('OnboardingTime'); }}>
         <Text style={styles.nextBtnText}>{t.onboarding.next}</Text>
       </TouchableOpacity>
     </SafeAreaView>

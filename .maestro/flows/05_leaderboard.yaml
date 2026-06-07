@@ -1,0 +1,22 @@
+appId: com.hanuri.app
+name: "05 - Leaderboard Screen"
+tags:
+  - leaderboard
+
+---
+
+- launchApp
+
+# Navigate to Leaderboard tab
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab-ranking"
+
+# Assert leaderboard tab is active
+- waitForAnimationToEnd
+- assertVisible:
+    id: "tab-ranking"
+
+# Verify leaderboard content is visible (mock data or real)
+- assertVisible: "XP"
+    optional: true

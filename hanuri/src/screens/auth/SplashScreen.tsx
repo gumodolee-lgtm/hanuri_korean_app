@@ -324,6 +324,7 @@ export default function SplashScreen() {
         {/* CTA Buttons */}
         <View style={styles.buttonSection}>
           <TouchableOpacity
+            testID="btn-start-free"
             style={styles.primaryButton}
             onPress={() => navigation.navigate('Onboarding')}
             activeOpacity={0.85}
@@ -338,6 +339,7 @@ export default function SplashScreen() {
           </View>
 
           <TouchableOpacity
+            testID="btn-google-login"
             style={[
               styles.socialButton,
               !isSupabaseConfigured && styles.socialButtonDisabled,

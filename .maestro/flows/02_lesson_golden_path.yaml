@@ -1,0 +1,58 @@
+appId: com.hanuri.app
+name: "02 - Lesson Golden Path"
+tags:
+  - lessons
+  - golden-path
+
+---
+
+# Assumes app already launched with completed onboarding (run 01_onboarding first)
+- launchApp
+
+# Navigate to Lessons tab
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab-lessons"
+
+# Tap first lesson card (Level 1, Unit 1, Lesson 1)
+- waitForAnimationToEnd
+- tapOn:
+    id: "lesson-card-l1u1l1"
+
+# LessonPlayerScreen — Culture phase: tap Start Lesson
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-start-lesson"
+
+# Flashcard phase — advance through all cards (up to 5)
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-card"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-card"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-card"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-card"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-card"
+
+# Quiz phase — tap through all quiz answers (select first option each time)
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-quiz"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-quiz"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-quiz"
+
+# Assert Lesson Complete screen appears
+- waitForAnimationToEnd
+- assertVisible:
+    id: "screen-lesson-complete"
