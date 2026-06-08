@@ -47,6 +47,24 @@ export async function assessPronunciation(
   return data as PronunciationResult;
 }
 
+// ─── 음성 → 텍스트 변환 (AI 챗 음성 입력용) ──────────────────────────────────
+
+export async function transcribeSpeech(audioUri: string): Promise<string> {
+  if (!supabase) return '';
+  try {
+    const audioBase64 = await FileSystem.readAsStringAsync(audioUri, {
+      encoding: 'base64',
+    });
+    const { data, error } = await supabase.functions.invoke('whisper-transcribe', {
+      body: { audioBase64, targetText: '', feedbackStrings: null },
+    });
+    if (error) return '';
+    return (data as PronunciationResult).transcript ?? '';
+  } catch {
+    return '';
+  }
+}
+
 // ─── Mock (Supabase 미설정 환경) ──────────────────────────────────────────────
 
 export function mockAssessment(targetText: string, _feedbackStrings?: PronFeedbackStrings): PronunciationResult {

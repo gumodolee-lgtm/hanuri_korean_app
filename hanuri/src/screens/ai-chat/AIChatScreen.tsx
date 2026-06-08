@@ -10,6 +10,13 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import {
+  useAudioRecorder,
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+} from 'expo-audio';
+import { transcribeSpeech } from '../../services/pronunciationService';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -164,8 +171,11 @@ export default function AIChatScreen() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const scrollRef = useRef<ScrollView>(null);
+  const voiceRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
   const scrollToBottom = () => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
@@ -226,6 +236,36 @@ export default function AIChatScreen() {
     }
   }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, markTodayLearned, incrementAIChatCount]);
 
+  const handleVoiceInput = useCallback(async () => {
+    if (isVoiceRecording) {
+      setIsVoiceRecording(false);
+      setIsTranscribing(true);
+      try {
+        await voiceRecorder.stop();
+        const uri = voiceRecorder.uri;
+        if (uri) {
+          const text = await transcribeSpeech(uri);
+          if (text.trim()) setInput(text.trim());
+        }
+      } catch {
+        // silent fail
+      } finally {
+        setIsTranscribing(false);
+      }
+    } else {
+      try {
+        const perm = await requestRecordingPermissionsAsync();
+        if (!perm.granted) return;
+        await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+        await voiceRecorder.prepareToRecordAsync();
+        voiceRecorder.record();
+        setIsVoiceRecording(true);
+      } catch {
+        // silent fail
+      }
+    }
+  }, [isVoiceRecording, voiceRecorder]);
+
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     flex: { flex: 1 },
@@ -273,6 +313,7 @@ export default function AIChatScreen() {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       gap: spacing.sm,
+      alignItems: 'center',
     },
     suggestionChip: {
       backgroundColor: colors.white,
@@ -281,6 +322,7 @@ export default function AIChatScreen() {
       paddingVertical: spacing.xs,
       borderWidth: 1,
       borderColor: colors.primary,
+      alignSelf: 'center',
     },
     suggestionText: { ...typography.caption, color: colors.primary, fontWeight: '600' },
 
@@ -313,6 +355,15 @@ export default function AIChatScreen() {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    micBtn: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.gray,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    micBtnActive: { backgroundColor: '#CC0000' },
     sendBtnDisabled: { backgroundColor: colors.border },
     sendBtnText: { color: colors.white, fontSize: 16, fontWeight: '700' },
   }), [colors]);
@@ -376,6 +427,7 @@ export default function AIChatScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={{ height: 52, flexShrink: 0 }}
             contentContainerStyle={styles.suggestions}
           >
             {scenario.quickReplies.map((s) => (
@@ -392,6 +444,16 @@ export default function AIChatScreen() {
 
         {/* Input Bar */}
         <View style={styles.inputBar}>
+          <TouchableOpacity
+            style={[styles.micBtn, isVoiceRecording && styles.micBtnActive, (isTranscribing || isLoading) && styles.sendBtnDisabled]}
+            onPress={handleVoiceInput}
+            disabled={isTranscribing || isLoading}
+          >
+            {isTranscribing
+              ? <ActivityIndicator size="small" color={colors.white} />
+              : <Text style={styles.sendBtnText}>{isVoiceRecording ? '⏹' : '🎤'}</Text>
+            }
+          </TouchableOpacity>
           <TextInput
             testID="input-chat"
             style={styles.input}

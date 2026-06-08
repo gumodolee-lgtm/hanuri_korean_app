@@ -10,7 +10,7 @@ export const RC_ENTITLEMENT_ID = 'hanuri Pro';
 
 export async function initRevenueCat(androidKey: string, iosKey?: string): Promise<void> {
   if (__DEV__) {
-    Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+    Purchases.setLogLevel(LOG_LEVEL.ERROR);
   }
   const apiKey = Platform.OS === 'ios' ? (iosKey ?? androidKey) : androidKey;
   Purchases.configure({ apiKey });

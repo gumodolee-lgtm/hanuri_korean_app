@@ -590,6 +590,7 @@ export default function LessonPlayerScreen() {
       justifyContent: 'space-between',
     },
     choiceText: { ...typography.body, color: colors.dark, flex: 1 },
+    choiceTextRevealed: { ...typography.body, color: '#2D3436', flex: 1 },
     choiceIcon: { color: colors.secondary, fontWeight: '700', fontSize: 18 },
     choiceIconWrong: { color: colors.primary, fontWeight: '700', fontSize: 18 },
 
@@ -845,7 +846,7 @@ export default function LessonPlayerScreen() {
                   disabled={selectedAnswer !== null}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.choiceText}>{choice}</Text>
+                  <Text style={selectedAnswer !== null ? styles.choiceTextRevealed : styles.choiceText}>{choice}</Text>
                   {selectedAnswer !== null && idx === currentQ.correctIndex && <Text style={styles.choiceIcon}>✓</Text>}
                   {selectedAnswer === idx && idx !== currentQ.correctIndex && <Text style={styles.choiceIconWrong}>✗</Text>}
                 </TouchableOpacity>
@@ -903,7 +904,7 @@ export default function LessonPlayerScreen() {
                   disabled={fillSelected !== null}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.choiceText}>{choice}</Text>
+                  <Text style={fillSelected !== null ? styles.choiceTextRevealed : styles.choiceText}>{choice}</Text>
                   {fillSelected !== null && choice === currentFill.answer && <Text style={styles.choiceIcon}>✓</Text>}
                   {fillSelected === choice && choice !== currentFill.answer && <Text style={styles.choiceIconWrong}>✗</Text>}
                 </TouchableOpacity>

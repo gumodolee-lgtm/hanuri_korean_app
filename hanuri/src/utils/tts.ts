@@ -2,14 +2,20 @@ import * as Speech from 'expo-speech';
 
 let isSpeaking = false;
 
+function cleanForTTS(text: string): string {
+  return text.replace(/~/g, '').trim();
+}
+
 export async function speakKorean(text: string): Promise<void> {
-  // Stop any ongoing speech
+  const cleaned = cleanForTTS(text);
+  if (!cleaned) return;
+
   if (isSpeaking) {
     await Speech.stop();
   }
 
   isSpeaking = true;
-  Speech.speak(text, {
+  Speech.speak(cleaned, {
     language: 'ko-KR',
     pitch: 1.0,
     rate: 0.85, // Slightly slower for learners
