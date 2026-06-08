@@ -514,7 +514,7 @@ export default function LessonPlayerScreen() {
     phaseLabel: { ...typography.caption, color: colors.primary, fontWeight: '600' },
 
     body: { flex: 1, padding: spacing.lg, gap: spacing.lg },
-    scrollBody: { padding: spacing.lg, gap: spacing.lg, flexGrow: 1 },
+    scrollBody: { padding: spacing.md, gap: spacing.sm, flexGrow: 1 },
 
     cardWrapper: { flex: 1, position: 'relative' },
     card: {
@@ -566,24 +566,26 @@ export default function LessonPlayerScreen() {
     quizQuestion: {
       backgroundColor: colors.white,
       borderRadius: borderRadius.md,
-      padding: spacing.lg,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
       alignItems: 'center',
-      gap: spacing.sm,
+      gap: 4,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.06,
       shadowRadius: 8,
       elevation: 3,
     },
-    quizEmoji: { fontSize: 40 },
-    quizKorean: { fontSize: 32, fontWeight: '800', color: colors.dark },
-    quizRoman: { ...typography.body, color: colors.gray },
-    quizInstruction: { ...typography.caption, color: colors.gray, marginTop: spacing.xs },
+    quizEmoji: { fontSize: 32 },
+    quizKorean: { fontSize: 26, fontWeight: '800', color: colors.dark },
+    quizRoman: { fontSize: 13, color: colors.gray },
+    quizInstruction: { fontSize: 11, color: colors.gray },
 
-    choices: { gap: spacing.sm },
+    choices: { gap: spacing.xs },
     choiceBtn: {
       borderRadius: borderRadius.md,
-      padding: spacing.md,
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
       borderWidth: 1.5,
       flexDirection: 'row',
       alignItems: 'center',

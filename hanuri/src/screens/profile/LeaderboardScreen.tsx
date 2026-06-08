@@ -6,8 +6,12 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../types/navigation';
 import { useUserStore } from '../../store/userStore';
 import { useAuthStore } from '../../store/authStore';
 import { fetchLeaderboard, LeaderEntry } from '../../services/dbService';
@@ -97,6 +101,7 @@ function LeaderRow({
 export default function LeaderboardScreen() {
   const { xp, streak } = useUserStore();
   const { user } = useAuthStore();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const t = useT();
   const { colors } = useTheme();
 
@@ -195,6 +200,14 @@ export default function LeaderboardScreen() {
     guestEmoji: { fontSize: 56 },
     guestTitle: { ...typography.h3, color: colors.dark, textAlign: 'center' },
     guestSub: { ...typography.caption, color: colors.gray, textAlign: 'center', lineHeight: 20 },
+    loginBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: borderRadius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+      marginTop: spacing.sm,
+    },
+    loginBtnText: { ...typography.body, color: '#FFFFFF', fontWeight: '700' },
   }), [colors]);
 
   return (
@@ -209,6 +222,9 @@ export default function LeaderboardScreen() {
           <Text style={styles.guestEmoji}>🏆</Text>
           <Text style={styles.guestTitle}>{t.leaderboard.guestPrompt}</Text>
           <Text style={styles.guestSub}>{t.leaderboard.notice}</Text>
+          <TouchableOpacity style={styles.loginBtn} onPress={() => navigation.navigate('Splash')}>
+            <Text style={styles.loginBtnText}>🔑 Google로 로그인</Text>
+          </TouchableOpacity>
         </View>
       ) : loading ? (
         <ActivityIndicator style={{ marginTop: spacing.xl }} color={colors.primary} />
