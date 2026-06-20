@@ -45,6 +45,11 @@ interface StatsPayload {
   streak: number;
   lastStreakDate: string | null;
   todayMinutes: number;
+  todayAiChatCount: number;
+}
+
+interface FetchedStats extends StatsPayload {
+  lastActiveDate: string | null;
 }
 
 export async function syncStats(userId: string, stats: StatsPayload): Promise<void> {
@@ -56,6 +61,7 @@ export async function syncStats(userId: string, stats: StatsPayload): Promise<vo
       streak: stats.streak,
       last_streak_date: stats.lastStreakDate,
       today_minutes: stats.todayMinutes,
+      today_ai_chat_count: stats.todayAiChatCount,
       last_active_date: new Date().toISOString().split('T')[0],
       updated_at: new Date().toISOString(),
     },
@@ -64,11 +70,11 @@ export async function syncStats(userId: string, stats: StatsPayload): Promise<vo
   if (error) throw new Error(`[syncStats] ${error.message}`);
 }
 
-export async function fetchStats(userId: string): Promise<StatsPayload | null> {
+export async function fetchStats(userId: string): Promise<FetchedStats | null> {
   if (isGuest(userId) || !supabase) return null;
   const { data, error } = await supabase
     .from('user_stats')
-    .select('xp, streak, last_streak_date, today_minutes')
+    .select('xp, streak, last_streak_date, today_minutes, today_ai_chat_count, last_active_date')
     .eq('user_id', userId)
     .single();
   if (error || !data) return null;
@@ -77,6 +83,8 @@ export async function fetchStats(userId: string): Promise<StatsPayload | null> {
     streak: data.streak ?? 0,
     lastStreakDate: data.last_streak_date ?? null,
     todayMinutes: data.today_minutes ?? 0,
+    todayAiChatCount: data.today_ai_chat_count ?? 0,
+    lastActiveDate: data.last_active_date ?? null,
   };
 }
 
@@ -158,7 +166,7 @@ export async function fetchLeaderboard(limit = 10): Promise<LeaderEntry[]> {
 
 export interface RemoteUserData {
   profile: Partial<User> | null;
-  stats: StatsPayload | null;
+  stats: FetchedStats | null;
   progress: UserProgress[];
 }
 

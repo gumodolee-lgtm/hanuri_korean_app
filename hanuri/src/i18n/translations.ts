@@ -37,6 +37,7 @@ export interface Translations {
     kpop: string; comingSoon: string;
     goalContextKpop: string; goalContextTravel: string; goalContextBusiness: string;
     goalContextTopik: string; goalContextRelationship: string;
+    allLessonsCompleteTitle: string; allLessonsCompleteSub: string; startAiChatBtn: string;
   };
   goalLabels: { kpop: string; travel: string; business: string; topik: string; relationship: string };
   lessons: { title: string; comingSoon: string; minUnit: string };
@@ -55,7 +56,7 @@ export interface Translations {
   };
   aiChat: {
     convUnit: string; end: string; inputPlaceholder: string;
-    typing: string; notFound: string; connectionError: string;
+    typing: string; notFound: string; connectionError: string; voiceErrorMsg: string;
   };
   aiHub: {
     title: string; subtitle: string;
@@ -65,6 +66,7 @@ export interface Translations {
   };
   profile: {
     learnerSuffix: string; goalSuffix: string;
+    maxLevelTitle: string; defaultLevelTitle: string;
     xpLabel: string; streakLabel: string; completedLabel: string;
     levelProgress: string; xpUntilNext: string;
     badges: string; settings: string;
@@ -79,7 +81,7 @@ export interface Translations {
     badgeNames: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
     badgeDescs: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
   };
-  leaderboard: { title: string; subtitle: string; meSuffix: string; notice: string; guestPrompt: string };
+  leaderboard: { title: string; subtitle: string; meSuffix: string; notice: string; guestPrompt: string; loginBtn: string };
   lessonComplete: {
     title: string; perfect: string; great: string; tryAgain: string;
     accuracy: string; xpEarned: string; wordsLearned: string;
@@ -157,6 +159,7 @@ const en: Translations = {
     goalContextBusiness: 'Business Korean basics 💼',
     goalContextTopik: 'TOPIK prep basics 📝',
     goalContextRelationship: 'Everyday conversation ❤️',
+    allLessonsCompleteTitle: '🎉 All lessons complete!', allLessonsCompleteSub: 'Keep your skills sharp with AI chat', startAiChatBtn: 'Start AI Chat',
   },
   goalLabels: { kpop: 'K-POP / Drama', travel: 'Travel', business: 'Business', topik: 'TOPIK Exam', relationship: 'Relationships' },
   lessons: { title: '📚 Lessons', comingSoon: 'Coming soon', minUnit: 'min' },
@@ -177,6 +180,7 @@ const en: Translations = {
   aiChat: {
     convUnit: 'conversations', end: 'End', inputPlaceholder: 'Type in Korean...',
     typing: 'Typing...', notFound: 'Scenario not found.', connectionError: 'Connection error. Please try again. 😅',
+    voiceErrorMsg: "Couldn't process your voice. Please try again.",
   },
   aiHub: {
     title: '🗣️ AI Chat', subtitle: 'Pick a scenario and practice Korean with AI',
@@ -189,6 +193,7 @@ const en: Translations = {
   },
   profile: {
     learnerSuffix: 'Learner', goalSuffix: 'Goal',
+    maxLevelTitle: '🏆 Max level reached!', defaultLevelTitle: 'Beginner',
     xpLabel: 'Total XP', streakLabel: '🔥 Streak', completedLabel: 'Lessons',
     levelProgress: 'Level Progress', xpUntilNext: 'XP to next level',
     badges: '🏅 Badges', settings: '⚙️ Settings',
@@ -204,7 +209,7 @@ const en: Translations = {
     badgeNames: { firstLesson: 'First Lesson', weekStreak: '7-Day Streak', vocab100: 'Vocab Master', aiChat5: 'AI Champ', perfectQuiz: 'Quiz Master', levelUp: 'Level Up' },
     badgeDescs: { firstLesson: 'Complete first lesson', weekStreak: '7 days in a row', vocab100: 'Reach 500 XP', aiChat5: 'Start AI chat', perfectQuiz: 'Get 100% on quiz', levelUp: 'Reach next level' },
   },
-  leaderboard: { title: '🏆 Ranking', subtitle: 'This week by XP', meSuffix: '(Me)', notice: '💡 Complete lessons and AI chats to earn XP and climb the ranking!', guestPrompt: 'Sign in to see the real leaderboard' },
+  leaderboard: { title: '🏆 Ranking', subtitle: 'This week by XP', meSuffix: '(Me)', notice: '💡 Complete lessons and AI chats to earn XP and climb the ranking!', guestPrompt: 'Sign in to see the real leaderboard', loginBtn: '🔑 Sign in with Google' },
   lessonComplete: {
     title: 'Lesson Complete!', perfect: 'Perfect!', great: 'Great job!', tryAgain: 'Try again!',
     accuracy: 'Accuracy', xpEarned: 'XP Earned', wordsLearned: 'Words',
@@ -296,6 +301,7 @@ const ko: Translations = {
     goalContextBusiness: '비즈니스 한국어 기초 💼',
     goalContextTopik: 'TOPIK 기초 대비 📝',
     goalContextRelationship: '일상 대화 기초 ❤️',
+    allLessonsCompleteTitle: '🎉 모든 레슨 완료!', allLessonsCompleteSub: 'AI 대화로 실력을 유지해보세요', startAiChatBtn: 'AI 대화 시작하기',
   },
   goalLabels: { kpop: 'K-POP / 드라마', travel: '여행', business: '비즈니스', topik: 'TOPIK 시험', relationship: '인간관계' },
   lessons: { title: '📚 레슨', comingSoon: '준비 중', minUnit: '분' },
@@ -316,6 +322,7 @@ const ko: Translations = {
   aiChat: {
     convUnit: '개 대화', end: '종료', inputPlaceholder: '한국어로 입력하세요...',
     typing: '입력 중...', notFound: '시나리오를 찾을 수 없습니다.', connectionError: '죄송해요, 연결에 문제가 있어요. 잠시 후 다시 시도해주세요. 😅',
+    voiceErrorMsg: '음성을 처리하지 못했어요. 다시 시도해주세요.',
   },
   aiHub: {
     title: '🗣️ AI 대화', subtitle: '원하는 상황을 선택하고 AI와 한국어로 대화해봐요',
@@ -328,6 +335,7 @@ const ko: Translations = {
   },
   profile: {
     learnerSuffix: '학습자', goalSuffix: '목표',
+    maxLevelTitle: '🏆 최고 레벨 달성!', defaultLevelTitle: '초급',
     xpLabel: '총 XP', streakLabel: '🔥 연속', completedLabel: '완료 레슨',
     levelProgress: '레벨 진행도', xpUntilNext: 'XP 남았어요',
     badges: '🏅 배지', settings: '⚙️ 설정',
@@ -343,7 +351,7 @@ const ko: Translations = {
     badgeNames: { firstLesson: '첫 레슨', weekStreak: '7일 연속', vocab100: '단어 달인', aiChat5: 'AI 대화왕', perfectQuiz: '퀴즈 마스터', levelUp: '레벨업' },
     badgeDescs: { firstLesson: '첫 레슨 완료', weekStreak: '7일 연속 학습', vocab100: 'XP 500 달성', aiChat5: 'AI 대화 시작', perfectQuiz: '퀴즈 100% 달성', levelUp: '다음 레벨 도달' },
   },
-  leaderboard: { title: '🏆 랭킹', subtitle: '이번 주 XP 기준', meSuffix: '(나)', notice: '💡 레슨 완료 및 AI 대화로 XP를 얻어 랭킹을 올려보세요!', guestPrompt: '로그인하면 실제 랭킹을 볼 수 있어요' },
+  leaderboard: { title: '🏆 랭킹', subtitle: '이번 주 XP 기준', meSuffix: '(나)', notice: '💡 레슨 완료 및 AI 대화로 XP를 얻어 랭킹을 올려보세요!', guestPrompt: '로그인하면 실제 랭킹을 볼 수 있어요', loginBtn: '🔑 Google로 로그인' },
   lessonComplete: {
     title: '레슨 완료!', perfect: '완벽해요!', great: '잘했어요!', tryAgain: '다시 도전해봐요!',
     accuracy: '정답률', xpEarned: 'XP 획득', wordsLearned: '학습 단어',
@@ -435,6 +443,7 @@ const es: Translations = {
     goalContextBusiness: 'Coreano de negocios básico 💼',
     goalContextTopik: 'Preparación TOPIK básica 📝',
     goalContextRelationship: 'Conversación cotidiana ❤️',
+    allLessonsCompleteTitle: '🎉 ¡Todas las lecciones completadas!', allLessonsCompleteSub: 'Mantén tu nivel con el chat de IA', startAiChatBtn: 'Iniciar chat IA',
   },
   goalLabels: { kpop: 'K-POP / Drama', travel: 'Viaje', business: 'Negocios', topik: 'Examen TOPIK', relationship: 'Relaciones' },
   lessons: { title: '📚 Lecciones', comingSoon: 'Próximamente', minUnit: 'min' },
@@ -455,6 +464,7 @@ const es: Translations = {
   aiChat: {
     convUnit: 'conversaciones', end: 'Terminar', inputPlaceholder: 'Escribe en coreano...',
     typing: 'Escribiendo...', notFound: 'Escenario no encontrado.', connectionError: 'Error de conexión. Por favor intenta de nuevo. 😅',
+    voiceErrorMsg: 'No se pudo procesar tu voz. Inténtalo de nuevo.',
   },
   aiHub: {
     title: '🗣️ Chat IA', subtitle: 'Elige un escenario y practica coreano con IA',
@@ -467,6 +477,7 @@ const es: Translations = {
   },
   profile: {
     learnerSuffix: 'Estudiante', goalSuffix: 'Meta',
+    maxLevelTitle: '🏆 ¡Nivel máximo alcanzado!', defaultLevelTitle: 'Principiante',
     xpLabel: 'XP Total', streakLabel: '🔥 Racha', completedLabel: 'Lecciones',
     levelProgress: 'Progreso de nivel', xpUntilNext: 'XP para siguiente nivel',
     badges: '🏅 Insignias', settings: '⚙️ Ajustes',
@@ -482,7 +493,7 @@ const es: Translations = {
     badgeNames: { firstLesson: 'Primera lección', weekStreak: 'Racha 7 días', vocab100: 'Maestro vocab', aiChat5: 'Campeón IA', perfectQuiz: 'Maestro quiz', levelUp: 'Subir nivel' },
     badgeDescs: { firstLesson: 'Completa primera lección', weekStreak: '7 días seguidos', vocab100: 'Alcanza 500 XP', aiChat5: 'Inicia chat IA', perfectQuiz: '100% en quiz', levelUp: 'Alcanza siguiente nivel' },
   },
-  leaderboard: { title: '🏆 Ranking', subtitle: 'Esta semana por XP', meSuffix: '(Yo)', notice: '💡 ¡Completa lecciones y chats IA para ganar XP y subir en el ranking!', guestPrompt: 'Inicia sesión para ver el ranking real' },
+  leaderboard: { title: '🏆 Ranking', subtitle: 'Esta semana por XP', meSuffix: '(Yo)', notice: '💡 ¡Completa lecciones y chats IA para ganar XP y subir en el ranking!', guestPrompt: 'Inicia sesión para ver el ranking real', loginBtn: '🔑 Iniciar sesión con Google' },
   lessonComplete: {
     title: '¡Lección completada!', perfect: '¡Perfecto!', great: '¡Bien hecho!', tryAgain: '¡Inténtalo de nuevo!',
     accuracy: 'Precisión', xpEarned: 'XP ganado', wordsLearned: 'Palabras',
@@ -577,6 +588,7 @@ const zh: Translations = {
     goalContextBusiness: '商务韩语基础 💼',
     goalContextTopik: 'TOPIK基础备考 📝',
     goalContextRelationship: '日常会话基础 ❤️',
+    allLessonsCompleteTitle: '🎉 所有课程已完成！', allLessonsCompleteSub: '通过AI对话保持你的水平', startAiChatBtn: '开始AI对话',
   },
   goalLabels: { kpop: 'K-POP / 韩剧', travel: '旅行', business: '商务', topik: 'TOPIK考试', relationship: '人际关系' },
   lessons: { title: '📚 课程', comingSoon: '即将推出', minUnit: '分钟' },
@@ -597,6 +609,7 @@ const zh: Translations = {
   aiChat: {
     convUnit: '条对话', end: '结束', inputPlaceholder: '用韩语输入...',
     typing: '输入中...', notFound: '找不到场景。', connectionError: '连接出现问题，请稍后重试。 😅',
+    voiceErrorMsg: '无法处理您的语音，请重试。',
   },
   aiHub: {
     title: '🗣️ AI对话', subtitle: '选择场景，与AI用韩语对话',
@@ -609,6 +622,7 @@ const zh: Translations = {
   },
   profile: {
     learnerSuffix: '学习者', goalSuffix: '目标',
+    maxLevelTitle: '🏆 已达到最高等级！', defaultLevelTitle: '初级',
     xpLabel: '总XP', streakLabel: '🔥 连续', completedLabel: '已完成',
     levelProgress: '等级进度', xpUntilNext: 'XP到下一级',
     badges: '🏅 徽章', settings: '⚙️ 设置',
@@ -624,7 +638,7 @@ const zh: Translations = {
     badgeNames: { firstLesson: '第一课', weekStreak: '7天连续', vocab100: '单词达人', aiChat5: 'AI高手', perfectQuiz: '测验大师', levelUp: '升级' },
     badgeDescs: { firstLesson: '完成第一课', weekStreak: '连续7天', vocab100: '达到500XP', aiChat5: '开始AI对话', perfectQuiz: '测验100%', levelUp: '到达下一级' },
   },
-  leaderboard: { title: '🏆 排名', subtitle: '本周XP排名', meSuffix: '(我)', notice: '💡 完成课程和AI对话来获得XP，提升排名！', guestPrompt: '登录后查看真实排名' },
+  leaderboard: { title: '🏆 排名', subtitle: '本周XP排名', meSuffix: '(我)', notice: '💡 完成课程和AI对话来获得XP，提升排名！', guestPrompt: '登录后查看真实排名', loginBtn: '🔑 使用Google登录' },
   lessonComplete: {
     title: '课程完成！', perfect: '完美！', great: '做得好！', tryAgain: '再次挑战！',
     accuracy: '正确率', xpEarned: '获得XP', wordsLearned: '学习单词',
@@ -719,6 +733,7 @@ const ja: Translations = {
     goalContextBusiness: 'ビジネス韓国語基礎 💼',
     goalContextTopik: 'TOPIK基礎対策 📝',
     goalContextRelationship: '日常会話基礎 ❤️',
+    allLessonsCompleteTitle: '🎉 すべてのレッスンが完了しました！', allLessonsCompleteSub: 'AIチャットで実力を維持しましょう', startAiChatBtn: 'AIチャットを始める',
   },
   goalLabels: { kpop: 'K-POP / ドラマ', travel: '旅行', business: 'ビジネス', topik: 'TOPIK試験', relationship: '人間関係' },
   lessons: { title: '📚 レッスン', comingSoon: '準備中', minUnit: '分' },
@@ -739,6 +754,7 @@ const ja: Translations = {
   aiChat: {
     convUnit: '件の会話', end: '終了', inputPlaceholder: '韓国語で入力してください...',
     typing: '入力中...', notFound: 'シナリオが見つかりません。', connectionError: '接続に問題があります。しばらくしてから再試行してください。 😅',
+    voiceErrorMsg: '音声を処理できませんでした。もう一度お試しください。',
   },
   aiHub: {
     title: '🗣️ AIチャット', subtitle: 'シナリオを選んでAIと韓国語で話しましょう',
@@ -751,6 +767,7 @@ const ja: Translations = {
   },
   profile: {
     learnerSuffix: '学習者', goalSuffix: '目標',
+    maxLevelTitle: '🏆 最高レベルに到達しました！', defaultLevelTitle: '初級',
     xpLabel: '合計XP', streakLabel: '🔥 連続', completedLabel: '完了レッスン',
     levelProgress: 'レベル進捗', xpUntilNext: 'XPで次のレベルへ',
     badges: '🏅 バッジ', settings: '⚙️ 設定',
@@ -766,7 +783,7 @@ const ja: Translations = {
     badgeNames: { firstLesson: '最初のレッスン', weekStreak: '7日連続', vocab100: '単語の達人', aiChat5: 'AIチャンプ', perfectQuiz: 'クイズマスター', levelUp: 'レベルアップ' },
     badgeDescs: { firstLesson: '最初のレッスン完了', weekStreak: '7日連続学習', vocab100: '500XP達成', aiChat5: 'AIチャット開始', perfectQuiz: 'クイズ100%', levelUp: '次のレベルへ' },
   },
-  leaderboard: { title: '🏆 ランキング', subtitle: '今週のXP順', meSuffix: '(私)', notice: '💡 レッスン完了とAIチャットでXPを獲得してランクアップしよう！', guestPrompt: 'ログインして本当のランキングを見よう' },
+  leaderboard: { title: '🏆 ランキング', subtitle: '今週のXP順', meSuffix: '(私)', notice: '💡 レッスン完了とAIチャットでXPを獲得してランクアップしよう！', guestPrompt: 'ログインして本当のランキングを見よう', loginBtn: '🔑 Googleでログイン' },
   lessonComplete: {
     title: 'レッスン完了！', perfect: '完璧！', great: 'よくできました！', tryAgain: '再挑戦しよう！',
     accuracy: '正答率', xpEarned: 'XP獲得', wordsLearned: '学習単語',
@@ -861,6 +878,7 @@ const vi: Translations = {
     goalContextBusiness: 'Tiếng Hàn kinh doanh cơ bản 💼',
     goalContextTopik: 'Luyện thi TOPIK cơ bản 📝',
     goalContextRelationship: 'Hội thoại hàng ngày ❤️',
+    allLessonsCompleteTitle: '🎉 Đã hoàn thành tất cả bài học!', allLessonsCompleteSub: 'Duy trì trình độ bằng chat AI', startAiChatBtn: 'Bắt đầu chat AI',
   },
   goalLabels: { kpop: 'K-POP / Phim', travel: 'Du lịch', business: 'Kinh doanh', topik: 'Thi TOPIK', relationship: 'Quan hệ' },
   lessons: { title: '📚 Bài học', comingSoon: 'Sắp ra mắt', minUnit: 'phút' },
@@ -881,6 +899,7 @@ const vi: Translations = {
   aiChat: {
     convUnit: 'cuộc trò chuyện', end: 'Kết thúc', inputPlaceholder: 'Nhập bằng tiếng Hàn...',
     typing: 'Đang nhập...', notFound: 'Không tìm thấy tình huống.', connectionError: 'Lỗi kết nối. Vui lòng thử lại. 😅',
+    voiceErrorMsg: 'Không thể xử lý giọng nói của bạn. Vui lòng thử lại.',
   },
   aiHub: {
     title: '🗣️ Chat AI', subtitle: 'Chọn tình huống và luyện tiếng Hàn với AI',
@@ -893,6 +912,7 @@ const vi: Translations = {
   },
   profile: {
     learnerSuffix: 'Học viên', goalSuffix: 'Mục tiêu',
+    maxLevelTitle: '🏆 Đã đạt cấp độ tối đa!', defaultLevelTitle: 'Sơ cấp',
     xpLabel: 'Tổng XP', streakLabel: '🔥 Chuỗi', completedLabel: 'Bài học',
     levelProgress: 'Tiến độ cấp độ', xpUntilNext: 'XP đến cấp tiếp theo',
     badges: '🏅 Huy hiệu', settings: '⚙️ Cài đặt',
@@ -908,7 +928,7 @@ const vi: Translations = {
     badgeNames: { firstLesson: 'Bài học đầu', weekStreak: '7 ngày liên tục', vocab100: 'Bậc thầy từ vựng', aiChat5: 'Vô địch AI', perfectQuiz: 'Thạc sĩ quiz', levelUp: 'Lên cấp' },
     badgeDescs: { firstLesson: 'Hoàn thành bài học đầu', weekStreak: '7 ngày liên tiếp', vocab100: 'Đạt 500 XP', aiChat5: 'Bắt đầu chat AI', perfectQuiz: '100% quiz', levelUp: 'Đạt cấp tiếp theo' },
   },
-  leaderboard: { title: '🏆 Xếp hạng', subtitle: 'XP tuần này', meSuffix: '(Tôi)', notice: '💡 Hoàn thành bài học và chat AI để kiếm XP và leo bảng xếp hạng!', guestPrompt: 'Đăng nhập để xem bảng xếp hạng thực' },
+  leaderboard: { title: '🏆 Xếp hạng', subtitle: 'XP tuần này', meSuffix: '(Tôi)', notice: '💡 Hoàn thành bài học và chat AI để kiếm XP và leo bảng xếp hạng!', guestPrompt: 'Đăng nhập để xem bảng xếp hạng thực', loginBtn: '🔑 Đăng nhập bằng Google' },
   lessonComplete: {
     title: 'Hoàn thành bài học!', perfect: 'Hoàn hảo!', great: 'Làm tốt lắm!', tryAgain: 'Thử lại nào!',
     accuracy: 'Độ chính xác', xpEarned: 'XP kiếm được', wordsLearned: 'Từ vựng',

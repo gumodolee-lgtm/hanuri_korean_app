@@ -118,6 +118,7 @@ export default function SplashScreen() {
                   streak: mergedStreak,
                   lastStreakDate: mergedLastStreakDate,
                   todayMinutes: mergedTodayMinutes,
+                  todayAiChatCount: guestState.todayAiChatCount,
                   progress: guestState.progress.map((p) => ({ ...p, user_id: supaUser.id })),
                 });
                 // 서버에 동기화
@@ -126,6 +127,7 @@ export default function SplashScreen() {
                   streak: mergedStreak,
                   lastStreakDate: mergedLastStreakDate,
                   todayMinutes: mergedTodayMinutes,
+                  todayAiChatCount: guestState.todayAiChatCount,
                 });
                 for (const p of guestState.progress) {
                   await syncProgress(supaUser.id, { ...p, user_id: supaUser.id });
@@ -204,6 +206,7 @@ export default function SplashScreen() {
               streak: guestState.streak,
               lastStreakDate: guestState.lastStreakDate,
               todayMinutes: guestState.todayMinutes,
+              todayAiChatCount: guestState.todayAiChatCount,
               progress: guestState.progress.map((p) => ({ ...p, user_id: supaUser.id })),
             });
             await syncStats(supaUser.id, {
@@ -211,6 +214,7 @@ export default function SplashScreen() {
               streak: guestState.streak,
               lastStreakDate: guestState.lastStreakDate,
               todayMinutes: guestState.todayMinutes,
+              todayAiChatCount: guestState.todayAiChatCount,
             });
             for (const p of guestState.progress) {
               await syncProgress(supaUser.id, { ...p, user_id: supaUser.id });

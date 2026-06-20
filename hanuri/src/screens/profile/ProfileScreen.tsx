@@ -241,7 +241,7 @@ export default function ProfileScreen() {
             <Text style={styles.avatarEmoji}>{levelInfo?.emoji ?? '🌱'}</Text>
           </View>
           <View style={styles.levelTitleRow}>
-            <Text style={styles.levelTitle}>{levelInfo?.titleKo ?? '초급'} {t.profile.learnerSuffix}</Text>
+            <Text style={styles.levelTitle}>{levelInfo?.titleKo ?? t.profile.defaultLevelTitle} {t.profile.learnerSuffix}</Text>
             {isPro && (
               <View style={styles.proBadge}>
                 <Text style={styles.proBadgeText}>👑 PRO</Text>
@@ -288,7 +288,7 @@ export default function ProfileScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>
-              {isMaxLevel ? '🏆 최고 레벨 달성!' : `Lv.${currentLevel} → Lv.${currentLevel + 1}`}
+              {isMaxLevel ? t.profile.maxLevelTitle : `Lv.${currentLevel} → Lv.${currentLevel + 1}`}
             </Text>
             <Text style={styles.cardSub}>
               {isMaxLevel ? 'MAX' : `${xp % xpForNext} / ${xpForNext} XP`}

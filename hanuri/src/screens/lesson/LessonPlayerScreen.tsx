@@ -245,8 +245,8 @@ function PronunciationPhase({
           setErrorMessage(t.pron.error);
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setErrorMessage(`[채점 오류] ${msg}`);
+        console.error('[assessPronunciation]', err);
+        setErrorMessage(t.pron.error);
       } finally {
         setIsProcessing(false);
       }

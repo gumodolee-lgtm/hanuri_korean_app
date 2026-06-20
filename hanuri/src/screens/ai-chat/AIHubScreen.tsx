@@ -149,7 +149,7 @@ const FREE_DAILY_CHAT_LIMIT = 3;
 export default function AIHubScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
-  const { aiChatCount } = useUserStore();
+  const { todayAiChatCount } = useUserStore();
   const isPro = user?.isPro ?? false;
   const t = useT();
   const { colors } = useTheme();
@@ -159,7 +159,7 @@ export default function AIHubScreen() {
       navigation.navigate('ProUpgrade');
       return;
     }
-    if (!isPro && aiChatCount >= FREE_DAILY_CHAT_LIMIT) {
+    if (!isPro && todayAiChatCount >= FREE_DAILY_CHAT_LIMIT) {
       navigation.navigate('ProUpgrade');
       return;
     }

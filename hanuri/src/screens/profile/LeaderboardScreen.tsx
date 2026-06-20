@@ -219,7 +219,7 @@ export default function LeaderboardScreen() {
           <Text style={styles.guestTitle}>{t.leaderboard.guestPrompt}</Text>
           <Text style={styles.guestSub}>{t.leaderboard.notice}</Text>
           <TouchableOpacity style={styles.loginBtn} onPress={() => useAuthStore.getState().signOut()}>
-            <Text style={styles.loginBtnText}>🔑 Google로 로그인</Text>
+            <Text style={styles.loginBtnText}>{t.leaderboard.loginBtn}</Text>
           </TouchableOpacity>
         </View>
       ) : loading ? (

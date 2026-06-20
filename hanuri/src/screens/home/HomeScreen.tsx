@@ -239,10 +239,10 @@ export default function HomeScreen() {
           </View>
         ) : (
           <View style={styles.card}>
-            <Text style={[styles.lessonTitle, { textAlign: 'center' }]}>🎉 모든 레슨 완료!</Text>
-            <Text style={[styles.cardSub, { textAlign: 'center' }]}>AI 대화로 실력을 유지해보세요</Text>
+            <Text style={[styles.lessonTitle, { textAlign: 'center' }]}>{t.home.allLessonsCompleteTitle}</Text>
+            <Text style={[styles.cardSub, { textAlign: 'center' }]}>{t.home.allLessonsCompleteSub}</Text>
             <TouchableOpacity style={styles.continueBtn} onPress={handleAIChat}>
-              <Text style={styles.continueBtnText}>AI 대화 시작하기</Text>
+              <Text style={styles.continueBtnText}>{t.home.startAiChatBtn}</Text>
             </TouchableOpacity>
           </View>
         )}

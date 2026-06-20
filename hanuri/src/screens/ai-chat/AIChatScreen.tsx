@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   useAudioRecorder,
@@ -151,7 +152,7 @@ function TypingIndicator() {
 export default function AIChatScreen() {
   const navigation = useNavigation<NavProp>();
   const route = useRoute<RouteType>();
-  const { addXP, markTodayLearned, incrementAIChatCount, aiChatCount } = useUserStore();
+  const { addXP, markTodayLearned, incrementAIChatCount, todayAiChatCount } = useUserStore();
   const { user } = useAuthStore();
   const t = useT();
   const { colors } = useTheme();
@@ -185,7 +186,7 @@ export default function AIChatScreen() {
     const text = input.trim();
     if (!text || isLoading || !scenario) return;
     const isPro = user?.isPro ?? false;
-    if (!isPro && aiChatCount >= 3) {
+    if (!isPro && todayAiChatCount >= 3) {
       navigation.navigate('ProUpgrade');
       return;
     }
@@ -218,7 +219,7 @@ export default function AIChatScreen() {
       // Award 2 XP per message sent (userId 전달 → 서버 동기화)
       const userId = user?.id;
       addXP(2, userId);
-      incrementAIChatCount();
+      incrementAIChatCount(userId);
       // AI 채팅도 학습 활동으로 인정 → streak 갱신
       markTodayLearned(userId);
       setXpEarned((prev) => prev + 2);
@@ -234,7 +235,7 @@ export default function AIChatScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, markTodayLearned, incrementAIChatCount]);
+  }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, todayAiChatCount, markTodayLearned, incrementAIChatCount]);
 
   const handleVoiceInput = useCallback(async () => {
     if (isVoiceRecording) {
@@ -246,9 +247,11 @@ export default function AIChatScreen() {
         if (uri) {
           const text = await transcribeSpeech(uri);
           if (text.trim()) setInput(text.trim());
+          else Alert.alert(t.aiChat.voiceErrorMsg);
         }
-      } catch {
-        // silent fail
+      } catch (err) {
+        console.error('[transcribeSpeech]', err);
+        Alert.alert(t.aiChat.voiceErrorMsg);
       } finally {
         setIsTranscribing(false);
       }
@@ -260,11 +263,12 @@ export default function AIChatScreen() {
         await voiceRecorder.prepareToRecordAsync();
         voiceRecorder.record();
         setIsVoiceRecording(true);
-      } catch {
-        // silent fail
+      } catch (err) {
+        console.error('[voiceRecorder.record]', err);
+        Alert.alert(t.aiChat.voiceErrorMsg);
       }
     }
-  }, [isVoiceRecording, voiceRecorder]);
+  }, [isVoiceRecording, voiceRecorder, t]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
