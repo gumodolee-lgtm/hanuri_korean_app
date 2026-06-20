@@ -193,7 +193,7 @@ describe('dbService — 게스트 유저 early return (supabase=null)', () => {
 
   it('syncStats: 게스트는 에러 없이 즉시 반환한다', async () => {
     await expect(
-      syncStats('guest_123', { xp: 10, streak: 1, lastStreakDate: null, todayMinutes: 5 })
+      syncStats('guest_123', { xp: 10, streak: 1, lastStreakDate: null, todayMinutes: 5, todayAiChatCount: 0 })
     ).resolves.toBeUndefined();
   });
 

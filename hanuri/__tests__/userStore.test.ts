@@ -146,12 +146,85 @@ describe('userStore — checkNewDay', () => {
 });
 
 describe('userStore — incrementAIChatCount', () => {
-  it('aiChatCount가 1씩 증가한다', () => {
+  it('aiChatCount(평생)와 todayAiChatCount(일일)가 함께 1씩 증가한다', () => {
     expect(useUserStore.getState().aiChatCount).toBe(0);
+    expect(useUserStore.getState().todayAiChatCount).toBe(0);
     useUserStore.getState().incrementAIChatCount();
     expect(useUserStore.getState().aiChatCount).toBe(1);
+    expect(useUserStore.getState().todayAiChatCount).toBe(1);
     useUserStore.getState().incrementAIChatCount();
     expect(useUserStore.getState().aiChatCount).toBe(2);
+    expect(useUserStore.getState().todayAiChatCount).toBe(2);
+  });
+
+  it('userId가 있으면 todayAiChatCount를 포함해 syncStats를 호출한다', () => {
+    const { syncStats } = require('../src/services/dbService');
+    useUserStore.getState().incrementAIChatCount('user_123');
+    expect(syncStats).toHaveBeenCalledWith('user_123', expect.objectContaining({ todayAiChatCount: 1 }));
+  });
+
+  it('userId 없이도(게스트) 정상 동작하며 syncStats는 호출하지 않는다', () => {
+    const { syncStats } = require('../src/services/dbService');
+    useUserStore.getState().incrementAIChatCount();
+    expect(syncStats).not.toHaveBeenCalled();
+    expect(useUserStore.getState().todayAiChatCount).toBe(1);
+  });
+});
+
+describe('userStore — checkNewDay (todayAiChatCount 일일 리셋)', () => {
+  it('오늘 이미 채팅한 경우(aiChatCountDate=TODAY) 리셋하지 않는다', () => {
+    useUserStore.setState({ todayAiChatCount: 2, aiChatCountDate: TODAY });
+    useUserStore.getState().checkNewDay();
+    expect(useUserStore.getState().todayAiChatCount).toBe(2);
+  });
+
+  it('어제 채팅한 경우(aiChatCountDate=YESTERDAY) 0으로 리셋된다', () => {
+    useUserStore.setState({ todayAiChatCount: 3, aiChatCountDate: YESTERDAY });
+    useUserStore.getState().checkNewDay();
+    const s = useUserStore.getState();
+    expect(s.todayAiChatCount).toBe(0);
+    expect(s.aiChatCountDate).toBe(TODAY);
+  });
+
+  it('aiChatCountDate가 null이면(최초 사용) 0으로 초기화하고 오늘 날짜를 기록한다', () => {
+    useUserStore.setState({ todayAiChatCount: 0, aiChatCountDate: null });
+    useUserStore.getState().checkNewDay();
+    expect(useUserStore.getState().aiChatCountDate).toBe(TODAY);
+  });
+
+  it('streak 경계와 무관하게 독립적으로 리셋된다 (streak는 오늘이어도 채팅 카운트는 어제일 수 있음)', () => {
+    useUserStore.setState({
+      lastStreakDate: TODAY, streak: 5,
+      todayAiChatCount: 3, aiChatCountDate: YESTERDAY,
+    });
+    useUserStore.getState().checkNewDay();
+    const s = useUserStore.getState();
+    expect(s.todayAiChatCount).toBe(0);
+    expect(s.streak).toBe(5); // streak 로직은 그대로 유지
+  });
+});
+
+describe('userStore — loadFromRemote (todayAiChatCount 복원)', () => {
+  it('서버의 last_active_date가 오늘이면 todayAiChatCount를 복원한다', async () => {
+    const { fetchStats } = require('../src/services/dbService');
+    fetchStats.mockResolvedValue({
+      xp: 100, streak: 2, lastStreakDate: TODAY, todayMinutes: 10,
+      todayAiChatCount: 2, lastActiveDate: TODAY,
+    });
+    await useUserStore.getState().loadFromRemote('user_123');
+    const s = useUserStore.getState();
+    expect(s.todayAiChatCount).toBe(2);
+    expect(s.aiChatCountDate).toBe(TODAY);
+  });
+
+  it('서버의 last_active_date가 어제면 todayAiChatCount를 0으로 취급한다 (재설치 우회 방지)', async () => {
+    const { fetchStats } = require('../src/services/dbService');
+    fetchStats.mockResolvedValue({
+      xp: 100, streak: 2, lastStreakDate: TODAY, todayMinutes: 10,
+      todayAiChatCount: 3, lastActiveDate: YESTERDAY,
+    });
+    await useUserStore.getState().loadFromRemote('user_123');
+    expect(useUserStore.getState().todayAiChatCount).toBe(0);
   });
 });
 
