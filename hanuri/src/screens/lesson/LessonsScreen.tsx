@@ -14,7 +14,8 @@ import { CompositeNavigationProp } from '@react-navigation/native';
 import { RootStackParamList, MainTabParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { ALL_LEVELS, FREE_MAX_LEVEL, LessonData } from '../../data/lessons';
+import { useConfigStore } from '../../store/configStore';
+import { ALL_LEVELS, LessonData } from '../../data/lessons';
 
 const MAX_LEVELS = 12;
 import { typography, spacing, borderRadius } from '../../theme';
@@ -30,17 +31,18 @@ export default function LessonsScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
   const { progress } = useUserStore();
+  const { freeMaxLevel } = useConfigStore();
   const currentLevel = user?.current_level ?? 1;
   const isPro = user?.isPro ?? false;
   const t = useT();
   const { colors } = useTheme();
 
   const [selectedLevel, setSelectedLevel] = useState(
-    currentLevel > FREE_MAX_LEVEL && !isPro ? FREE_MAX_LEVEL : currentLevel
+    currentLevel > freeMaxLevel && !isPro ? freeMaxLevel : currentLevel
   );
 
   const selectedLevelData = ALL_LEVELS.find((l) => l.level === selectedLevel);
-  const isLevelProLocked = (level: number) => level > FREE_MAX_LEVEL && !isPro;
+  const isLevelProLocked = (level: number) => level > freeMaxLevel && !isPro;
   const selectedLevelProLocked = isLevelProLocked(selectedLevel);
 
   const completedSet = useMemo(

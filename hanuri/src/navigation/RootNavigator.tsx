@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
+import { useConfigStore } from '../store/configStore';
 import { supabase } from '../services/supabase';
 import { useTheme } from '../contexts/ThemeContext';
 import MainTabNavigator from './MainTabNavigator';
@@ -20,12 +21,18 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function RootNavigator() {
   const { user } = useAuthStore();
   const { checkNewDay } = useUserStore();
+  const { loadConfig } = useConfigStore();
   const { isDark } = useTheme();
 
   // 앱 시작 시 날짜 경계 처리: todayMinutes/todayLearned 초기화, 연속 학습 만료 시 streak 리셋
   useEffect(() => {
     checkNewDay();
   }, [checkNewDay]);
+
+  // 앱 시작 시 원격 설정(예: 무료/PRO 레벨 경계) 갱신 — 실패해도 앱 내 기본값으로 동작
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   // Supabase 세션 외부 변경 감지: 토큰 만료, 다른 기기 로그아웃 등
   // getState()로 직접 접근하여 클로저 stale 문제 방지

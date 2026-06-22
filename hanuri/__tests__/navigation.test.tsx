@@ -45,7 +45,12 @@ jest.mock('@react-navigation/bottom-tabs', () => {
   };
 });
 
-let mockSupabaseClient: { auth: { onAuthStateChange: jest.Mock } } | null = null;
+// configService.fetchFreeMaxLevel()이 RootNavigator 마운트 시 호출되므로
+// app_config 조회 체인도 안전하게 빈 결과로 응답하도록 기본 from()을 둔다.
+const noopFrom = jest.fn(() => ({
+  select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: null }) }) }),
+}));
+let mockSupabaseClient: { auth: { onAuthStateChange: jest.Mock }; from?: jest.Mock } | null = null;
 jest.mock('../src/services/supabase', () => ({
   get supabase() {
     return mockSupabaseClient;
@@ -154,7 +159,7 @@ describe('RootNavigator — 마운트 시 부수효과', () => {
   it('Supabase가 설정되어 있으면 인증 상태 변경을 구독한다', async () => {
     const unsubscribe = jest.fn();
     const onAuthStateChange = jest.fn().mockReturnValue({ data: { subscription: { unsubscribe } } });
-    mockSupabaseClient = { auth: { onAuthStateChange } };
+    mockSupabaseClient = { auth: { onAuthStateChange }, from: noopFrom };
     await render(<RootNavigator />);
     expect(onAuthStateChange).toHaveBeenCalled();
   });
@@ -165,7 +170,7 @@ describe('RootNavigator — 마운트 시 부수효과', () => {
       capturedCallback = cb;
       return { data: { subscription: { unsubscribe: jest.fn() } } };
     });
-    mockSupabaseClient = { auth: { onAuthStateChange } };
+    mockSupabaseClient = { auth: { onAuthStateChange }, from: noopFrom };
     useAuthStore.setState({ user: authedUser });
     await render(<RootNavigator />);
     const signOutSpy = jest.spyOn(useAuthStore.getState(), 'signOut').mockImplementation(() => {});

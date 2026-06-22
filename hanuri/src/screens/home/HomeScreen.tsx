@@ -14,7 +14,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { MainTabParamList, RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { getFirstLesson, getLessonsForLevel, ALL_LEVELS, FREE_MAX_LEVEL } from '../../data/lessons';
+import { useConfigStore } from '../../store/configStore';
+import { getFirstLesson, getLessonsForLevel, ALL_LEVELS } from '../../data/lessons';
 import { typography, spacing, borderRadius } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useAuthStore();
   const { xp, streak, todayMinutes, progress } = useUserStore();
+  const { freeMaxLevel } = useConfigStore();
   const t = useT();
   const { colors } = useTheme();
 
@@ -55,6 +57,8 @@ export default function HomeScreen() {
     return nextIncomplete ?? getFirstLesson(currentLevel + 1) ?? getFirstLesson(currentLevel);
   }, [currentLevel, progress]);
 
+  const firstLessonProLocked = !!firstLesson && firstLesson.level > freeMaxLevel && !isPro;
+
   // XP needed per level (simple formula: level * 100)
   const isMaxLevel = currentLevel >= ALL_LEVELS.length;
   const xpForNextLevel = Math.max(currentLevel * 100, 1);
@@ -62,7 +66,7 @@ export default function HomeScreen() {
 
   const handleStartLesson = () => {
     if (!firstLesson) return;
-    if (firstLesson.level > FREE_MAX_LEVEL && !isPro) {
+    if (firstLessonProLocked) {
       navigation.navigate('ProUpgrade');
       return;
     }
@@ -230,7 +234,7 @@ export default function HomeScreen() {
             <Text style={styles.cardLabel}>{goalContextMap[learningGoal] ?? t.home.startNow}</Text>
             <View style={styles.lessonInfo}>
               <Text style={styles.lessonEmoji}>
-                {firstLesson.level > FREE_MAX_LEVEL && !isPro ? '👑' : firstLesson.emoji}
+                {firstLessonProLocked ? '👑' : firstLesson.emoji}
               </Text>
               <View style={styles.lessonMeta}>
                 <Text style={styles.lessonTitle}>{firstLesson.titleKo}</Text>
@@ -241,7 +245,7 @@ export default function HomeScreen() {
             </View>
             <TouchableOpacity style={styles.continueBtn} onPress={handleStartLesson}>
               <Text style={styles.continueBtnText}>
-                {firstLesson.level > FREE_MAX_LEVEL && !isPro ? '👑 PRO' : t.home.startLessonBtn}
+                {firstLessonProLocked ? '👑 PRO' : t.home.startLessonBtn}
               </Text>
             </TouchableOpacity>
           </View>
