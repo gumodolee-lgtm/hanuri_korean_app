@@ -25,6 +25,8 @@ jest.mock('../src/services/dbService', () => ({
 jest.mock('../src/services/revenuecatService', () => ({
   loginUser: jest.fn().mockResolvedValue(undefined),
   logoutUser: jest.fn().mockResolvedValue(undefined),
+  getCustomerInfo: jest.fn().mockResolvedValue({ entitlements: { active: {} } }),
+  isPro: jest.fn().mockReturnValue(false),
 }));
 
 jest.mock('../src/store/userStore', () => ({
@@ -203,5 +205,97 @@ describe('authStore — themeMode', () => {
   it('light 모드로 변경한다', () => {
     useAuthStore.getState().setThemeMode('light');
     expect(useAuthStore.getState().themeMode).toBe('light');
+  });
+});
+
+describe('authStore — loginWithSupabase', () => {
+  const supaUser = {
+    id: 'user_supa_1',
+    email: 'supa@test.com',
+    native_lang: 'en' as const,
+    current_level: 1,
+    xp: 0,
+    streak: 0,
+    daily_goal_minutes: 15 as const,
+    learning_goal: 'travel' as const,
+    created_at: '2026-01-01',
+  };
+
+  it('user를 설정하고 hasCompletedOnboarding을 true로 만든다', async () => {
+    await useAuthStore.getState().loginWithSupabase(supaUser);
+    const { user, hasCompletedOnboarding } = useAuthStore.getState();
+    expect(user?.id).toBe('user_supa_1');
+    expect(hasCompletedOnboarding).toBe(true);
+  });
+
+  it('서버에 원격 프로필이 있으면 로컬 user에 병합한다', async () => {
+    const { loadUserDataFromSupabase } = require('../src/services/dbService');
+    loadUserDataFromSupabase.mockResolvedValueOnce({
+      profile: { native_lang: 'ko', current_level: 5, learning_goal: 'kpop', daily_goal_minutes: 30 },
+      stats: null,
+      progress: [],
+    });
+    await useAuthStore.getState().loginWithSupabase(supaUser);
+    const { user } = useAuthStore.getState();
+    expect(user?.native_lang).toBe('ko');
+    expect(user?.current_level).toBe(5);
+  });
+
+  it('syncProfile이 실패해도 로컬 상태는 유지된다', async () => {
+    const { syncProfile } = require('../src/services/dbService');
+    syncProfile.mockRejectedValueOnce(new Error('network error'));
+    await useAuthStore.getState().loginWithSupabase(supaUser);
+    expect(useAuthStore.getState().user?.id).toBe('user_supa_1');
+  });
+
+  it('loadUserDataFromSupabase가 실패해도 로컬 상태는 유지된다', async () => {
+    const { loadUserDataFromSupabase } = require('../src/services/dbService');
+    loadUserDataFromSupabase.mockRejectedValueOnce(new Error('network error'));
+    await useAuthStore.getState().loginWithSupabase(supaUser);
+    expect(useAuthStore.getState().user?.id).toBe('user_supa_1');
+  });
+
+  it('RevenueCat에 유저를 연결한다', async () => {
+    const { loginUser } = require('../src/services/revenuecatService');
+    await useAuthStore.getState().loginWithSupabase(supaUser);
+    expect(loginUser).toHaveBeenCalledWith('user_supa_1');
+  });
+});
+
+describe('authStore — syncProStatus', () => {
+  it('user가 없으면 아무것도 하지 않는다', async () => {
+    useAuthStore.setState({ user: null });
+    const { getCustomerInfo } = require('../src/services/revenuecatService');
+    await useAuthStore.getState().syncProStatus();
+    expect(getCustomerInfo).not.toHaveBeenCalled();
+  });
+
+  it('guest 유저면 아무것도 하지 않는다', async () => {
+    useAuthStore.setState({
+      user: { id: 'guest_1', email: '', native_lang: 'en', current_level: 1, xp: 0, streak: 0, daily_goal_minutes: 15, learning_goal: 'travel', created_at: '2026-01-01' },
+    });
+    const { getCustomerInfo } = require('../src/services/revenuecatService');
+    await useAuthStore.getState().syncProStatus();
+    expect(getCustomerInfo).not.toHaveBeenCalled();
+  });
+
+  it('실유저이고 isPro가 true면 user.isPro를 true로 설정한다', async () => {
+    useAuthStore.setState({
+      user: { id: 'user_real', email: '', native_lang: 'en', current_level: 1, xp: 0, streak: 0, daily_goal_minutes: 15, learning_goal: 'travel', created_at: '2026-01-01', isPro: false },
+    });
+    const { isPro } = require('../src/services/revenuecatService');
+    isPro.mockReturnValueOnce(true);
+    await useAuthStore.getState().syncProStatus();
+    expect(useAuthStore.getState().user?.isPro).toBe(true);
+  });
+
+  it('getCustomerInfo가 실패해도 기존 isPro 상태를 유지한다', async () => {
+    useAuthStore.setState({
+      user: { id: 'user_real', email: '', native_lang: 'en', current_level: 1, xp: 0, streak: 0, daily_goal_minutes: 15, learning_goal: 'travel', created_at: '2026-01-01', isPro: false },
+    });
+    const { getCustomerInfo } = require('../src/services/revenuecatService');
+    getCustomerInfo.mockRejectedValueOnce(new Error('network error'));
+    await useAuthStore.getState().syncProStatus();
+    expect(useAuthStore.getState().user?.isPro).toBe(false);
   });
 });
