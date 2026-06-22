@@ -20,6 +20,7 @@ jest.mock('@react-navigation/native', () => ({
 import HomeScreen from '../src/screens/home/HomeScreen';
 import { useAuthStore } from '../src/store/authStore';
 import { useUserStore } from '../src/store/userStore';
+import { getLessonsForLevel } from '../src/data/lessons';
 import { User } from '../src/types';
 
 const baseUser: User = {
@@ -83,5 +84,33 @@ describe('HomeScreen — 모든 레슨 완료 상태 (i18n 회귀 테스트)', (
     const { getByText } = await render(<HomeScreen />);
     await fireEvent.press(getByText('Start AI Chat'));
     expect(mockNavigate).toHaveBeenCalledWith('AIHub');
+  });
+});
+
+describe('HomeScreen — PRO 레벨(7) 잠금', () => {
+  beforeEach(() => {
+    const level6Lessons = getLessonsForLevel(6);
+    useAuthStore.setState({
+      user: { ...baseUser, current_level: 6, isPro: false },
+      hasCompletedOnboarding: true,
+      onboardingData: {},
+    });
+    useUserStore.setState({
+      progress: level6Lessons.map((l) => ({
+        user_id: baseUser.id, lesson_id: l.id, status: 'completed' as const, score: 100, completed_at: '2026-01-01',
+      })),
+    });
+  });
+
+  it('레벨 6을 모두 완료한 non-pro 유저에게는 다음 카드가 PRO로 표시된다', async () => {
+    const { getByText } = await render(<HomeScreen />);
+    expect(getByText('👑 PRO')).toBeTruthy();
+  });
+
+  it('PRO 카드 탭 시 Lesson 대신 ProUpgrade로 navigate한다', async () => {
+    const { getByText } = await render(<HomeScreen />);
+    await fireEvent.press(getByText('👑 PRO'));
+    expect(mockNavigate).toHaveBeenCalledWith('ProUpgrade');
+    expect(mockNavigate).not.toHaveBeenCalledWith('Lesson', expect.anything());
   });
 });

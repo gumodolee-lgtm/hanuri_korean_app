@@ -2260,6 +2260,9 @@ const LEVEL_8: LevelData = {
 
 export const ALL_LEVELS: LevelData[] = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8];
 
+// 레벨 1-6(초급~중급)은 무료, 레벨 7(Advanced)부터는 PRO 결제가 필요하다.
+export const FREE_MAX_LEVEL = 6;
+
 export function getLessonsForLevel(level: number): LessonData[] {
   const lvl = ALL_LEVELS.find((l) => l.level === level);
   if (!lvl) return [];

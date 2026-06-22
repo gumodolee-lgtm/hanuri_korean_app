@@ -75,3 +75,36 @@ describe('LessonsScreen', () => {
     expect(mockNavigate).toHaveBeenCalledWith('Lesson', { lessonId: secondLesson.id });
   });
 });
+
+describe('LessonsScreen — PRO 레벨(7-8) 잠금', () => {
+  it('non-pro 유저가 레벨 7 탭을 탭하면 ProUpgrade로 이동하고 선택되지 않는다', async () => {
+    useAuthStore.setState({ user: { ...baseUser, current_level: 7, isPro: false }, hasCompletedOnboarding: true, onboardingData: {} });
+    await render(<LessonsScreen />);
+    await fireEvent.press(screen.getByTestId('level-tab-7'));
+    expect(mockNavigate).toHaveBeenCalledWith('ProUpgrade');
+  });
+
+  it('non-pro 유저가 current_level=7이면 7레벨 레슨 대신 6레벨이 기본 선택된다', async () => {
+    useAuthStore.setState({ user: { ...baseUser, current_level: 7, isPro: false }, hasCompletedOnboarding: true, onboardingData: {} });
+    await render(<LessonsScreen />);
+    const level6FirstLesson = ALL_LEVELS[5].units[0].lessons[0];
+    expect(screen.getByTestId(`lesson-card-${level6FirstLesson.id}`)).toBeTruthy();
+  });
+
+  it('PRO 유저는 레벨 7 탭을 정상적으로 선택할 수 있다', async () => {
+    useAuthStore.setState({ user: { ...baseUser, current_level: 7, isPro: true }, hasCompletedOnboarding: true, onboardingData: {} });
+    await render(<LessonsScreen />);
+    await fireEvent.press(screen.getByTestId('level-tab-7'));
+    expect(mockNavigate).not.toHaveBeenCalledWith('ProUpgrade');
+    const level7FirstLesson = ALL_LEVELS[6].units[0].lessons[0];
+    expect(screen.getByTestId(`lesson-card-${level7FirstLesson.id}`)).toBeTruthy();
+  });
+
+  it('PRO 유저는 레벨 7 첫 레슨 탭 시 Lesson으로 navigate한다', async () => {
+    useAuthStore.setState({ user: { ...baseUser, current_level: 7, isPro: true }, hasCompletedOnboarding: true, onboardingData: {} });
+    await render(<LessonsScreen />);
+    const level7FirstLesson = ALL_LEVELS[6].units[0].lessons[0];
+    await fireEvent.press(screen.getByTestId(`lesson-card-${level7FirstLesson.id}`));
+    expect(mockNavigate).toHaveBeenCalledWith('Lesson', { lessonId: level7FirstLesson.id });
+  });
+});

@@ -23,7 +23,7 @@ import {
   isPro,
 } from '../../services/revenuecatService';
 
-const BENEFIT_EMOJIS = ['💼', '📝', '🔁', '📊', '🏆'];
+const BENEFIT_EMOJIS = ['🔓', '📝', '🔁', '📊', '🏆'];
 
 type PlanId = 'monthly' | 'yearly' | 'lifetime';
 

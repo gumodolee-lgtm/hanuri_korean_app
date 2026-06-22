@@ -14,7 +14,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { MainTabParamList, RootStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { getFirstLesson, getLessonsForLevel, ALL_LEVELS } from '../../data/lessons';
+import { getFirstLesson, getLessonsForLevel, ALL_LEVELS, FREE_MAX_LEVEL } from '../../data/lessons';
 import { typography, spacing, borderRadius } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useT } from '../../i18n';
@@ -41,6 +41,7 @@ export default function HomeScreen() {
   };
 
   const currentLevel = user?.current_level ?? 1;
+  const isPro = user?.isPro ?? false;
   const dailyGoal = user?.daily_goal_minutes ?? 15;
   const learningGoal = user?.learning_goal ?? 'travel';
   const levelInfo = ALL_LEVELS.find((l) => l.level === currentLevel);
@@ -60,9 +61,12 @@ export default function HomeScreen() {
   const xpProgress = isMaxLevel ? 1 : Math.min((xp % xpForNextLevel) / xpForNextLevel, 1);
 
   const handleStartLesson = () => {
-    if (firstLesson) {
-      navigation.navigate('Lesson', { lessonId: firstLesson.id });
+    if (!firstLesson) return;
+    if (firstLesson.level > FREE_MAX_LEVEL && !isPro) {
+      navigation.navigate('ProUpgrade');
+      return;
     }
+    navigation.navigate('Lesson', { lessonId: firstLesson.id });
   };
 
   const handleAIChat = () => {
@@ -225,7 +229,9 @@ export default function HomeScreen() {
           <View style={styles.card}>
             <Text style={styles.cardLabel}>{goalContextMap[learningGoal] ?? t.home.startNow}</Text>
             <View style={styles.lessonInfo}>
-              <Text style={styles.lessonEmoji}>{firstLesson.emoji}</Text>
+              <Text style={styles.lessonEmoji}>
+                {firstLesson.level > FREE_MAX_LEVEL && !isPro ? '👑' : firstLesson.emoji}
+              </Text>
               <View style={styles.lessonMeta}>
                 <Text style={styles.lessonTitle}>{firstLesson.titleKo}</Text>
                 <Text style={styles.lessonSub}>
@@ -234,7 +240,9 @@ export default function HomeScreen() {
               </View>
             </View>
             <TouchableOpacity style={styles.continueBtn} onPress={handleStartLesson}>
-              <Text style={styles.continueBtnText}>{t.home.startLessonBtn}</Text>
+              <Text style={styles.continueBtnText}>
+                {firstLesson.level > FREE_MAX_LEVEL && !isPro ? '👑 PRO' : t.home.startLessonBtn}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (

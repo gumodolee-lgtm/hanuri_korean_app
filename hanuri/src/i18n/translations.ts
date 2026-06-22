@@ -233,7 +233,7 @@ const en: Translations = {
   proUpgrade: {
     heroSub: 'Take your Korean to the next level',
     benefitsTitle: 'PRO Benefits',
-    benefit1Title: 'Business Korean', benefit1Desc: 'Master professional Korean business expressions',
+    benefit1Title: 'Advanced Levels', benefit1Desc: 'Unlock Level 7-8 Advanced courses',
     benefit2Title: 'TOPIK Prep', benefit2Desc: 'Real TOPIK training with AI',
     benefit3Title: 'Unlimited AI Chat', benefit3Desc: 'Practice without conversation limits',
     benefit4Title: 'Advanced Grammar', benefit4Desc: 'Detailed grammar feedback and correction',
@@ -375,7 +375,7 @@ const ko: Translations = {
   proUpgrade: {
     heroSub: '한국어 실력을 한 단계 끌어올리세요',
     benefitsTitle: 'PRO 혜택',
-    benefit1Title: '비즈니스 회화', benefit1Desc: '전문적인 한국어 비즈니스 표현 마스터',
+    benefit1Title: '고급 레벨', benefit1Desc: '레벨 7-8 고급 과정 잠금 해제',
     benefit2Title: 'TOPIK 시험 준비', benefit2Desc: 'AI와 함께하는 실전 TOPIK 훈련',
     benefit3Title: '무제한 AI 대화', benefit3Desc: '대화 횟수 제한 없이 연습하세요',
     benefit4Title: '심화 문법 분석', benefit4Desc: '자세한 문법 피드백과 교정',
@@ -517,7 +517,7 @@ const es: Translations = {
   proUpgrade: {
     heroSub: 'Lleva tu coreano al siguiente nivel',
     benefitsTitle: 'Beneficios PRO',
-    benefit1Title: 'Coreano de negocios', benefit1Desc: 'Domina expresiones profesionales en coreano',
+    benefit1Title: 'Niveles avanzados', benefit1Desc: 'Desbloquea los cursos avanzados de Nivel 7-8',
     benefit2Title: 'Preparación TOPIK', benefit2Desc: 'Entrenamiento TOPIK real con IA',
     benefit3Title: 'Chat IA ilimitado', benefit3Desc: 'Practica sin límites de conversación',
     benefit4Title: 'Gramática avanzada', benefit4Desc: 'Retroalimentación y corrección detallada',
@@ -662,7 +662,7 @@ const zh: Translations = {
   proUpgrade: {
     heroSub: '将您的韩语提升到新水平',
     benefitsTitle: 'PRO 权益',
-    benefit1Title: '商务韩语', benefit1Desc: '掌握专业韩语商务表达',
+    benefit1Title: '高级课程', benefit1Desc: '解锁7-8级高级课程',
     benefit2Title: 'TOPIK 备考', benefit2Desc: '与AI一起进行真实TOPIK训练',
     benefit3Title: '无限AI对话', benefit3Desc: '无次数限制练习对话',
     benefit4Title: '深化语法分析', benefit4Desc: '详细的语法反馈和纠正',
@@ -807,7 +807,7 @@ const ja: Translations = {
   proUpgrade: {
     heroSub: '韓国語をさらに上のレベルへ',
     benefitsTitle: 'PRO特典',
-    benefit1Title: 'ビジネス韓国語', benefit1Desc: 'プロフェッショナルなビジネス表現をマスター',
+    benefit1Title: '上級レベル', benefit1Desc: 'レベル7-8の上級コースを解放',
     benefit2Title: 'TOPIK試験準備', benefit2Desc: 'AIと一緒に本番TOPIK訓練',
     benefit3Title: '無制限AIチャット', benefit3Desc: '会話回数制限なしで練習',
     benefit4Title: '高度な文法分析', benefit4Desc: '詳細な文法フィードバックと訂正',
@@ -952,7 +952,7 @@ const vi: Translations = {
   proUpgrade: {
     heroSub: 'Nâng tiếng Hàn của bạn lên tầm cao mới',
     benefitsTitle: 'Quyền lợi PRO',
-    benefit1Title: 'Tiếng Hàn kinh doanh', benefit1Desc: 'Thành thạo biểu đạt kinh doanh tiếng Hàn chuyên nghiệp',
+    benefit1Title: 'Cấp độ cao cấp', benefit1Desc: 'Mở khóa các khóa học Cấp 7-8 nâng cao',
     benefit2Title: 'Luyện thi TOPIK', benefit2Desc: 'Luyện TOPIK thực tế cùng AI',
     benefit3Title: 'Chat AI không giới hạn', benefit3Desc: 'Luyện tập không giới hạn cuộc trò chuyện',
     benefit4Title: 'Phân tích ngữ pháp nâng cao', benefit4Desc: 'Phản hồi và sửa lỗi ngữ pháp chi tiết',

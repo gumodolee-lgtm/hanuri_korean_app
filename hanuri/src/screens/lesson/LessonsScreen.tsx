@@ -14,7 +14,7 @@ import { CompositeNavigationProp } from '@react-navigation/native';
 import { RootStackParamList, MainTabParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
-import { ALL_LEVELS, LessonData } from '../../data/lessons';
+import { ALL_LEVELS, FREE_MAX_LEVEL, LessonData } from '../../data/lessons';
 
 const MAX_LEVELS = 12;
 import { typography, spacing, borderRadius } from '../../theme';
@@ -31,12 +31,17 @@ export default function LessonsScreen() {
   const { user } = useAuthStore();
   const { progress } = useUserStore();
   const currentLevel = user?.current_level ?? 1;
+  const isPro = user?.isPro ?? false;
   const t = useT();
   const { colors } = useTheme();
 
-  const [selectedLevel, setSelectedLevel] = useState(currentLevel);
+  const [selectedLevel, setSelectedLevel] = useState(
+    currentLevel > FREE_MAX_LEVEL && !isPro ? FREE_MAX_LEVEL : currentLevel
+  );
 
   const selectedLevelData = ALL_LEVELS.find((l) => l.level === selectedLevel);
+  const isLevelProLocked = (level: number) => level > FREE_MAX_LEVEL && !isPro;
+  const selectedLevelProLocked = isLevelProLocked(selectedLevel);
 
   const completedSet = useMemo(
     () => new Set(progress.filter((p) => p.status === 'completed').map((p) => p.lesson_id)),
@@ -53,6 +58,14 @@ export default function LessonsScreen() {
 
   const handleStartLesson = (lessonId: string) => {
     navigation.navigate('Lesson', { lessonId });
+  };
+
+  const handleSelectLevel = (level: number) => {
+    if (isLevelProLocked(level)) {
+      navigation.navigate('ProUpgrade');
+      return;
+    }
+    setSelectedLevel(level);
   };
 
   const allLessonsFlat = useMemo(
@@ -156,19 +169,21 @@ export default function LessonsScreen() {
         {ALL_LEVELS.map((lvl) => {
           const isActive = lvl.level === selectedLevel;
           const isAvail = lvl.level <= currentLevel;
+          const proLocked = isAvail && isLevelProLocked(lvl.level);
           return (
             <TouchableOpacity
               key={lvl.level}
-              style={[styles.levelTab, isActive && styles.levelTabActive, !isAvail && styles.levelTabLocked]}
-              onPress={() => isAvail && setSelectedLevel(lvl.level)}
+              testID={`level-tab-${lvl.level}`}
+              style={[styles.levelTab, isActive && styles.levelTabActive, (!isAvail || proLocked) && styles.levelTabLocked]}
+              onPress={() => isAvail && handleSelectLevel(lvl.level)}
               disabled={!isAvail}
             >
-              <Text style={styles.levelTabEmoji}>{isAvail ? lvl.emoji : '🔒'}</Text>
+              <Text style={styles.levelTabEmoji}>{!isAvail ? '🔒' : proLocked ? '👑' : lvl.emoji}</Text>
               <Text style={[styles.levelTabText, isActive && styles.levelTabTextActive]}>
                 Lv.{lvl.level}
               </Text>
               <Text style={[styles.levelTabSub, isActive && styles.levelTabSubActive]}>
-                {lvl.titleKo}
+                {proLocked ? 'PRO' : lvl.titleKo}
               </Text>
             </TouchableOpacity>
           );
@@ -193,7 +208,7 @@ export default function LessonsScreen() {
 
             {unit.lessons.map((lesson) => {
               const completed = isLessonCompleted(lesson.id);
-              const unlocked = isLessonUnlocked(lesson, allLessonsFlat);
+              const unlocked = !selectedLevelProLocked && isLessonUnlocked(lesson, allLessonsFlat);
 
               return (
                 <TouchableOpacity
@@ -204,18 +219,26 @@ export default function LessonsScreen() {
                     completed && styles.lessonCardCompleted,
                     !unlocked && styles.lessonCardLocked,
                   ]}
-                  onPress={() => unlocked && handleStartLesson(lesson.id)}
-                  disabled={!unlocked}
-                  activeOpacity={unlocked ? 0.7 : 1}
+                  onPress={() => {
+                    if (selectedLevelProLocked) {
+                      navigation.navigate('ProUpgrade');
+                    } else if (unlocked) {
+                      handleStartLesson(lesson.id);
+                    }
+                  }}
+                  disabled={!unlocked && !selectedLevelProLocked}
+                  activeOpacity={unlocked || selectedLevelProLocked ? 0.7 : 1}
                 >
                   <View style={styles.lessonLeft}>
-                    <Text style={styles.lessonEmoji}>{unlocked ? lesson.emoji : '🔒'}</Text>
+                    <Text style={styles.lessonEmoji}>
+                      {selectedLevelProLocked ? '👑' : unlocked ? lesson.emoji : '🔒'}
+                    </Text>
                     <View style={styles.lessonMeta}>
                       <Text style={[styles.lessonTitle, !unlocked && styles.lockedText]}>
                         {lesson.titleKo}
                       </Text>
                       <Text style={styles.lessonSub}>
-                        {lesson.estimatedMinutes}{t.lessons.minUnit} · +{lesson.xpReward} XP
+                        {selectedLevelProLocked ? 'PRO' : `${lesson.estimatedMinutes}${t.lessons.minUnit} · +${lesson.xpReward} XP`}
                       </Text>
                     </View>
                   </View>
