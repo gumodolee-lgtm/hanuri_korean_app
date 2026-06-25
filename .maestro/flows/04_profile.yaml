@@ -18,8 +18,9 @@ tags:
     id: "tab-profile"
 
 # Verify key profile elements are visible
-- assertVisible: "XP"
-- assertVisible: "streak"
+- assertVisible: "Total XP"
+- assertVisible:
+    text: "Streak"
     optional: true
 
 # Navigate to Leaderboard from profile area

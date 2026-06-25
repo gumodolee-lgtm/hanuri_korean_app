@@ -36,6 +36,11 @@ tags:
 - tapOn:
     id: "btn-next-level"
 
+# OnboardingTime — keep default (15min recommended), tap Next
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next-time"
+
 # OnboardingNotification — skip notifications to reach main app
 - waitForAnimationToEnd
 - tapOn:

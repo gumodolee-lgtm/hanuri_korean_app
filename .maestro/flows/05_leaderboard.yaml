@@ -18,5 +18,6 @@ tags:
     id: "tab-ranking"
 
 # Verify leaderboard content is visible (mock data or real)
-- assertVisible: "XP"
+- assertVisible:
+    text: "XP"
     optional: true

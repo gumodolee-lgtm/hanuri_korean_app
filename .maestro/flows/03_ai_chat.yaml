@@ -19,10 +19,14 @@ tags:
     id: "scenario-cafe"
 
 # AIChatScreen — type a message and send
+# Note: Maestro's inputText doesn't support non-ASCII (Korean) text on Android
+# (https://github.com/mobile-dev-inc/maestro/issues/146) — pasteText works around it.
 - waitForAnimationToEnd
 - tapOn:
     id: "input-chat"
-- inputText: "안녕하세요"
+- setClipboard: "안녕하세요"
+- pasteText
+- hideKeyboard
 - tapOn:
     id: "btn-send"
 
@@ -32,7 +36,9 @@ tags:
 # Send a follow-up message
 - tapOn:
     id: "input-chat"
-- inputText: "커피 한 잔 주세요"
+- setClipboard: "커피 한 잔 주세요"
+- pasteText
+- hideKeyboard
 - tapOn:
     id: "btn-send"
 

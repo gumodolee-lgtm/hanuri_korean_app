@@ -91,7 +91,7 @@ export default function OnboardingTimeScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
+      <TouchableOpacity testID="btn-next-time" style={styles.nextBtn} onPress={handleNext}>
         <Text style={styles.nextBtnText}>{t.onboarding.next}</Text>
       </TouchableOpacity>
     </SafeAreaView>
