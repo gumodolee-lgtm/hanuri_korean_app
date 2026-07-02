@@ -76,6 +76,7 @@ export interface Translations {
     notifPermTitle: string; notifPermMsg: string; confirm: string;
     signOutConfirmTitle: string; signOutConfirmMsg: string; cancel: string;
     editDailyGoal: string; editNativeLang: string; save: string;
+    reminderTime: string; editReminderTime: string;
     min5: string; min15: string; min30: string;
     themeLabel: string; themeLight: string; themeDark: string; themeSystem: string;
     badgeNames: { firstLesson: string; weekStreak: string; vocab100: string; aiChat5: string; perfectQuiz: string; levelUp: string };
@@ -204,6 +205,7 @@ const en: Translations = {
     confirm: 'OK',
     signOutConfirmTitle: 'Sign Out', signOutConfirmMsg: 'Are you sure you want to sign out?', cancel: 'Cancel',
     editDailyGoal: 'Daily Goal', editNativeLang: 'Change Language', save: 'Save',
+    reminderTime: 'Reminder Time', editReminderTime: 'Change Reminder Time',
     min5: '5 min / Casual', min15: '15 min / Recommended', min30: '30 min / Intensive',
     themeLabel: '🌙 Dark Mode', themeLight: 'Light', themeDark: 'Dark', themeSystem: 'System',
     badgeNames: { firstLesson: 'First Lesson', weekStreak: '7-Day Streak', vocab100: 'Vocab Master', aiChat5: 'AI Champ', perfectQuiz: 'Quiz Master', levelUp: 'Level Up' },
@@ -346,6 +348,7 @@ const ko: Translations = {
     confirm: '확인',
     signOutConfirmTitle: '로그아웃', signOutConfirmMsg: '정말 로그아웃하시겠어요?', cancel: '취소',
     editDailyGoal: '학습 목표 시간', editNativeLang: '언어 변경', save: '저장',
+    reminderTime: '알림 시간', editReminderTime: '알림 시간 변경',
     min5: '5분 / 가볍게', min15: '15분 / 추천', min30: '30분 / 집중',
     themeLabel: '🌙 다크 모드', themeLight: '라이트', themeDark: '다크', themeSystem: '시스템',
     badgeNames: { firstLesson: '첫 레슨', weekStreak: '7일 연속', vocab100: '단어 달인', aiChat5: 'AI 대화왕', perfectQuiz: '퀴즈 마스터', levelUp: '레벨업' },
@@ -488,6 +491,7 @@ const es: Translations = {
     confirm: 'OK',
     signOutConfirmTitle: 'Cerrar sesión', signOutConfirmMsg: '¿Seguro que quieres cerrar sesión?', cancel: 'Cancelar',
     editDailyGoal: 'Meta diaria', editNativeLang: 'Cambiar idioma', save: 'Guardar',
+    reminderTime: 'Hora del recordatorio', editReminderTime: 'Cambiar hora del recordatorio',
     min5: '5 min / Casual', min15: '15 min / Recomendado', min30: '30 min / Intensivo',
     themeLabel: '🌙 Modo Oscuro', themeLight: 'Claro', themeDark: 'Oscuro', themeSystem: 'Sistema',
     badgeNames: { firstLesson: 'Primera lección', weekStreak: 'Racha 7 días', vocab100: 'Maestro vocab', aiChat5: 'Campeón IA', perfectQuiz: 'Maestro quiz', levelUp: 'Subir nivel' },
@@ -633,6 +637,7 @@ const zh: Translations = {
     confirm: '确定',
     signOutConfirmTitle: '退出登录', signOutConfirmMsg: '确定要退出登录吗？', cancel: '取消',
     editDailyGoal: '每日目标', editNativeLang: '更改语言', save: '保存',
+    reminderTime: '提醒时间', editReminderTime: '更改提醒时间',
     min5: '5分钟 / 轻松', min15: '15分钟 / 推荐', min30: '30分钟 / 专注',
     themeLabel: '🌙 深色模式', themeLight: '浅色', themeDark: '深色', themeSystem: '跟随系统',
     badgeNames: { firstLesson: '第一课', weekStreak: '7天连续', vocab100: '单词达人', aiChat5: 'AI高手', perfectQuiz: '测验大师', levelUp: '升级' },
@@ -778,6 +783,7 @@ const ja: Translations = {
     confirm: 'OK',
     signOutConfirmTitle: 'サインアウト', signOutConfirmMsg: 'サインアウトしますか？', cancel: 'キャンセル',
     editDailyGoal: '学習目標時間', editNativeLang: '言語を変更', save: '保存',
+    reminderTime: 'リマインダー時刻', editReminderTime: 'リマインダー時刻を変更',
     min5: '5分 / 軽め', min15: '15分 / おすすめ', min30: '30分 / 集中',
     themeLabel: '🌙 ダークモード', themeLight: 'ライト', themeDark: 'ダーク', themeSystem: 'システム',
     badgeNames: { firstLesson: '最初のレッスン', weekStreak: '7日連続', vocab100: '単語の達人', aiChat5: 'AIチャンプ', perfectQuiz: 'クイズマスター', levelUp: 'レベルアップ' },
@@ -923,6 +929,7 @@ const vi: Translations = {
     confirm: 'OK',
     signOutConfirmTitle: 'Đăng xuất', signOutConfirmMsg: 'Bạn có chắc muốn đăng xuất không?', cancel: 'Hủy',
     editDailyGoal: 'Mục tiêu hàng ngày', editNativeLang: 'Đổi ngôn ngữ', save: 'Lưu',
+    reminderTime: 'Giờ nhắc nhở', editReminderTime: 'Đổi giờ nhắc nhở',
     min5: '5 phút / Nhẹ nhàng', min15: '15 phút / Khuyến nghị', min30: '30 phút / Tập trung',
     themeLabel: '🌙 Chế Độ Tối', themeLight: 'Sáng', themeDark: 'Tối', themeSystem: 'Hệ Thống',
     badgeNames: { firstLesson: 'Bài học đầu', weekStreak: '7 ngày liên tục', vocab100: 'Bậc thầy từ vựng', aiChat5: 'Vô địch AI', perfectQuiz: 'Thạc sĩ quiz', levelUp: 'Lên cấp' },

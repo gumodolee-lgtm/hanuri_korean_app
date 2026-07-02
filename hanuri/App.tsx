@@ -7,12 +7,13 @@ import ErrorBoundary from './src/components/ErrorBoundary';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import LoadingScreen from './src/components/LoadingScreen';
 import {
-  requestNotificationPermission,
+  getNotificationPermissionStatus,
   scheduleDailyReminder,
   scheduleStreakWarning,
 } from './src/services/notificationService';
 import { initRevenueCat } from './src/services/revenuecatService';
 import { useAuthStore } from './src/store/authStore';
+import { getT } from './src/i18n';
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -25,6 +26,16 @@ export default function App() {
 
     (async () => {
       try {
+        // persist 하이드레이션 완료 대기 — 이전 세션의 user/reminderHour를 읽기 위해 필수
+        if (!useAuthStore.persist.hasHydrated()) {
+          await new Promise<void>((resolve) => {
+            const unsub = useAuthStore.persist.onFinishHydration(() => {
+              unsub();
+              resolve();
+            });
+          });
+        }
+
         const rcKey = process.env.EXPO_PUBLIC_REVENUECAT_API_KEY;
         const rcIosKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
         if (rcKey) {
@@ -35,10 +46,14 @@ export default function App() {
           useAuthStore.getState().syncProStatus().catch(() => {});
         }
 
-        const granted = await requestNotificationPermission();
-        if (granted) {
-          await scheduleDailyReminder({ hour: 20, minute: 0 });
-          await scheduleStreakWarning();
+        // 권한 요청은 온보딩 알림 화면/프로필 토글에서만 수행 — 여기서는 이미 허용된 경우에만
+        // 사용자가 고른 시각과 현재 언어 문구로 스케줄을 갱신한다 (언어 변경/앱 업데이트 반영)
+        const status = await getNotificationPermissionStatus();
+        if (status === 'granted') {
+          const t = getT();
+          const { reminderHour } = useAuthStore.getState();
+          await scheduleDailyReminder({ hour: reminderHour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+          await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
         }
       } catch (err) {
         console.warn('[App] Notification initialization failed:', err);

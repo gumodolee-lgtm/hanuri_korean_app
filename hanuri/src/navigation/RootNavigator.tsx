@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, AppState } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
@@ -24,9 +24,14 @@ export default function RootNavigator() {
   const { loadConfig } = useConfigStore();
   const { isDark } = useTheme();
 
-  // 앱 시작 시 날짜 경계 처리: todayMinutes/todayLearned 초기화, 연속 학습 만료 시 streak 리셋
+  // 날짜 경계 처리: todayMinutes/todayLearned 초기화, 연속 학습 만료 시 streak 리셋
+  // 앱 시작 시 1회 + 백그라운드에서 포그라운드로 돌아올 때마다 (자정을 넘겨 앱을 켜둔 경우 대응)
   useEffect(() => {
     checkNewDay();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') checkNewDay();
+    });
+    return () => subscription.remove();
   }, [checkNewDay]);
 
   // 앱 시작 시 원격 설정(예: 무료/PRO 레벨 경계) 갱신 — 실패해도 앱 내 기본값으로 동작

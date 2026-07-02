@@ -320,6 +320,9 @@ Rules:
   },
 ];
 
+// 무료 티어 일일 AI 채팅 한도 기본값 — 원격 설정(app_config.free_daily_chat_limit)으로 덮어쓸 수 있음
+export const FREE_DAILY_CHAT_LIMIT = 3;
+
 export function getScenarioById(id: string): ScenarioData | undefined {
   return SCENARIOS.find((s) => s.id === id);
 }

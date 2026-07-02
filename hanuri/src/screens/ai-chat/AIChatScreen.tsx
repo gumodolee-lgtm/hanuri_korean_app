@@ -27,6 +27,7 @@ import { getScenarioById } from '../../data/scenarios';
 import { sendMessage, parseCorrection } from '../../services/aiService';
 import { useAuthStore } from '../../store/authStore';
 import { useUserStore } from '../../store/userStore';
+import { useConfigStore } from '../../store/configStore';
 import { speakKorean } from '../../utils/tts';
 import { typography, spacing, borderRadius } from '../../theme';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -154,6 +155,7 @@ export default function AIChatScreen() {
   const route = useRoute<RouteType>();
   const { addXP, markTodayLearned, incrementAIChatCount, todayAiChatCount } = useUserStore();
   const { user } = useAuthStore();
+  const { freeDailyChatLimit } = useConfigStore();
   const t = useT();
   const { colors } = useTheme();
 
@@ -186,7 +188,7 @@ export default function AIChatScreen() {
     const text = input.trim();
     if (!text || isLoading || !scenario) return;
     const isPro = user?.isPro ?? false;
-    if (!isPro && todayAiChatCount >= 3) {
+    if (!isPro && todayAiChatCount >= freeDailyChatLimit) {
       navigation.navigate('ProUpgrade');
       return;
     }
@@ -235,7 +237,7 @@ export default function AIChatScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, todayAiChatCount, markTodayLearned, incrementAIChatCount]);
+  }, [input, isLoading, messages, scenario, scenarioId, addXP, user?.id, user?.isPro, todayAiChatCount, freeDailyChatLimit, markTodayLearned, incrementAIChatCount]);
 
   const handleVoiceInput = useCallback(async () => {
     if (isVoiceRecording) {

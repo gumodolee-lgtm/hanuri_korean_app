@@ -51,14 +51,16 @@ type NavProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NavProp>();
-  const { user, signOut, updateProfile, themeMode, setThemeMode } = useAuthStore();
+  const { user, signOut, updateProfile, themeMode, setThemeMode, reminderHour, setReminderHour } = useAuthStore();
   const { colors } = useTheme();
   const { xp, streak, progress, aiChatCount } = useUserStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [showLangModal, setShowLangModal] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
   const [pendingGoal, setPendingGoal] = useState<5 | 15 | 30>(user?.daily_goal_minutes ?? 15);
   const [pendingLang, setPendingLang] = useState<NativeLanguage>(user?.native_lang ?? 'en');
+  const [pendingHour, setPendingHour] = useState<number>(reminderHour);
   const isPro = user?.isPro ?? false;
   const t = useT();
 
@@ -188,7 +190,7 @@ export default function ProfileScreen() {
     if (value) {
       const granted = await requestNotificationPermission();
       if (granted) {
-        await scheduleDailyReminder({ hour: 20, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+        await scheduleDailyReminder({ hour: reminderHour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
         await scheduleStreakWarning({ title: t.notifContent.streakTitle, body: t.notifContent.streakBody });
         setNotificationsEnabled(true);
       } else {
@@ -211,6 +213,26 @@ export default function ProfileScreen() {
   const xpForNext = Math.max(currentLevel * 100, 1); // guard against level 0 → NaN
   const xpProgress = isMaxLevel ? 1 : Math.min((xp % xpForNext) / xpForNext, 1);
   const completedLessons = progress.filter((p) => p.status === 'completed').length;
+
+  // 온보딩과 동일한 3개 시간대 옵션 (라벨 재사용)
+  const timeSlotOptions = [
+    { value: 8, label: t.onboarding.notifMorning },
+    { value: 19, label: t.onboarding.notifEvening },
+    { value: 22, label: t.onboarding.notifNight },
+  ];
+
+  const handleSaveReminderTime = async () => {
+    setReminderHour(pendingHour);
+    setShowTimeModal(false);
+    // 알림이 켜져 있으면 새 시각으로 즉시 재스케줄
+    if (notificationsEnabled) {
+      try {
+        await scheduleDailyReminder({ hour: pendingHour, minute: 0, title: t.notifContent.dailyTitle, body: t.notifContent.dailyBody });
+      } catch (err) {
+        console.warn('[ProfileScreen] Reminder reschedule failed:', err);
+      }
+    }
+  };
 
   const handleSignOut = () => {
     Alert.alert(
@@ -335,6 +357,18 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
           <TouchableOpacity
             style={styles.settingRow}
+            onPress={() => { setPendingHour(reminderHour); setShowTimeModal(true); }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.settingLabel}>{t.profile.reminderTime}</Text>
+            <View style={styles.settingEditRow}>
+              <Text style={styles.settingValue}>{`${String(reminderHour).padStart(2, '0')}:00`}</Text>
+              <Text style={styles.editChevron}>›</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.divider} />
+          <TouchableOpacity
+            style={styles.settingRow}
             onPress={() => { setPendingGoal(user?.daily_goal_minutes ?? 15); setShowGoalModal(true); }}
             activeOpacity={0.7}
           >
@@ -409,6 +443,35 @@ export default function ProfileScreen() {
                 style={styles.modalSaveBtn}
                 onPress={() => { updateProfile({ daily_goal_minutes: pendingGoal }); setShowGoalModal(false); }}
               >
+                <Text style={styles.modalSaveText}>{t.profile.save}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ── Reminder Time Picker Modal ── */}
+      <Modal visible={showTimeModal} transparent animationType="fade" onRequestClose={() => setShowTimeModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>{t.profile.editReminderTime}</Text>
+            {timeSlotOptions.map((slot) => (
+              <TouchableOpacity
+                key={slot.value}
+                style={[styles.modalOption, pendingHour === slot.value && styles.modalOptionSelected]}
+                onPress={() => setPendingHour(slot.value)}
+              >
+                <Text style={[styles.modalOptionText, pendingHour === slot.value && styles.modalOptionTextSelected]}>
+                  {slot.label}
+                </Text>
+                {pendingHour === slot.value && <Text style={styles.modalCheck}>✓</Text>}
+              </TouchableOpacity>
+            ))}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowTimeModal(false)}>
+                <Text style={styles.modalCancelText}>{t.profile.cancel}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleSaveReminderTime}>
                 <Text style={styles.modalSaveText}>{t.profile.save}</Text>
               </TouchableOpacity>
             </View>

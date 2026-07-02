@@ -21,6 +21,7 @@ interface AuthState {
   hasCompletedOnboarding: boolean;
   onboardingData: Partial<OnboardingData>;
   themeMode: ThemeMode;
+  reminderHour: number; // 일일 학습 알림 시각 (0-23) — 온보딩/프로필에서 설정, 기기 설정이라 signOut에도 유지
   setUser: (user: User | null) => void;
   setOnboardingData: (data: Partial<OnboardingData>) => void;
   completeOnboarding: () => void;
@@ -30,6 +31,7 @@ interface AuthState {
   syncProStatus: () => Promise<void>;
   levelUp: () => void;
   setThemeMode: (mode: ThemeMode) => void;
+  setReminderHour: (hour: number) => void;
   signOut: () => void;
 }
 
@@ -40,10 +42,13 @@ export const useAuthStore = create<AuthState>()(
       hasCompletedOnboarding: false,
       onboardingData: {},
       themeMode: 'system' as ThemeMode,
+      reminderHour: 20,
 
       setUser: (user) => set({ user }),
 
       setThemeMode: (mode) => set({ themeMode: mode }),
+
+      setReminderHour: (hour) => set({ reminderHour: hour }),
 
       setOnboardingData: (data) =>
         set((state) => ({
@@ -120,16 +125,16 @@ export const useAuthStore = create<AuthState>()(
         })),
 
       // Syncs Pro status from RevenueCat — call on app start and after login
+      // entitlement 비활성(구독 만료/환불) 시 isPro를 false로 내려 영구 Pro 잔류를 방지
       syncProStatus: async () => {
         const { user } = get();
         if (!user || user.id.startsWith('guest_')) return;
         try {
           const customerInfo = await getCustomerInfo();
-          if (checkIsPro(customerInfo)) {
-            set((state) => ({
-              user: state.user ? { ...state.user, isPro: true } : state.user,
-            }));
-          }
+          const active = checkIsPro(customerInfo);
+          set((state) => ({
+            user: state.user ? { ...state.user, isPro: active } : state.user,
+          }));
         } catch {
           // Non-fatal: preserve existing isPro state
         }
@@ -164,6 +169,7 @@ export const useAuthStore = create<AuthState>()(
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         onboardingData: state.onboardingData,
         themeMode: state.themeMode,
+        reminderHour: state.reminderHour,
       }),
     }
   )

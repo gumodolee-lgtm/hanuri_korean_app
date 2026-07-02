@@ -18,7 +18,7 @@ const TIME_TO_HOUR: Record<string, number> = {
 };
 
 export default function OnboardingNotificationScreen() {
-  const { completeOnboarding } = useAuthStore();
+  const { completeOnboarding, setReminderHour } = useAuthStore();
   const t = useT();
   const { colors } = useTheme();
   const [selected, setSelected] = React.useState('08:00');
@@ -64,6 +64,7 @@ export default function OnboardingNotificationScreen() {
     if (isCompleting) return;
     setIsCompleting(true);
     const hour = TIME_TO_HOUR[selected] ?? 20;
+    setReminderHour(hour); // 앱 재시작 시 App.tsx가 이 시각으로 재스케줄
     try {
       if (Platform.OS !== 'web') {
         const granted = await requestNotificationPermission();
